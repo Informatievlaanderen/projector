@@ -36,6 +36,9 @@ Generic projection runner infrastructure.
 ```
     Autofac.ContainerBuilder builder;
 
+    // Register Projector module
+    builder.RegisterModule<ProjectorModule>();
+
     // Register migration helpers for a ProjectionContext
     builder
         .RegisterProjectionMigrationHelper<ProjectionContextMigrationHelper>(
