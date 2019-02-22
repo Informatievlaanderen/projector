@@ -1,7 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 {
     using System;
-    using ConnectedProjections;
     using ConnectedProjections.States;
 
     internal interface IConnectedProjection : IConnectedProjectionStatus
