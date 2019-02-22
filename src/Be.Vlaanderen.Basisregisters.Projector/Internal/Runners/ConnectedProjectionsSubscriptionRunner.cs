@@ -21,20 +21,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
         private readonly IReadonlyStreamStore _streamStore;
         private readonly ILogger<ConnectedProjectionsSubscriptionRunner> _logger;
-        private readonly Action<ConnectedProjectionName> _restartSubscriptionsWithout;
         private readonly Mutex _subscriptionLock;
+        private readonly IConnectedProjectionEventBus _eventBus;
         private IAllStreamSubscription _allStreamSubscription;
 
         public ConnectedProjectionsSubscriptionRunner(
             IReadonlyStreamStore streamStore,
-            Action<ConnectedProjectionName> restartSubscriptionsWithout,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            IConnectedProjectionEventBus eventBus)
         {
             _subscriptionLock = new Mutex();
             _handlers = new Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>>();
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
-            _restartSubscriptionsWithout = restartSubscriptionsWithout;
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
         public SubscriptionStreamState SubscriptionsStreamStatus =>
@@ -202,7 +202,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     messageHandlingException.RunnerName,
                     messageHandlingException.RunnerPosition);
 
-                _restartSubscriptionsWithout(messageHandlingException.RunnerName);
+                _eventBus.Send(new SubscribedProjectionHasThrownAnError(messageHandlingException.RunnerName));
             }
             else
             {

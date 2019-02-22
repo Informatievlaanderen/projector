@@ -29,23 +29,34 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         internal ConnectedProjectionsManager(
             IEnumerable<IRunnerDbContextMigrationHelper> projectionMigrationHelpers,
             IEnumerable<IConnectedProjectionRegistration> projectionRegistrations,
-            IReadonlyStreamStore streamStore,
             ILoggerFactory loggerFactory,
             EnvelopeFactory envelopeFactory,
-            ConnectedProjectionsCatchUpRunner catchUpRunner)
+            IConnectedProjectionEventHandler connectedProjectionEventHandler,
+            ConnectedProjectionsCatchUpRunner catchUpRunner,
+            ConnectedProjectionsSubscriptionRunner subscriptionRunner)
         {
             _envelopeFactory = envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory));
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _catchUpRunner = catchUpRunner ?? throw new ArgumentNullException(nameof(catchUpRunner));
+            _subscriptionRunner = subscriptionRunner ?? throw new ArgumentNullException(nameof(subscriptionRunner));
 
             _connectedProjections = projectionRegistrations?
                                        .Select(registered => registered?.CreateConnectedProjection())
                                        .RemoveNullReferences()
                                    ?? throw new ArgumentNullException(nameof(projectionRegistrations));
 
-            _catchUpRunner = new ConnectedProjectionsCatchUpRunner(streamStore, _loggerFactory);
-            // ToDo: send message to restart subscriptions, instead of passing the TryRestart directly
-            _subscriptionRunner = new ConnectedProjectionsSubscriptionRunner(streamStore, TryRestartSubscriptionsAfterErrorInProjection, _loggerFactory);
+            if(null == connectedProjectionEventHandler)
+                throw new ArgumentNullException(nameof(connectedProjectionEventHandler));
 
+            connectedProjectionEventHandler
+                .RegisterHandleFor<SubscribedProjectionHasThrownAnError>(message => TryRestartSubscriptionsAfterErrorInProjection(message.ProjectionInError));
+            connectedProjectionEventHandler
+                .RegisterHandleFor<CatchUpStarted>(message => UpdateProjectionState(message.Projection, ProjectionState.CatchingUp));
+            connectedProjectionEventHandler
+                .RegisterHandleFor<CatchUpStopped>(message => UpdateProjectionState(message.Projection ,ProjectionState.Stopped));
+            connectedProjectionEventHandler
+                .RegisterHandleFor<CatchUpFinished>(message => UpdateProjectionState(message.Projection, ProjectionState.Stopped));
+            
             RunMigrations(projectionMigrationHelpers ?? throw new ArgumentNullException(nameof(projectionMigrationHelpers)));
         }
 
@@ -103,11 +114,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
                 .Select(name => name.ToString())
                 .ToList();
 
-            foreach (var projection in _connectedProjections)
-            {
-                if (ProjectionState.Subscribed == projection?.State)
-                    projection.Update(ProjectionState.Stopped);
-            }
+            foreach (var projection in _connectedProjections.Where(p => ProjectionState.Subscribed == p?.State))
+                projection.Update(ProjectionState.Stopped);
 
             foreach (var projectionName in healthyStoppedSubscriptions)
                 TryStartProjection(projectionName);
@@ -121,8 +129,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
                 return;
 
             var handlersProperty = projection.ConnectedProjectionType.GetProperty("Handlers", BindingFlags.Public | BindingFlags.Instance);
-            var connectedProjectionInstance = ((dynamic)projection).CreateInstance();
-            var handlers = handlersProperty?.GetValue(connectedProjectionInstance);
+            var projectionInstance = ((dynamic)projection).Projection;
+            var handlers = handlersProperty?.GetValue(projectionInstance);
 
             var messageHandlerType = typeof(ConnectedProjectionMessageHandler<>).MakeGenericType(projection.ContextType);
             var messageHandler = Activator.CreateInstance(
@@ -144,14 +152,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             TaskRunner.Dispatch(async () =>
             {
                 if (false == await _subscriptionRunner.TrySubscribe(connectedProjection, messageHandler, cancellationToken))
-                {
-                    _catchUpRunner.Start(
-                        connectedProjection,
-                        messageHandler,
-                        // ToDo: Send message to Try-Subscribe projection instead recursive TrySubscribe
-                        (Action)(() => DispatchStartProjection(connectedProjection, messageHandler, cancellationToken)));
-                }
+                    _catchUpRunner.Start(connectedProjection, messageHandler);
             });
+        }
+
+        private void UpdateProjectionState(ConnectedProjectionName name, ProjectionState state)
+        {
+            GetProjection(name.ToString())?.Update(state);
         }
 
         private IConnectedProjection GetProjection(string name) => _connectedProjections.SingleOrDefault(p => p.Name.Equals(name));

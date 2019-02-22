@@ -13,15 +13,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     {
         private readonly Dictionary<ConnectedProjectionName, CancellationTokenSource> _projectionCatchUps;
         private readonly IReadonlyStreamStore _streamStore;
+        private readonly IConnectedProjectionEventBus _eventBus;
         private readonly ILogger<ConnectedProjectionsCatchUpRunner> _logger;
 
         public ConnectedProjectionsCatchUpRunner(
             IReadonlyStreamStore streamStore,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            IConnectedProjectionEventBus eventBus,
+            IConnectedProjectionEventHandler connectedProjectionEventHandler)
         {
             _projectionCatchUps = new Dictionary<ConnectedProjectionName, CancellationTokenSource>();
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
+            _eventBus = eventBus ?? throw  new ArgumentNullException(nameof(eventBus));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCatchUpRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+
+
+            if(null == connectedProjectionEventHandler)
+                throw new ArgumentNullException(nameof(connectedProjectionEventHandler));
+
+            connectedProjectionEventHandler
+                .RegisterHandleFor<CatchUpStopped>(message => _projectionCatchUps.Remove(message.Projection));
+            connectedProjectionEventHandler
+                .RegisterHandleFor<CatchUpFinished>(message => _projectionCatchUps.Remove(message.Projection));
         }
 
         public bool IsCatchingUp(IConnectedProjection connectedProjection)
@@ -31,21 +44,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public void Start(
             IConnectedProjection connectedProjection,
-            dynamic messageHandler,
-            Action catchUpComplete)
+            dynamic messageHandler)
         {
             if(null == connectedProjection || null == messageHandler || IsCatchingUp(connectedProjection))
                 return;
-
-            void CatchUpStarted() => connectedProjection.Update(ProjectionState.CatchingUp);
-            void CatchUpStopped(CatchUpStopReason reason)
-            {
-                _projectionCatchUps.Remove(connectedProjection.Name);
-                connectedProjection.Update(ProjectionState.Stopped);
-
-                if (CatchUpStopReason.Finished == reason)
-                    catchUpComplete();
-            }
 
             var contextType = connectedProjection.ContextType;
             var connectedCatchUpType = typeof(ConnectedProjectionCatchUp<>).MakeGenericType(contextType);
@@ -54,7 +56,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 connectedCatchUpType,
                 connectedProjection.Name,
                 _logger,
-                messageHandler);
+                messageHandler,
+                _eventBus);
 
             var methodInfo = projectionCatchUp.GetType().GetMethod(ConnectedProjectCatchUpAbstract.CatchUpAsyncName);
 
@@ -68,8 +71,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     {
                         _streamStore,
                         ((dynamic) connectedProjection).ContextFactory,
-                        (Action) CatchUpStarted,
-                        (Action<CatchUpStopReason>) CatchUpStopped,
                         _projectionCatchUps[connectedProjection.Name].Token,
                     });
             }

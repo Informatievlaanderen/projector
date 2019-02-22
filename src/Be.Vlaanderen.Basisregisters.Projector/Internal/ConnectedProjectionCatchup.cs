@@ -15,6 +15,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     internal class ConnectedProjectionCatchUp<TContext> where TContext : RunnerDbContext<TContext>
     {
         private readonly ConnectedProjectionMessageHandler<TContext> _messageHandler;
+        private readonly IConnectedProjectionEventBus _eventBus;
         private readonly ConnectedProjectionName _runnerName;
         private readonly ILogger _logger;
 
@@ -23,33 +24,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public ConnectedProjectionCatchUp(
             ConnectedProjectionName name,
             ILogger logger,
-            ConnectedProjectionMessageHandler<TContext> messageHandler)
+            ConnectedProjectionMessageHandler<TContext> messageHandler,
+            IConnectedProjectionEventBus eventBus)
         {
-            _runnerName = name;
-            _logger = logger;
-            _messageHandler = messageHandler;
+            _runnerName = name ?? throw new ArgumentNullException(nameof(name));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _messageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
+            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
         // Used with reflection, be careful when refactoring/changing
         public async Task CatchUpAsync(
             IReadonlyStreamStore streamStore,
             Func<Owned<TContext>> contextFactory,
-            Action startCatchUp,
-            Action<CatchUpStopReason> onStopCatchUp,
             CancellationToken cancellationToken)
         {
-            void StopCatchUp(CatchUpStopReason reason)
-            {
-                _logger.LogInformation(
-                    "Stopping {RunnerName} CatchUp: {Reason}",
-                    _runnerName,
-                    reason);
-
-                onStopCatchUp(reason);
-            }
-
-            cancellationToken.Register(() => { StopCatchUp(CatchUpStopReason.Aborted); });
-            startCatchUp();
+            cancellationToken.Register(() => { CatchUpStopped(CatchUpStopReason.Aborted); });
+            _eventBus.Send(new CatchUpStarted(_runnerName));
             try
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -92,12 +83,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         page = await page.ReadNext(cancellationToken);
                 }
 
-                StopCatchUp(CatchUpStopReason.Finished);
+                CatchUpStopped(CatchUpStopReason.Finished);
             }
             catch (TaskCanceledException){ }
             catch (ConnectedProjectionMessageHandlingException exception)
             {
-                StopCatchUp(CatchUpStopReason.Error);
+                CatchUpStopped(CatchUpStopReason.Error);
                 _logger.LogError(
                     exception.InnerException,
                     "{RunnerName} catching up failed because an exception was thrown when handling the message at {Position}.",
@@ -106,12 +97,24 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             }
             catch (Exception exception)
             {
-                StopCatchUp(CatchUpStopReason.Error);
+                CatchUpStopped(CatchUpStopReason.Error);
                 _logger.LogError(
                     exception,
                     "{RunnerName} catching up failed because an exception was thrown",
                     _runnerName);
             }
+        }
+
+        private void CatchUpStopped(CatchUpStopReason reason)
+        {
+            _logger.LogInformation(
+                "Stopping {RunnerName} CatchUp: {Reason}",
+                _runnerName,
+                reason);
+
+            _eventBus.Send(new CatchUpStopped(_runnerName));
+            if (CatchUpStopReason.Finished == reason)
+                _eventBus.Send(new CatchUpFinished(_runnerName));
         }
 
         private async Task<ReadAllPage> ReadPages(
@@ -129,11 +132,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal abstract class ConnectedProjectCatchUpAbstract : ConnectedProjectionCatchUp<ConnectedProjectCatchUpAbstract.AbstractContext>
     {
-        private ConnectedProjectCatchUpAbstract(
-            ConnectedProjectionName name,
-            ILogger logger,
-            ConnectedProjectionMessageHandler<AbstractContext> messageHandler)
-            : base(name, logger, messageHandler)
+        private ConnectedProjectCatchUpAbstract()
+            : base(null, null, null, null)
         { }
 
         public static string CatchUpAsyncName = nameof(CatchUpAsync);
