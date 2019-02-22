@@ -10,6 +10,8 @@ nuget NETStandard.Library 2.0.3
 
 nuget Autofac 4.8.1
 
+nuget Microsoft.EntityFrameworkCore.Design 2.2.0
+
 // BASE REGISTRIES STUFF
 nuget Be.Vlaanderen.Basisregisters.Build.Pipeline ~> 1.5
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 1.3
