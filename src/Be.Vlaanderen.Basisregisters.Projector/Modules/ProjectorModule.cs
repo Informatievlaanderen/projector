@@ -1,28 +1,30 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Modules
 {
+    using System;
+    using System.Reflection;
     using Autofac;
     using ConnectedProjections;
+    using Module = Autofac.Module;
 
     public class ProjectorModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
-            // ToDo: see if this works with the internal constructor
             builder
                 .RegisterType<ConnectedProjectionsManager>()
+                .FindConstructorsWith(AllowNonPublicConstructor)
                 .AsSelf()
                 .SingleInstance();
 
-            //            builder
-//                .Register(container => new ConnectedProjectionsManager(
-//                    container.Resolve<IEnumerable<IRunnerDbContextMigrationHelper>>(),
-//                    container.Resolve<IEnumerable<IConnectedProjectionRegistration>>(),
-//                    container.Resolve<IReadonlyStreamStore>(),
-//                    container.Resolve<ILoggerFactory>(),
-//                    container.Resolve<EnvelopeFactory>()
-//                    ))
-//                .AsSelf()
-//                .SingleInstance();
+        }
+
+        private static ConstructorInfo[] AllowNonPublicConstructor(Type type)
+        {
+            return type.GetConstructors(
+                BindingFlags.Instance |
+                BindingFlags.Public |
+                BindingFlags.NonPublic
+            );
         }
     }
 }
