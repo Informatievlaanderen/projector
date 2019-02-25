@@ -33,8 +33,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
             connectedProjectionEventHandler
                 .RegisterHandleFor<CatchUpStopped>(message => _projectionCatchUps.Remove(message.Projection));
-            connectedProjectionEventHandler
-                .RegisterHandleFor<CatchUpFinished>(message => _projectionCatchUps.Remove(message.Projection));
         }
 
         public bool IsCatchingUp(ConnectedProjectionName connectedProjection)

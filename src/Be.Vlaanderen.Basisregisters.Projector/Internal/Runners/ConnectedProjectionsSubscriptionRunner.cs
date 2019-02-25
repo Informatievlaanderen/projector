@@ -5,7 +5,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
     using ConnectedProjections.States;
     using Exceptions;
@@ -18,10 +17,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
     internal class ConnectedProjectionsSubscriptionRunner
     {
+        private static readonly SemaphoreSlim SubscriptionLock = new SemaphoreSlim(1, 1);
+
         private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
         private readonly IReadonlyStreamStore _streamStore;
         private readonly ILogger<ConnectedProjectionsSubscriptionRunner> _logger;
-        private readonly Mutex _subscriptionLock;
         private readonly IConnectedProjectionEventBus _eventBus;
         private IAllStreamSubscription _allStreamSubscription;
 
@@ -30,7 +30,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             ILoggerFactory loggerFactory,
             IConnectedProjectionEventBus eventBus)
         {
-            _subscriptionLock = new Mutex();
             _handlers = new Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>>();
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -49,45 +48,57 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             return null != connectedProjection && _handlers.ContainsKey(connectedProjection);
         }
 
-        public async Task<bool> TrySubscribe<TContext>(
+        public async Task TrySubscribe<TContext>(
             IConnectedProjection<TContext> projection,
             CancellationToken cancellationToken)
             where TContext : RunnerDbContext<TContext>
         {
             try
             {
-                _subscriptionLock.WaitOne();
+                await SubscriptionLock.WaitAsync(cancellationToken);
 
                 if (null == projection || HasSubscription(projection.Name) || cancellationToken.IsCancellationRequested)
-                    return false;
+                    return;
 
-                var currentPosition = Stop() ?? await _streamStore.ReadHeadPosition(cancellationToken) - BacktrackNumberOfPositions;
+                var currentPosition = Stop() ?? await _streamStore.ReadHeadPosition(cancellationToken) -
+                                      BacktrackNumberOfPositions;
                 long? projectionPosition;
                 using (var context = projection.ContextFactory())
                 {
                     projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, cancellationToken);
                 }
 
+                _logger.LogWarning(
+                    "Trying to subscribe {Projection} at {ProjectionPosition} on stream at {StreamPosition}",
+                    projection.Name,
+                    projectionPosition,
+                    currentPosition);
 
-                var streamIsEmpty = currentPosition < Position.Start;
-                var projectionIsUpToDate = projectionPosition.HasValue && projectionPosition >= currentPosition;
 
-                var canSubscribe = (streamIsEmpty || projectionIsUpToDate) &&
-                                   false == cancellationToken.IsCancellationRequested;
-                if (canSubscribe)
+                if (false == cancellationToken.IsCancellationRequested)
                 {
-                    _logger.LogInformation("Add {ProjectionName} to subscriptions", projection.Name);
-                    _handlers.Add(
-                        projection.Name,
-                        async (message, token) => { await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token); });
+                    var streamIsEmpty = currentPosition < Position.Start;
+                    var projectionIsUpToDate = projectionPosition.HasValue && projectionPosition >= currentPosition;
+
+                    if (streamIsEmpty || projectionIsUpToDate)
+                    {
+                        _logger.LogInformation("Add {ProjectionName} to subscriptions", projection.Name);
+                        _handlers.Add(
+                            projection.Name,
+                            async (message, token) =>
+                            {
+                                await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token);
+                            });
+                    }
+                    else
+                        _eventBus.Send(new CatchUpRequested(projection.Name));
                 }
 
                 Start(currentPosition);
-                return canSubscribe;
             }
             finally
             {
-                _subscriptionLock.ReleaseMutex();
+                SubscriptionLock.Release();
             }
         }
 
@@ -180,7 +191,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     messageHandlingException.RunnerName,
                     messageHandlingException.RunnerPosition);
 
-                _eventBus.Send(new SubscribedProjectionHasThrownAnError(messageHandlingException.RunnerName));
+                _eventBus.Send(new SubscriptionsHasThrownAnError(messageHandlingException.RunnerName));
             }
             else
             {
