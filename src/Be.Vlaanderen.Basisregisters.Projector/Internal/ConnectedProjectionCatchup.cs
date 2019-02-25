@@ -18,26 +18,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private readonly IConnectedProjectionEventBus _eventBus;
         private readonly ConnectedProjectionName _runnerName;
         private readonly ILogger _logger;
+        private readonly IReadonlyStreamStore _streamStore;
+        private readonly Func<Owned<TContext>> _contextFactory;
 
         public int CatchupPageSize { get; set; } = 1000;
 
         public ConnectedProjectionCatchUp(
             ConnectedProjectionName name,
-            ILogger logger,
-            ConnectedProjectionMessageHandler<TContext> messageHandler,
-            IConnectedProjectionEventBus eventBus)
-        {
-            _runnerName = name ?? throw new ArgumentNullException(nameof(name));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _messageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
-        }
-
-        // Used with reflection, be careful when refactoring/changing
-        public async Task CatchUpAsync(
             IReadonlyStreamStore streamStore,
             Func<Owned<TContext>> contextFactory,
-            CancellationToken cancellationToken)
+            ConnectedProjectionMessageHandler<TContext> messageHandler,
+            IConnectedProjectionEventBus eventBus,
+            ILogger logger)
+        {
+            _runnerName = name ?? throw new ArgumentNullException(nameof(name));
+            _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
+            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+            _messageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
+            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public async Task CatchUpAsync(CancellationToken cancellationToken)
         {
             cancellationToken.Register(() => { CatchUpStopped(CatchUpStopReason.Aborted); });
             _eventBus.Send(new CatchUpStarted(_runnerName));
@@ -51,7 +53,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     CatchupPageSize);
 
                 long? position;
-                using (var context = contextFactory())
+                using (var context = _contextFactory())
                     position = await context.Value.GetRunnerPositionAsync(_runnerName, cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
@@ -62,7 +64,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     _runnerName,
                     position);
 
-                var page = await ReadPages(streamStore, position, cancellationToken);
+                var page = await ReadPages(_streamStore, position, cancellationToken);
 
                 var continueProcessing = false == cancellationToken.IsCancellationRequested;
                 while (continueProcessing)
@@ -72,7 +74,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         page.Messages.Length,
                         page.FromPosition);
 
-                    await _messageHandler.HandleAsync(page.Messages, contextFactory, cancellationToken);
+                    await _messageHandler.HandleAsync(page.Messages, cancellationToken);
 
                     if (cancellationToken.IsCancellationRequested)
                         return;
@@ -127,20 +129,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 CatchupPageSize,
                 prefetchJsonData: true,
                 cancellationToken);
-        }
-    }
-
-    internal abstract class ConnectedProjectCatchUpAbstract : ConnectedProjectionCatchUp<ConnectedProjectCatchUpAbstract.AbstractContext>
-    {
-        private ConnectedProjectCatchUpAbstract()
-            : base(null, null, null, null)
-        { }
-
-        public static string CatchUpAsyncName = nameof(CatchUpAsync);
-        
-        public abstract class AbstractContext : RunnerDbContext<AbstractContext>
-        {
-            public override string ProjectionStateSchema => throw new NotSupportedException();
         }
     }
 }

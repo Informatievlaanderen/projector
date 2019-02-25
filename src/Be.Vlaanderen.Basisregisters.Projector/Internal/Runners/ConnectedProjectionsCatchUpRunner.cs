@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using ConnectedProjections;
     using Extensions;
     using Microsoft.Extensions.Logging;
+    using ProjectionHandling.Runner;
     using SqlStreamStore;
 
     internal class ConnectedProjectionsCatchUpRunner
@@ -41,40 +42,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             return null != connectedProjection && _projectionCatchUps.ContainsKey(connectedProjection);
         }
 
-        public void Start(
-            IConnectedProjection connectedProjection,
-            dynamic messageHandler)
+        public void Start<TContext>(IConnectedProjection<TContext> projection)
+            where TContext : RunnerDbContext<TContext>
         {
-            if(null == connectedProjection || null == messageHandler || IsCatchingUp(connectedProjection.Name))
+            if(null == projection || IsCatchingUp(projection.Name))
                 return;
 
-            var contextType = connectedProjection.ContextType;
-            var connectedCatchUpType = typeof(ConnectedProjectionCatchUp<>).MakeGenericType(contextType);
+            _projectionCatchUps.Add(projection.Name, new CancellationTokenSource());
 
-            var projectionCatchUp = Activator.CreateInstance(
-                connectedCatchUpType,
-                connectedProjection.Name,
-                _logger,
-                messageHandler,
-                _eventBus);
+            var projectionCatchUp = new ConnectedProjectionCatchUp<TContext>(
+                projection.Name,
+                _streamStore,
+                projection.ContextFactory,
+                projection.ConnectedProjectionMessageHandler,
+                _eventBus,
+                _logger);
 
-            var methodInfo = projectionCatchUp.GetType().GetMethod(ConnectedProjectCatchUpAbstract.CatchUpAsyncName);
-
-            _projectionCatchUps.Add(connectedProjection.Name, new CancellationTokenSource());
-
-            void RunCatchUp()
-            {
-                methodInfo.Invoke(
-                    projectionCatchUp,
-                    new object[]
-                    {
-                        _streamStore,
-                        ((dynamic) connectedProjection).ContextFactory,
-                        _projectionCatchUps[connectedProjection.Name].Token,
-                    });
-            }
-
-            TaskRunner.Dispatch(RunCatchUp);
+            TaskRunner.Dispatch(async () => { await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Name].Token); });
         }
 
         public void Stop(ConnectedProjectionName connectedProjection)

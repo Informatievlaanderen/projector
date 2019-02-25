@@ -17,6 +17,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     internal class ConnectedProjectionMessageHandler<TContext> where TContext : RunnerDbContext<TContext>
     {
         private readonly ConnectedProjectionName _runnerName;
+        private readonly Func<Owned<TContext>> _contextFactory;
         private readonly ConnectedProjector<TContext> _projector;
         private readonly EnvelopeFactory _envelopeFactory;
         private readonly ILogger _logger;
@@ -24,10 +25,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public ConnectedProjectionMessageHandler(
             ConnectedProjectionName runnerName,
             ConnectedProjectionHandler<TContext>[] handlers,
+            Func<Owned<TContext>> contextFactory,
             EnvelopeFactory envelopeFactory,
             ILoggerFactory loggerFactory)
         {
             _runnerName = runnerName;
+            _contextFactory = contextFactory ?? throw  new ArgumentNullException(nameof(contextFactory));
             _projector = new ConnectedProjector<TContext>(Resolve.WhenEqualToHandlerMessageType(handlers));
             _envelopeFactory = envelopeFactory ?? throw  new ArgumentNullException(nameof(envelopeFactory));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -35,11 +38,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public async Task HandleAsync(
             IEnumerable<StreamMessage> messages,
-            Func<Owned<TContext>> contextFactory,
             CancellationToken cancellationToken)
         {
             long? lastProcessedMessagePosition = null;
-            using (var context = contextFactory())
+            using (var context = _contextFactory())
             {
                 try
                 {
@@ -92,10 +94,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public async Task HandleAsync(
             StreamMessage message,
-            Func<Owned<TContext>> contextFactory,
             CancellationToken cancellationToken)
         {
-            await HandleAsync(new[] {message}, contextFactory, cancellationToken);
+            await HandleAsync(new[] {message}, cancellationToken);
         }
 
         private static TimeSpan CalculateNotVeryPreciseLatency(StreamMessage message)

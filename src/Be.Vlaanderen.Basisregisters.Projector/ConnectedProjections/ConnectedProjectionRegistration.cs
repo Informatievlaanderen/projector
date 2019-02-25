@@ -3,8 +3,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using System;
     using Autofac.Features.OwnedInstances;
     using Internal;
+    using Microsoft.Extensions.Logging;
     using ProjectionHandling.Connector;
     using ProjectionHandling.Runner;
+    using ProjectionHandling.SqlStreamStore;
 
     public class ConnectedProjectionRegistrationRegistration<TConnectedProjection, TContext> : IConnectedProjectionRegistration
         where TConnectedProjection : ConnectedProjection<TContext>
@@ -19,9 +21,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
         }
 
-        IConnectedProjection IConnectedProjectionRegistration.CreateConnectedProjection()
+        IConnectedProjection IConnectedProjectionRegistration.CreateConnectedProjection(EnvelopeFactory envelopeFactory, ILoggerFactory loggerFactory)
         {
-            return new ConnectedProjection<TConnectedProjection, TContext>(_contextFactory, _connectedProjection);
+            return new ConnectedProjection<TConnectedProjection, TContext>(_contextFactory, _connectedProjection, envelopeFactory, loggerFactory);
         }
     }
 }
