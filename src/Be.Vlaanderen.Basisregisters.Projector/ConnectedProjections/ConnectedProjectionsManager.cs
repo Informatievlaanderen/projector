@@ -12,7 +12,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
     using ProjectionHandling.SqlStreamStore;
-    using SqlStreamStore;
     using States;
 
     public class ConnectedProjectionsManager
@@ -23,7 +22,29 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         private readonly EnvelopeFactory _envelopeFactory;
         private readonly ILoggerFactory _loggerFactory;
 
-        public IEnumerable<IConnectedProjectionStatus> ConnectedProjections => _connectedProjections;
+        public IEnumerable<IConnectedProjectionStatus> ConnectedProjections
+        {
+            get
+            {
+                var registeredProjections = _connectedProjections
+                    .Select(registeredProjection => new ConnectedProjectionStatus
+                    {
+                        Name = registeredProjection.Name,
+                        State = ProjectionState.Stopped
+                    }).ToList();
+
+                foreach (var projectionStatus in registeredProjections)
+                {
+                    if (_catchUpRunner.IsCatchingUp(projectionStatus.Name))
+                        projectionStatus.State = ProjectionState.CatchingUp;
+
+                    if (_subscriptionRunner.HasSubscription(projectionStatus.Name))
+                        projectionStatus.State = ProjectionState.Subscribed;
+                }
+                return registeredProjections;
+            }
+        }
+
         public SubscriptionStreamState SubscriptionStreamStatus => _subscriptionRunner.SubscriptionsStreamStatus;
 
         internal ConnectedProjectionsManager(
@@ -50,12 +71,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
             connectedProjectionEventHandler
                 .RegisterHandleFor<SubscribedProjectionHasThrownAnError>(message => TryRestartSubscriptionsAfterErrorInProjection(message.ProjectionInError));
-            connectedProjectionEventHandler
-                .RegisterHandleFor<CatchUpStarted>(message => UpdateProjectionState(message.Projection, ProjectionState.CatchingUp));
-            connectedProjectionEventHandler
-                .RegisterHandleFor<CatchUpStopped>(message => UpdateProjectionState(message.Projection ,ProjectionState.Stopped));
-            connectedProjectionEventHandler
-                .RegisterHandleFor<CatchUpFinished>(message => UpdateProjectionState(message.Projection, ProjectionState.Stopped));
             
             RunMigrations(projectionMigrationHelpers ?? throw new ArgumentNullException(nameof(projectionMigrationHelpers)));
         }
@@ -74,58 +89,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         public void TryStartProjection(string name)
         {
             var projection = GetProjection(name);
-            StartProjection(projection);
-        }
-
-        public void StartAllProjections()
-        {
-            foreach (var connectedProjection in _connectedProjections)
-                TryStartProjection(connectedProjection.Name.ToString());
-        }
-
-        public void TryStopProjection(string name)
-        {
-            var projection = GetProjection(name);
-            if (null == projection)
-                return;
-
-            _catchUpRunner.Stop(projection);
-            _subscriptionRunner.Unsubscribe(projection);
-        }
-
-        public void StopAllProjections()
-        {
-            _catchUpRunner.StopAll();
-            _subscriptionRunner.UnsubscribeAll();
-
-            foreach (var projection in _connectedProjections)
-            {
-                if (ProjectionState.CatchingUp == projection?.State ||
-                    ProjectionState.Subscribed == projection?.State)
-                    projection.Update(ProjectionState.Stopped);
-            }
-        }
-
-        private void TryRestartSubscriptionsAfterErrorInProjection(ConnectedProjectionName faultyProjection)
-        {
-            var healthyStoppedSubscriptions = _subscriptionRunner
-                .UnsubscribeAll()
-                .Where(name => false == name.Equals(faultyProjection))
-                .Select(name => name.ToString())
-                .ToList();
-
-            foreach (var projection in _connectedProjections.Where(p => ProjectionState.Subscribed == p?.State))
-                projection.Update(ProjectionState.Stopped);
-
-            foreach (var projectionName in healthyStoppedSubscriptions)
-                TryStartProjection(projectionName);
-        }
-
-        private void StartProjection(IConnectedProjection projection)
-        {
             if (null == projection ||
-                ProjectionState.Subscribed == projection.State ||
-                ProjectionState.CatchingUp == projection.State)
+                _subscriptionRunner.HasSubscription(projection.Name) ||
+                _catchUpRunner.IsCatchingUp(projection.Name))
                 return;
 
             var handlersProperty = projection.ConnectedProjectionType.GetProperty("Handlers", BindingFlags.Public | BindingFlags.Instance);
@@ -143,6 +109,39 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             DispatchStartProjection(projection, messageHandler, CancellationToken.None);
         }
 
+        public void StartAllProjections()
+        {
+            foreach (var connectedProjection in _connectedProjections)
+                TryStartProjection(connectedProjection.Name.ToString());
+        }
+
+        public void TryStopProjection(string name)
+        {
+            var projection = GetProjection(name);
+            if (null == projection)
+                return;
+
+            _catchUpRunner.Stop(projection.Name);
+            _subscriptionRunner.Unsubscribe(projection.Name);
+        }
+
+        public void StopAllProjections()
+        {
+            _catchUpRunner.StopAll();
+            _subscriptionRunner.UnsubscribeAll();
+        }
+
+        private void TryRestartSubscriptionsAfterErrorInProjection(ConnectedProjectionName faultyProjection)
+        {
+            var healthyStoppedSubscriptions = _subscriptionRunner
+                .UnsubscribeAll()
+                .Where(name => false == name.Equals(faultyProjection))
+                .Select(name => name.ToString())
+                .ToList();
+
+            foreach (var projectionName in healthyStoppedSubscriptions)
+                TryStartProjection(projectionName);
+        }
 
         private void DispatchStartProjection(IConnectedProjection connectedProjection, dynamic messageHandler, CancellationToken cancellationToken)
         {
@@ -154,11 +153,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
                 if (false == await _subscriptionRunner.TrySubscribe(connectedProjection, messageHandler, cancellationToken))
                     _catchUpRunner.Start(connectedProjection, messageHandler);
             });
-        }
-
-        private void UpdateProjectionState(ConnectedProjectionName name, ProjectionState state)
-        {
-            GetProjection(name.ToString())?.Update(state);
         }
 
         private IConnectedProjection GetProjection(string name) => _connectedProjections.SingleOrDefault(p => p.Name.Equals(name));

@@ -3,11 +3,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System;
     using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
-    using ConnectedProjections.States;
     using ProjectionHandling.Connector;
     using ProjectionHandling.Runner;
 
-    internal class ConnectedProjection<TConnectedProjection, TContext> : IConnectedProjection, IConnectedProjectionStatus
+    internal interface IConnectedProjection
+    {
+        ConnectedProjectionName Name { get; }
+        Type ConnectedProjectionType { get; }
+        Type ContextType { get; }
+    }
+
+    internal class ConnectedProjection<TConnectedProjection, TContext> : IConnectedProjection
         where TConnectedProjection : ConnectedProjection<TContext>
         where TContext : RunnerDbContext<TContext>
     {
@@ -16,7 +22,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public Type ConnectedProjectionType => typeof(TConnectedProjection);
         public Type ContextType => typeof(TContext);
 
-        public ProjectionState State { get; private set; }
         public TConnectedProjection Projection { get; }
         public Func<Owned<TContext>> ContextFactory { get; }
 
@@ -24,12 +29,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             Projection = connectedProjection ?? throw new ArgumentNullException(nameof(connectedProjection));
-            State = ProjectionState.Stopped;
-        }
-
-        public void Update(ProjectionState state)
-        {
-            State = state;
         }
     }
 }

@@ -9,9 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using ConnectedProjections.States;
     using Exceptions;
     using Extensions;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
-    using ProjectionHandling.Runner.ProjectionStates;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using SqlStreamStore.Subscriptions;
@@ -44,9 +42,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private string SubscribedProjectionNames => string.Join(", ", _handlers.Keys);
 
-        public bool HasSubscription(IConnectedProjection connectedProjection)
+        public bool HasSubscription(ConnectedProjectionName connectedProjection)
         {
-            return null != connectedProjection && _handlers.ContainsKey(connectedProjection.Name);
+            return null != connectedProjection && _handlers.ContainsKey(connectedProjection);
         }
         
         public async Task<bool> TrySubscribe(IConnectedProjection connectedProjection, dynamic messageHandler, CancellationToken cancellationToken)
@@ -55,11 +53,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             {
                 _subscriptionLock.WaitOne();
 
-                if (null == connectedProjection || null == messageHandler || HasSubscription(connectedProjection) || cancellationToken.IsCancellationRequested)
+                if (null == connectedProjection || null == messageHandler || HasSubscription(connectedProjection.Name) || cancellationToken.IsCancellationRequested)
                     return false;
 
                 var currentPosition = Stop() ?? await _streamStore.ReadHeadPosition(cancellationToken) - BacktrackNumberOfPositions;
-                var projectionPosition = await GetProjectionPositionAsync(connectedProjection, cancellationToken);
+                var contextFactory = ((dynamic) connectedProjection).ContextFactory;
+                long? projectionPosition;
+                using (var context = contextFactory())
+                {
+                    projectionPosition = await context.GetRunnerPositionAsync(cancellationToken);
+                }
+
 
                 var streamIsEmpty = currentPosition < Position.Start;
                 var projectionIsUpToDate = projectionPosition.HasValue && projectionPosition >= currentPosition;
@@ -79,11 +83,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                             await messageHandler
                                 .HandleAsync(
                                     message,
-                                    ((dynamic)connectedProjection).ContextFactory,
+                                    contextFactory,
                                     token
                                 );
                         });
-                    connectedProjection.Update(ProjectionState.Subscribed);
                 }
 
                 Start(currentPosition);
@@ -95,32 +98,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             }
         }
 
-        private static async Task<long?> GetProjectionPositionAsync(IConnectedProjection connectedProjection, CancellationToken cancellationToken)
+        public void Unsubscribe(ConnectedProjectionName connectedProjection)
         {
-            using (var context = ((dynamic)connectedProjection).ContextFactory())
-            {
-                var runnerStates = await ((DbSet<ProjectionStateItem>)context.Value.ProjectionStates).ToListAsync(cancellationToken);
-
-                return runnerStates
-                    .SingleOrDefault(p => connectedProjection.Name.Equals(p.Name))
-                    ?.Position;
-            }
-        }
-
-        public void Unsubscribe(IConnectedProjection connectedProjection)
-        {
-            if (null == connectedProjection)
+            if (null == connectedProjection || false == HasSubscription(connectedProjection))
                 return;
 
-            if (HasSubscription(connectedProjection))
-            {
-                var lastPosition = Stop();
-                _handlers.Remove(connectedProjection.Name);
-                Start(lastPosition);
-            }
-
-            if (ProjectionState.Subscribed == connectedProjection.State)
-                connectedProjection.Update(ProjectionState.Stopped);
+            var lastPosition = Stop();
+            _handlers.Remove(connectedProjection);
+            Start(lastPosition);
         }
 
         public IEnumerable<ConnectedProjectionName> UnsubscribeAll()

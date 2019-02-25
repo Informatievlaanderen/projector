@@ -4,7 +4,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System.Collections.Generic;
     using System.Threading;
     using ConnectedProjections;
-    using ConnectedProjections.States;
     using Extensions;
     using Microsoft.Extensions.Logging;
     using SqlStreamStore;
@@ -37,16 +36,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 .RegisterHandleFor<CatchUpFinished>(message => _projectionCatchUps.Remove(message.Projection));
         }
 
-        public bool IsCatchingUp(IConnectedProjection connectedProjection)
+        public bool IsCatchingUp(ConnectedProjectionName connectedProjection)
         {
-            return null != connectedProjection && _projectionCatchUps.ContainsKey(connectedProjection.Name);
+            return null != connectedProjection && _projectionCatchUps.ContainsKey(connectedProjection);
         }
 
         public void Start(
             IConnectedProjection connectedProjection,
             dynamic messageHandler)
         {
-            if(null == connectedProjection || null == messageHandler || IsCatchingUp(connectedProjection))
+            if(null == connectedProjection || null == messageHandler || IsCatchingUp(connectedProjection.Name))
                 return;
 
             var contextType = connectedProjection.ContextType;
@@ -78,18 +77,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             TaskRunner.Dispatch(RunCatchUp);
         }
 
-        public void Stop(IConnectedProjection connectedProjection)
+        public void Stop(ConnectedProjectionName connectedProjection)
         {
             if (null == connectedProjection)
                 return;
 
             if (IsCatchingUp(connectedProjection))
-                _projectionCatchUps[connectedProjection.Name].Cancel();
-            else
-            {
-                if (connectedProjection.State == ProjectionState.CatchingUp)
-                    connectedProjection.Update(ProjectionState.Stopped);
-            }
+                _projectionCatchUps[connectedProjection].Cancel();
         }
 
         public IEnumerable<ConnectedProjectionName> StopAll()

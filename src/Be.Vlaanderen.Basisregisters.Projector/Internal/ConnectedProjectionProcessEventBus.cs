@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Collections.Generic;
     using System.Threading;
     using ConnectedProjections;
+    using Microsoft.Extensions.Logging;
 
     // Poor man's implementation to remove the callback out of manager/subscription/catchup
     // ToDo: replace by lib that does this properly
@@ -21,34 +22,36 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal class ConnectedProjectionProcessEventBus : IConnectedProjectionEventBus, IConnectedProjectionEventHandler
     {
-        private readonly IDictionary<Type, IList<dynamic>> _messageHandlers = new Dictionary<Type, IList<dynamic>>();
+        private readonly IDictionary<Type, dynamic> _eventHandlers = new Dictionary<Type, dynamic>();
         private readonly Mutex _lock = new Mutex();
+        private readonly ILogger _logger;
+
+        public ConnectedProjectionProcessEventBus(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory?.CreateLogger<ConnectedProjectionProcessEventBus>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+        }
 
         public void RegisterHandleFor<TEvent>(Action<TEvent> handler)
             where TEvent : ConnectedProjectionEvent
         {
             var eventType = typeof(TEvent);
-            if (false == _messageHandlers.ContainsKey(eventType))
-            {
-                _messageHandlers.Add(eventType, new List<dynamic>());
-            }
-
-            _messageHandlers[eventType].Add(handler);
+            if (_eventHandlers.ContainsKey(eventType))
+                _logger.LogError("Already registered handler for {Event}", typeof(TEvent));
+            else
+                _eventHandlers.Add(eventType, handler);
         }
 
         public void Send<TEvent>(TEvent message)
             where TEvent : ConnectedProjectionEvent
         {
             _lock.WaitOne();
-            
+
             var eventType = typeof(TEvent);
-            var handlers = _messageHandlers.ContainsKey(eventType)
-                ? _messageHandlers[eventType]
-                : new List<dynamic>();
-            
-            foreach (var handler in handlers)
-                TaskRunner.Dispatch(() => { handler(message); });
-            
+            if(_eventHandlers.ContainsKey(eventType))
+                TaskRunner.Dispatch(() => { _eventHandlers[eventType](message); });
+            else
+                _logger.LogError("No handler defined for {Event}", eventType);
+  
             _lock.ReleaseMutex();
         }
     }
