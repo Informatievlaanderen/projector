@@ -3,7 +3,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using Internal;
@@ -19,8 +18,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         private readonly IEnumerable<IConnectedProjection> _connectedProjections;
         private readonly ConnectedProjectionsCatchUpRunner _catchUpRunner;
         private readonly ConnectedProjectionsSubscriptionRunner _subscriptionRunner;
-        private readonly EnvelopeFactory _envelopeFactory;
-        private readonly ILoggerFactory _loggerFactory;
 
         public IEnumerable<IConnectedProjectionStatus> ConnectedProjections
         {
@@ -56,13 +53,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             ConnectedProjectionsCatchUpRunner catchUpRunner,
             ConnectedProjectionsSubscriptionRunner subscriptionRunner)
         {
-            _envelopeFactory = envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory));
-            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _catchUpRunner = catchUpRunner ?? throw new ArgumentNullException(nameof(catchUpRunner));
             _subscriptionRunner = subscriptionRunner ?? throw new ArgumentNullException(nameof(subscriptionRunner));
 
-            _connectedProjections = projectionRegistrations?
-                                       .Select(registered => registered?.CreateConnectedProjection())
+            _connectedProjections = projectionRegistrations
+                                        ?.Select(registered => registered?.CreateConnectedProjection(envelopeFactory, loggerFactory))
                                        .RemoveNullReferences()
                                    ?? throw new ArgumentNullException(nameof(projectionRegistrations));
 
@@ -94,19 +89,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
                 _catchUpRunner.IsCatchingUp(projection.Name))
                 return;
 
-            var handlersProperty = projection.ConnectedProjectionType.GetProperty("Handlers", BindingFlags.Public | BindingFlags.Instance);
-            var projectionInstance = ((dynamic)projection).Projection;
-            var handlers = handlersProperty?.GetValue(projectionInstance);
-
-            var messageHandlerType = typeof(ConnectedProjectionMessageHandler<>).MakeGenericType(projection.ContextType);
-            var messageHandler = Activator.CreateInstance(
-                messageHandlerType,
-                projection.Name,
-                handlers,
-                _envelopeFactory,
-                _loggerFactory);
-
-            DispatchStartProjection(projection, messageHandler, CancellationToken.None);
+            DispatchStartProjection(projection.Instance, CancellationToken.None);
         }
 
         public void StartAllProjections()
@@ -143,18 +126,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
                 TryStartProjection(projectionName);
         }
 
-        private void DispatchStartProjection(IConnectedProjection connectedProjection, dynamic messageHandler, CancellationToken cancellationToken)
+        private void DispatchStartProjection<TContext>(IConnectedProjection<TContext> connectedProjection, CancellationToken cancellationToken)
+            where TContext : RunnerDbContext<TContext>
         {
             if (null == connectedProjection || cancellationToken.IsCancellationRequested)
                 return;
 
             TaskRunner.Dispatch(async () =>
             {
-                if (false == await _subscriptionRunner.TrySubscribe(connectedProjection, messageHandler, cancellationToken))
-                    _catchUpRunner.Start(connectedProjection, messageHandler);
+                if (false == await _subscriptionRunner.TrySubscribe(connectedProjection, cancellationToken))
+                    _catchUpRunner.Start(connectedProjection);
             });
         }
-
+        
         private IConnectedProjection GetProjection(string name) => _connectedProjections.SingleOrDefault(p => p.Name.Equals(name));
     }
 }

@@ -5,11 +5,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
     using ConnectedProjections.States;
     using Exceptions;
     using Extensions;
     using Microsoft.Extensions.Logging;
+    using ProjectionHandling.Runner;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using SqlStreamStore.Subscriptions;
@@ -46,22 +48,24 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         {
             return null != connectedProjection && _handlers.ContainsKey(connectedProjection);
         }
-        
-        public async Task<bool> TrySubscribe(IConnectedProjection connectedProjection, dynamic messageHandler, CancellationToken cancellationToken)
+
+        public async Task<bool> TrySubscribe<TContext>(
+            IConnectedProjection<TContext> projection,
+            CancellationToken cancellationToken)
+            where TContext : RunnerDbContext<TContext>
         {
             try
             {
                 _subscriptionLock.WaitOne();
 
-                if (null == connectedProjection || null == messageHandler || HasSubscription(connectedProjection.Name) || cancellationToken.IsCancellationRequested)
+                if (null == projection || HasSubscription(projection.Name) || cancellationToken.IsCancellationRequested)
                     return false;
 
                 var currentPosition = Stop() ?? await _streamStore.ReadHeadPosition(cancellationToken) - BacktrackNumberOfPositions;
-                var contextFactory = ((dynamic) connectedProjection).ContextFactory;
                 long? projectionPosition;
-                using (var context = contextFactory())
+                using (var context = projection.ContextFactory())
                 {
-                    projectionPosition = await context.GetRunnerPositionAsync(cancellationToken);
+                    projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, cancellationToken);
                 }
 
 
@@ -72,21 +76,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                                    false == cancellationToken.IsCancellationRequested;
                 if (canSubscribe)
                 {
-                    _logger.LogInformation(
-                        "Add {ProjectionName} to subscriptions",
-                        connectedProjection.Name);
-
+                    _logger.LogInformation("Add {ProjectionName} to subscriptions", projection.Name);
                     _handlers.Add(
-                        connectedProjection.Name,
-                        async (message, token) =>
-                        {
-                            await messageHandler
-                                .HandleAsync(
-                                    message,
-                                    contextFactory,
-                                    token
-                                );
-                        });
+                        projection.Name,
+                        async (message, token) => { await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token); });
                 }
 
                 Start(currentPosition);
