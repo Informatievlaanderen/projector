@@ -65,7 +65,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
                 throw new ArgumentNullException(nameof(connectedProjectionEventHandler));
 
             connectedProjectionEventHandler
-                .RegisterHandleFor<SubscribedProjectionHasThrownAnError>(message => TryRestartSubscriptionsAfterErrorInProjection(message.ProjectionInError));
+                .RegisterHandleFor<SubscriptionsHasThrownAnError>(subscriptionError => TryRestartSubscriptionsAfterErrorInProjection(subscriptionError.ProjectionInError));
+            connectedProjectionEventHandler
+                .RegisterHandleFor<CatchUpRequested>(refused => StartCatchUp(refused.Projection));
+            connectedProjectionEventHandler
+                .RegisterHandleFor<CatchUpFinished>(catchUpFinished => StartSubscription(catchUpFinished.Projection.ToString()));
             
             RunMigrations(projectionMigrationHelpers ?? throw new ArgumentNullException(nameof(projectionMigrationHelpers)));
         }
@@ -83,13 +87,25 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         public void TryStartProjection(string name)
         {
+            StartSubscription(name);
+        }
+
+        private void StartSubscription(string name)
+        {
             var projection = GetProjection(name);
-            if (null == projection ||
-                _subscriptionRunner.HasSubscription(projection.Name) ||
-                _catchUpRunner.IsCatchingUp(projection.Name))
+            if (null == projection || _catchUpRunner.IsCatchingUp(projection.Name))
                 return;
 
-            DispatchStartProjection(projection.Instance, CancellationToken.None);
+            TaskRunner.Dispatch(() => { _subscriptionRunner.TrySubscribe(projection.Instance, CancellationToken.None); });
+        }
+
+        private void StartCatchUp(ConnectedProjectionName projectionName)
+        {
+            var projection = GetProjection(projectionName.ToString());
+            if(null == projection ||_subscriptionRunner.HasSubscription(projection.Name))
+                return;
+
+            _catchUpRunner.Start(projection.Instance);
         }
 
         public void StartAllProjections()
@@ -126,19 +142,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
                 TryStartProjection(projectionName);
         }
 
-        private void DispatchStartProjection<TContext>(IConnectedProjection<TContext> connectedProjection, CancellationToken cancellationToken)
-            where TContext : RunnerDbContext<TContext>
-        {
-            if (null == connectedProjection || cancellationToken.IsCancellationRequested)
-                return;
-
-            TaskRunner.Dispatch(async () =>
-            {
-                if (false == await _subscriptionRunner.TrySubscribe(connectedProjection, cancellationToken))
-                    _catchUpRunner.Start(connectedProjection);
-            });
-        }
-        
         private IConnectedProjection GetProjection(string name) => _connectedProjections.SingleOrDefault(p => p.Name.Equals(name));
     }
 }

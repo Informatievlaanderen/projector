@@ -22,8 +22,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal class ConnectedProjectionProcessEventBus : IConnectedProjectionEventBus, IConnectedProjectionEventHandler
     {
+        private static readonly SemaphoreSlim Lock = new SemaphoreSlim(1, 1);
+
         private readonly IDictionary<Type, dynamic> _eventHandlers = new Dictionary<Type, dynamic>();
-        private readonly Mutex _lock = new Mutex();
         private readonly ILogger _logger;
 
         public ConnectedProjectionProcessEventBus(ILoggerFactory loggerFactory)
@@ -34,45 +35,61 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public void RegisterHandleFor<TEvent>(Action<TEvent> handler)
             where TEvent : ConnectedProjectionEvent
         {
+            void Handle(TEvent message)
+            {
+                _logger.LogInformation("Handling {Event}: {Message}", typeof(TEvent), message);
+                handler(message);
+            }
+
             var eventType = typeof(TEvent);
             if (_eventHandlers.ContainsKey(eventType))
                 _logger.LogError("Already registered handler for {Event}", typeof(TEvent));
             else
-                _eventHandlers.Add(eventType, handler);
+                _eventHandlers.Add(eventType, (Action<TEvent>)Handle);
         }
 
         public void Send<TEvent>(TEvent message)
             where TEvent : ConnectedProjectionEvent
         {
-            _lock.WaitOne();
-
-            var eventType = typeof(TEvent);
-            if(_eventHandlers.ContainsKey(eventType))
-                TaskRunner.Dispatch(() => { _eventHandlers[eventType](message); });
-            else
-                _logger.LogError("No handler defined for {Event}", eventType);
-  
-            _lock.ReleaseMutex();
+            Lock.Wait(CancellationToken.None);
+            try
+            {
+                var eventType = typeof(TEvent);
+                if (_eventHandlers.ContainsKey(eventType))
+                    TaskRunner.Dispatch(() => { _eventHandlers[eventType](message); });
+                else
+                    _logger.LogError("No handler defined for {Event}", eventType);
+            }
+            finally
+            {
+                Lock.Release();
+            }
         }
     }
 
-    internal class ConnectedProjectionEvent { }
+    internal abstract class ConnectedProjectionEvent
+    {
+        public override string ToString()
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+    }
 
-    internal class SubscribedProjectionHasThrownAnError : ConnectedProjectionEvent
+    internal class SubscriptionsHasThrownAnError : ConnectedProjectionEvent
     {
         public ConnectedProjectionName ProjectionInError { get; }
 
-        public SubscribedProjectionHasThrownAnError(ConnectedProjectionName projectionInError)
+        public SubscriptionsHasThrownAnError(ConnectedProjectionName projectionInError)
         {
             ProjectionInError = projectionInError;
         }
     }
 
-    internal class CatchUpStarted : ConnectedProjectionEvent
+    internal class CatchUpRequested : ConnectedProjectionEvent
     {
         public ConnectedProjectionName Projection { get; }
 
-        public CatchUpStarted(ConnectedProjectionName projection)
+        public CatchUpRequested(ConnectedProjectionName projection)
         {
             Projection = projection;
         }
@@ -97,4 +114,5 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             Projection = projection;
         }
     }
+
 }

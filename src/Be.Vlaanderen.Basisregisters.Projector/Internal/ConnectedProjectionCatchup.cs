@@ -42,7 +42,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public async Task CatchUpAsync(CancellationToken cancellationToken)
         {
             cancellationToken.Register(() => { CatchUpStopped(CatchUpStopReason.Aborted); });
-            _eventBus.Send(new CatchUpStarted(_runnerName));
             try
             {
                 if (cancellationToken.IsCancellationRequested)
