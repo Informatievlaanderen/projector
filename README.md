@@ -6,7 +6,7 @@ Generic projection runner infrastructure.
 
 #### Example types 
 
-```
+```csharp
 class ProjectionContext : Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.RunnerDbContext<ProjectionContext> { ... }
 class Projections : Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.ConnectedProjection<ProjectionContext> { ... }
 class ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<ProjectionContext> { ... }
@@ -14,7 +14,7 @@ class ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<Projecti
 
 #### Creating migration helpers
 
-```
+```csharp
 class  ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<ProjectionContext> {
      public ProjectionContextMigrationHelper(
         string connectionString,
@@ -38,7 +38,7 @@ class  ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<Project
 
 #### Registering components with Autofac 
 
-```
+```csharp
 Autofac.ContainerBuilder builder;
 
 // Register Projector module
@@ -63,7 +63,7 @@ builder
 
 #### Managing the registered projections
 
-```
+```csharp
 ConnectedProjectionsManager projectionManager;
 
 // Status of registered projections
