@@ -17,6 +17,8 @@ description Provide a generic way to deal with projections.
 
 dependencies
   framework: netstandard20
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner >= LOCKEDVERSION
 
 files
   bin\Release\netstandard2.0\Be.Vlaanderen.Basisregisters.Projector.dll => lib\netstandard2.0

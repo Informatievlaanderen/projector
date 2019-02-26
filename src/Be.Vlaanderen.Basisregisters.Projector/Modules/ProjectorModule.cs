@@ -14,7 +14,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
         {
             builder
                 .RegisterType<ConnectedProjectionProcessEventBus>()
-                .As(typeof(IConnectedProjectionEventBus), typeof(IConnectedProjectionEventHandler))
+                .As<IConnectedProjectionEventBus>()
+                .As<IConnectedProjectionEventHandler>()
                 .SingleInstance();
 
             builder
@@ -32,7 +33,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .FindConstructorsWith(AllowNonPublicConstructor)
                 .AsSelf()
                 .SingleInstance();
-
         }
 
         private static ConstructorInfo[] AllowNonPublicConstructor(Type type)

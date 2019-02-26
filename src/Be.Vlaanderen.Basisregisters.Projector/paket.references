@@ -1,4 +1,8 @@
+Microsoft.AspNetCore.Mvc.Abstractions
+Microsoft.AspNetCore.Mvc.Core
+
 Autofac
+Autofac.Extensions.DependencyInjection
 
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
