@@ -5,75 +5,81 @@ Generic projection runner infrastructure.
 ## Usage
 
 #### Example types 
+
 ```
-    class ProjectionContext : Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.RunnerDbContext<ProjectionContext> { ... }
-    class Projections : Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.ConnectedProjection<ProjectionContext> { ... }
-    class ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<ProjectionContext> { ... }
+class ProjectionContext : Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.RunnerDbContext<ProjectionContext> { ... }
+class Projections : Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.ConnectedProjection<ProjectionContext> { ... }
+class ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<ProjectionContext> { ... }
 ```
+
 #### Creating migration helpers
-```
-    class  ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<ProjectionContext> {
-         public ProjectionContextMigrationHelper(
-            string connectionString,
-            ILoggerFactory loggerFactory)
-            : base(
-                connectionString,
-                new HistoryConfiguration
-                {
-                    Schema = "MigrationsSchema",
-                    Table = "MigrationTablesHistoryTable"
-                },
-                loggerFactory)
-        { }
 
-        protected override ProjectionContext CreateContext(DbContextOptions<ExtractContext> migrationContextOptions)
-        {
-            return new ProjectionContext(migrationContextOptions);
-        }       
-    }
 ```
+class  ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<ProjectionContext> {
+     public ProjectionContextMigrationHelper(
+        string connectionString,
+        ILoggerFactory loggerFactory)
+        : base(
+            connectionString,
+            new HistoryConfiguration
+            {
+                Schema = "MigrationsSchema",
+                Table = "MigrationTablesHistoryTable"
+            },
+            loggerFactory)
+    { }
+
+    protected override ProjectionContext CreateContext(DbContextOptions<ExtractContext> migrationContextOptions)
+    {
+        return new ProjectionContext(migrationContextOptions);
+    }       
+}
+```
+
 #### Registering components with Autofac 
+
 ```
-    Autofac.ContainerBuilder builder;
+Autofac.ContainerBuilder builder;
 
-    // Register Projector module
-    builder.RegisterModule<ProjectorModule>();
+// Register Projector module
+builder.RegisterModule<ProjectorModule>();
 
-    // Register migration helpers for a ProjectionContext
-    builder
-        .RegisterProjectionMigrationHelper<ProjectionContextMigrationHelper>(
-            new ProjectionContextMigrationHelper(connectionString, logger, ...)
-        );
+// Register migration helpers for a ProjectionContext
+builder
+    .RegisterProjectionMigrationHelper<ProjectionContextMigrationHelper>(
+        new ProjectionContextMigrationHelper(connectionString, logger, ...)
+    );
 
-    // Register ConnectedProjections for a projection context
-    builder
-        .RegisterProjections<Projections, ProjectionContext>();
+// Register ConnectedProjections for a projection context
+builder
+    .RegisterProjections<Projections, ProjectionContext>();
 
-    // Register ConnectedProjections that require initalisation parameters
-    builder
-        .RegisterProjections<Projections, ProjectionContext>(
-            () => new Projections(parameter1, parameter2, ...)
-        );
+// Register ConnectedProjections that require initalisation parameters
+builder
+    .RegisterProjections<Projections, ProjectionContext>(
+        () => new Projections(parameter1, parameter2, ...)
+    );
 ```
 
 #### Managing the registered projections
+
 ```
-    ConnectedProjectionsManager projectionManager;
+ConnectedProjectionsManager projectionManager;
 
-    // Status of registered projections
-    projectionManager.ConnectedProjections
+// Status of registered projections
+projectionManager.ConnectedProjections
 
-    // Start a specific projection by name
-    projectionManager.TryStartProjection("projection")
+// Start a specific projection by name
+projectionManager.TryStartProjection("projection")
 
-    // Stop a specific projection by name
-    projectionManager.TryStopProjection("projection")
+// Stop a specific projection by name
+projectionManager.TryStopProjection("projection")
 
-    // Start all registered projections
-    projectionManager.StartAllProjections()
+// Start all registered projections
+projectionManager.StartAllProjections()
 
-    // Stop all registered projections
-    projectionManager.StopAllProjections()
+// Stop all registered projections
+projectionManager.StopAllProjections()
 ```
 
 ## Quick contributing guide
