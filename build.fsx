@@ -34,18 +34,36 @@ open ``Build-generic``
 // Packs the solution using Paket in Release mode and places the result in the dist folder.
 // This is usually used to build documentation NuGet packages.
 
-let assemblyVersionNumber = (sprintf "2.%s")
+let assemblyVersionNumber = (sprintf "%s.0")
 let nugetVersionNumber = (sprintf "%s")
 
-Target "Restore" (fun _ -> restore "Be.Vlaanderen.Basisregisters.Projector")
-Target "Build" (fun _ -> buildSolution assemblyVersionNumber "Be.Vlaanderen.Basisregisters.Projector")
-Target "Test" (fun _ -> testSolution "Be.Vlaanderen.Basisregisters.Projector")
-Target "Publish" (fun _ -> publish assemblyVersionNumber "Be.Vlaanderen.Basisregisters.Projector")
-Target "Pack" (fun _ -> pack nugetVersionNumber "Be.Vlaanderen.Basisregisters.Projector")
+let build = buildSolution assemblyVersionNumber
+let test = testSolution assemblyVersionNumber
+let publish = publishSolution assemblyVersionNumber
+let pack = packSolution nugetVersionNumber
 
-Target "Package" DoNothing
+// Library ------------------------------------------------------------------------
 
-"NpmInstall" ==> "DotNetCli" ==> "Clean" ==> "Restore" ==> "Build" ==> "Test"
-"Test" ==> "Publish" ==> "Pack" ==> "Package"
+Target "Lib_Build" (fun _ -> build "Be.Vlaanderen.Basisregisters.Projector")
+Target "Lib_Test" (fun _ -> test "Be.Vlaanderen.Basisregisters.Projector")
 
-RunTargetOrDefault "Test"
+Target "Lib_Publish" (fun _ -> publish "Be.Vlaanderen.Basisregisters.Projector")
+Target "Lib_Pack" (fun _ -> pack "Be.Vlaanderen.Basisregisters.Projector")
+
+// --------------------------------------------------------------------------------
+
+Target "PublishLibrary" DoNothing
+Target "PublishAll" DoNothing
+
+Target "PackageMyGet" DoNothing
+Target "PackageAll" DoNothing
+
+// Publish ends up with artifacts in the build folder
+"NpmInstall" ==> "DotNetCli" ==> "Clean" ==> "Restore" ==> "Lib_Build" ==> "Lib_Test" ==> "Lib_Publish" ==> "PublishLibrary"
+"PublishLibrary" ==> "PublishAll"
+
+// Package ends up with local NuGet packages
+"PublishLibrary" ==> "Lib_Pack" ==> "PackageMyGet"
+"PackageMyGet" ==> "PackageAll"
+
+RunTargetOrDefault "Lib_Test"
