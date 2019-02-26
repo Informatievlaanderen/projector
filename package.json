@@ -112,7 +112,7 @@
       },
       {
         "path": "@semantic-release/exec",
-        "cmd": "BITBUCKET_BUILD_NUMBER=${nextRelease.version} ./build.sh Push"
+        "cmd": "BITBUCKET_BUILD_NUMBER=${nextRelease.version} ./build.sh Lib_Pack"
       },
       {
         "path": "@semantic-release/git",
