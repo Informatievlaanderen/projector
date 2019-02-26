@@ -60,8 +60,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 if (null == projection || HasSubscription(projection.Name) || cancellationToken.IsCancellationRequested)
                     return;
 
-                var currentPosition = Stop() ?? await _streamStore.ReadHeadPosition(cancellationToken) -
-                                      BacktrackNumberOfPositions;
+                var streamPosition = Stop() ?? await _streamStore.ReadHeadPosition(cancellationToken);
+                var restartPosition = streamPosition - BacktrackNumberOfPositions;
                 long? projectionPosition;
                 using (var context = projection.ContextFactory())
                 {
@@ -72,15 +72,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     "Trying to subscribe {Projection} at {ProjectionPosition} on stream at {StreamPosition}",
                     projection.Name,
                     projectionPosition,
-                    currentPosition);
+                    restartPosition);
 
 
                 if (false == cancellationToken.IsCancellationRequested)
                 {
-                    var streamIsEmpty = currentPosition < Position.Start;
-                    var projectionIsUpToDate = projectionPosition.HasValue && projectionPosition >= currentPosition;
+                    var restartStream = restartPosition < Position.Start;
+                    var projectionIsUpToDate = projectionPosition.HasValue && projectionPosition >= restartPosition;
 
-                    if (streamIsEmpty || projectionIsUpToDate)
+                    if (restartStream || projectionIsUpToDate)
                     {
                         _logger.LogInformation("Add {ProjectionName} to subscriptions", projection.Name);
                         _handlers.Add(
@@ -94,7 +94,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                         _eventBus.Send(new CatchUpRequested(projection.Name));
                 }
 
-                Start(currentPosition);
+                Start(restartPosition);
             }
             finally
             {
@@ -148,16 +148,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             if (null == _allStreamSubscription)
                 return null;
 
-            var lastCompletelyProcessedPosition = _allStreamSubscription.LastPosition;
+            var lastPosition = _allStreamSubscription.LastPosition;
             _allStreamSubscription.Dispose();
             _allStreamSubscription = null;
 
-            if (lastCompletelyProcessedPosition.HasValue)
-                _logger.LogInformation(
-                    "Stopped subscription stream at position: {AfterPosition}",
-                    lastCompletelyProcessedPosition);
+            if (lastPosition.HasValue)
+                _logger.LogInformation("Stopped subscription stream at position: {AfterPosition}", lastPosition);
 
-            return lastCompletelyProcessedPosition - BacktrackNumberOfPositions;
+            var lastCompletelyProcessedPosition = lastPosition - 1;
+            return lastCompletelyProcessedPosition;
         }
 
         private async Task OnMessageReceived(
