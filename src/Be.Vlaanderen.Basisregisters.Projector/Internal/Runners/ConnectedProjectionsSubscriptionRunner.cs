@@ -69,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 }
 
                 _logger.LogWarning(
-                    "Trying to subscribe {Projection} at {ProjectionPosition} on stream at {StreamPosition}",
+                    "Trying to subscribe {Projection} at {ProjectionPosition} on AllStream at {StreamPosition}",
                     projection.Name,
                     projectionPosition,
                     restartPosition);

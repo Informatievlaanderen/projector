@@ -5,6 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Threading;
     using ConnectedProjections;
     using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
 
     // Poor man's implementation to remove the callback out of manager/subscription/catchup
     // ToDo: replace by lib that does this properly
@@ -37,7 +38,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             void Handle(TEvent message)
             {
-                _logger.LogInformation("Handling {Event}: {Message}", typeof(TEvent), message);
+                _logger.LogInformation("Handling {Event}: {Message}", typeof(TEvent).Name, message);
                 handler(message);
             }
 
@@ -71,7 +72,35 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     {
         public override string ToString()
         {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+            var jsonSerializerSettings = 
+                new JsonSerializerSettings
+                {
+                    Converters = new List<JsonConverter> {new ConnectedProjectionNameConverter()}
+                };
+            return JsonConvert.SerializeObject(this, jsonSerializerSettings);
+        }
+        
+        private class ConnectedProjectionNameConverter : JsonConverter<ConnectedProjectionName>
+        {
+            public override void WriteJson(
+                JsonWriter writer,
+                ConnectedProjectionName value,
+                JsonSerializer serializer)
+            {
+                writer.WriteValue(value.ToString());
+            }
+
+            public override ConnectedProjectionName ReadJson(
+                JsonReader reader,
+                Type objectType,
+                ConnectedProjectionName existingValue,
+                bool hasExistingValue,
+                JsonSerializer serializer)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool CanRead => false;
         }
     }
 
