@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/informatievlaanderen/projector/compare/v1.0.0...v1.0.1) (2019-02-26)
+
+
+### Bug Fixes
+
+* properly push to nuget ([179b67b](https://github.com/informatievlaanderen/projector/commit/179b67b))
+
 # 1.0.0 (2019-02-26)
 
 
