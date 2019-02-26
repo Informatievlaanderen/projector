@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 [assembly: AssemblyProduct("Basisregisters Vlaanderen")]
-[assembly: AssemblyDescription("Provide a generic way to deal with projections.")]
+[assembly: AssemblyDescription("Generic projection runner infrastructure.")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: AssemblyCopyright("Copyright (c) Vlaamse overheid")]

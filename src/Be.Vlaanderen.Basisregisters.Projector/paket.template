@@ -12,13 +12,13 @@ projectUrl https://github.com/Informatievlaanderen/projector
 iconUrl https://raw.githubusercontent.com/Informatievlaanderen/build-pipeline/master/logo.png
 licenseUrl https://opensource.org/licenses/MIT
 
-description Provide a generic way to deal with projections.
+description Generic projection runner infrastructure.
 
 dependencies
   framework: netstandard20
     Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector ~> 2.0
     Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 2.0
-    
+
     Microsoft.AspNetCore.Mvc.Abstractions >= LOCKEDVERSION
     Microsoft.AspNetCore.Mvc.Core >= LOCKEDVERSION
     Autofac >= LOCKEDVERSION

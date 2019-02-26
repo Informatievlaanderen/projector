@@ -38,14 +38,13 @@ let assemblyVersionNumber = (sprintf "%s.0")
 let nugetVersionNumber = (sprintf "%s")
 
 let build = buildSolution assemblyVersionNumber
-let test = testSolution assemblyVersionNumber
 let publish = publishSolution assemblyVersionNumber
 let pack = packSolution nugetVersionNumber
 
 // Library ------------------------------------------------------------------------
 
 Target "Lib_Build" (fun _ -> build "Be.Vlaanderen.Basisregisters.Projector")
-Target "Lib_Test" (fun _ -> test "Be.Vlaanderen.Basisregisters.Projector")
+Target "Lib_Test" (fun _ -> testSolution "Be.Vlaanderen.Basisregisters.Projector")
 
 Target "Lib_Publish" (fun _ -> publish "Be.Vlaanderen.Basisregisters.Projector")
 Target "Lib_Pack" (fun _ -> pack "Be.Vlaanderen.Basisregisters.Projector")
