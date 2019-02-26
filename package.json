@@ -1,7 +1,7 @@
 {
-  "name": "projectop",
-  "version": "1.0",
-  "description": "Reference municipality registry.",
+  "name": "projector",
+  "version": "0.0.1",
+  "description": "Generic projector runner infrastructure.",
   "author": "Basisregisters Vlaanderen",
   "license": "MIT",
   "repository": {
