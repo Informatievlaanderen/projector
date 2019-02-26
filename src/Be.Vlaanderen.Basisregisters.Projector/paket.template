@@ -1,4 +1,3 @@
-
 type file
 version 1.0.0
 
@@ -17,8 +16,13 @@ description Provide a generic way to deal with projections.
 
 dependencies
   framework: netstandard20
-    Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector >= LOCKEDVERSION
-    Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector ~> 2.0
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 2.0
+    
+    Microsoft.AspNetCore.Mvc.Abstractions >= LOCKEDVERSION
+    Microsoft.AspNetCore.Mvc.Core >= LOCKEDVERSION
+    Autofac >= LOCKEDVERSION
+    Autofac.Extensions.DependencyInjection >= LOCKEDVERSION
 
 files
   bin\Release\netstandard2.0\Be.Vlaanderen.Basisregisters.Projector.dll => lib\netstandard2.0
