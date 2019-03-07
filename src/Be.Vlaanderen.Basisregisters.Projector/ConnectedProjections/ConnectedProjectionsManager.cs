@@ -45,7 +45,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         public SubscriptionStreamState SubscriptionStreamStatus => _subscriptionRunner.SubscriptionsStreamStatus;
 
         internal ConnectedProjectionsManager(
-            IEnumerable<IRunnerDbContextMigrationHelper> projectionMigrationHelpers,
+            IEnumerable<IRunnerDbContextMigrator> projectionMigrationHelpers,
             IEnumerable<IConnectedProjectionRegistration> projectionRegistrations,
             ILoggerFactory loggerFactory,
             EnvelopeFactory envelopeFactory,
@@ -74,12 +74,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             RunMigrations(projectionMigrationHelpers ?? throw new ArgumentNullException(nameof(projectionMigrationHelpers)));
         }
 
-        public void RunMigrations(IEnumerable<IRunnerDbContextMigrationHelper> projectionMigrationHelpers)
+        private void RunMigrations(IEnumerable<IRunnerDbContextMigrator> projectionMigrationHelpers)
         {
             var cancellationToken = CancellationToken.None;
             Task.WaitAll(
                 projectionMigrationHelpers
-                    .Select(helper => helper.RunMigrationsAsync(cancellationToken))
+                    .Select(helper => helper.MigrateAsync(cancellationToken))
                     .ToArray(),
                 cancellationToken
             );

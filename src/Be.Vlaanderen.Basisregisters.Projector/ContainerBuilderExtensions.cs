@@ -28,13 +28,5 @@ namespace Be.Vlaanderen.Basisregisters.Projector
                 )
                 .As<IConnectedProjectionRegistration>();
         }
-
-        public static void RegisterProjectionMigrationHelper<TContext>(this ContainerBuilder builder, RunnerDbContextMigrationHelper<TContext> migrationHelper)
-            where TContext : RunnerDbContext<TContext>
-        {
-            builder
-                .RegisterInstance(migrationHelper)
-                .As<IRunnerDbContextMigrationHelper>();
-        }
     }
 }

@@ -18,12 +18,12 @@ nuget Microsoft.EntityFrameworkCore.Design 2.2.0
 
 // BASE REGISTRIES STUFF
 nuget Be.Vlaanderen.Basisregisters.Build.Pipeline ~> 1.5
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 2.0
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector ~> 2.0
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore ~> 2.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 3.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector ~> 3.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore ~> 3.0
 
 // TEST STUFF
-nuget Microsoft.NET.Test.Sdk 15.9.0
+nuget Microsoft.NET.Test.Sdk 16.0.1
 nuget Microsoft.EntityFrameworkCore.InMemory 2.2.0
 nuget xunit 2.4.1
 nuget xunit.runner.visualstudio 2.4.1
