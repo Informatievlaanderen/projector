@@ -5,6 +5,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector
     using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
     using Internal;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
 
     public static class ContainerBuilderExtensions
@@ -27,6 +29,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector
                         container.Resolve<Func<Owned<TContext>>>())
                 )
                 .As<IConnectedProjectionRegistration>();
+        }
+
+        public static void RegisterProjectionMigrator<TContextMigrationFactory>(this ContainerBuilder builder, IConfiguration configuration, ILoggerFactory loggerFactory)
+            where TContextMigrationFactory : IRunnerDbContextMigratorFactory, new()
+        {
+            builder
+                .RegisterInstance(new TContextMigrationFactory().CreateMigrator(configuration, loggerFactory))
+                .As<IRunnerDbContextMigrator>();
         }
     }
 }
