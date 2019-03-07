@@ -16,8 +16,8 @@ description Generic projection runner infrastructure.
 
 dependencies
   framework: netstandard20
-    Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector ~> 2.0
-    Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 2.0
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector ~> 3.0
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 3.0
 
     Microsoft.AspNetCore.Mvc.Abstractions >= LOCKEDVERSION
     Microsoft.AspNetCore.Mvc.Core >= LOCKEDVERSION
