@@ -12,10 +12,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector
     public static class ContainerBuilderExtensions
     {
         public static void RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder)
-            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
+            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>, new()
             where TContext : RunnerDbContext<TContext>
         {
-            builder.RegisterProjections<TConnectedProjection,TContext>(Activator.CreateInstance<TConnectedProjection>);
+            builder.RegisterProjections<TConnectedProjection,TContext>(() => new TConnectedProjection());
         }
 
         public static void RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder, Func<TConnectedProjection> projectionFactory)
