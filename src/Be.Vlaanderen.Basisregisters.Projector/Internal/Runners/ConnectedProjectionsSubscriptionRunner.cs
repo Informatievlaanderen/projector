@@ -9,6 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using ConnectedProjections.States;
     using Exceptions;
     using Extensions;
+    using Messages;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
     using SqlStreamStore;

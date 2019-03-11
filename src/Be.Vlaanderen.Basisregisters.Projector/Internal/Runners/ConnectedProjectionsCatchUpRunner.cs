@@ -5,6 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System.Threading;
     using ConnectedProjections;
     using Extensions;
+    using Messages;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
     using SqlStreamStore;
@@ -19,28 +20,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         public ConnectedProjectionsCatchUpRunner(
             IReadonlyStreamStore streamStore,
             ILoggerFactory loggerFactory,
-            IConnectedProjectionEventBus eventBus,
-            IConnectedProjectionEventHandler connectedProjectionEventHandler)
+            IConnectedProjectionEventBus eventBus)
         {
             _projectionCatchUps = new Dictionary<ConnectedProjectionName, CancellationTokenSource>();
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+            _eventBus = eventBus ?? throw  new ArgumentNullException(nameof(eventBus));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCatchUpRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+        }
 
-            if (connectedProjectionEventHandler == null)
-                throw new ArgumentNullException(nameof(connectedProjectionEventHandler));
-
-            connectedProjectionEventHandler
-                .RegisterHandleFor<CatchUpStopped>(message => _projectionCatchUps.Remove(message.Projection));
+        public void Handle(CatchUpStopped message)
+        {
+            _projectionCatchUps.Remove(message.Projection);
         }
 
         public bool IsCatchingUp(ConnectedProjectionName connectedProjection)
-            => connectedProjection != null && _projectionCatchUps.ContainsKey(connectedProjection);
+        {
+            return null != connectedProjection && _projectionCatchUps.ContainsKey(connectedProjection);
+        }
 
         public void Start<TContext>(IConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if (projection == null || IsCatchingUp(projection.Name))
+            if(null == projection || IsCatchingUp(projection.Name))
                 return;
 
             _projectionCatchUps.Add(projection.Name, new CancellationTokenSource());
@@ -58,7 +59,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public void Stop(ConnectedProjectionName connectedProjection)
         {
-            if (connectedProjection == null)
+            if (null == connectedProjection)
                 return;
 
             if (IsCatchingUp(connectedProjection))
