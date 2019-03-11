@@ -23,6 +23,7 @@ dependencies
     Microsoft.AspNetCore.Mvc.Core >= LOCKEDVERSION
     Autofac >= LOCKEDVERSION
     Autofac.Extensions.DependencyInjection >= LOCKEDVERSION
+    System.Threading.Tasks.Dataflow >= LOCKEDVERSION
 
 files
   bin\Release\netstandard2.0\Be.Vlaanderen.Basisregisters.Projector.dll => lib\netstandard2.0

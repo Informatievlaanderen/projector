@@ -9,7 +9,6 @@ Generic projection runner infrastructure.
 ```csharp
 class ProjectionContext : Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.RunnerDbContext<ProjectionContext> { ... }
 class Projections : Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.ConnectedProjection<ProjectionContext> { ... }
-class ProjectionContextMigrationHelper : RunnerDbContextMigrationHelper<ProjectionContext> { ... }
 ```
 
 #### Creating migration helpers
@@ -46,9 +45,7 @@ builder.RegisterModule<ProjectorModule>();
 
 // Register migration helpers for a ProjectionContext
 builder
-    .RegisterProjectionMigrationHelper<ProjectionContextMigrationHelper>(
-        new ProjectionContextMigrationHelper(connectionString, logger, ...)
-    );
+    .RegisterProjectionMigrator<ProjectionContextMigrationFactory>(configuration, loggerFactory);
 
 // Register ConnectedProjections for a projection context
 builder
@@ -67,19 +64,22 @@ builder
 ConnectedProjectionsManager projectionManager;
 
 // Status of registered projections
-projectionManager.ConnectedProjections
+var projectsStatus = projectionManager.ConnectedProjections;
+
+// Find the registered ProjectionName
+var projectionName = projectionManager.FindRegisteredProjectionFor("projection");
 
 // Start a specific projection by name
-projectionManager.TryStartProjection("projection")
+projectionManager.Send(new StartProjectionRequested(projectionName));
 
 // Stop a specific projection by name
-projectionManager.TryStopProjection("projection")
+projectionManager.Send(new StopProjectionRequested(projectionName));
 
 // Start all registered projections
-projectionManager.StartAllProjections()
+projectionManager..Send<StartAllProjectionsRequested>();
 
 // Stop all registered projections
-projectionManager.StopAllProjections()
+projectionManager..Send<StopAllProjectionsRequested>();
 ```
 
 ## Quick contributing guide

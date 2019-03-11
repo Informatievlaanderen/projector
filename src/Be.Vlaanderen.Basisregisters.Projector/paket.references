@@ -4,6 +4,8 @@ Microsoft.AspNetCore.Mvc.Core
 Autofac
 Autofac.Extensions.DependencyInjection
 
+System.Threading.Tasks.Dataflow
+
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 

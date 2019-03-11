@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
     using System.Linq;
     using ConnectedProjections;
+    using Messages;
     using Microsoft.AspNetCore.Mvc;
 
     public abstract class DefaultProjectorController : ControllerBase
@@ -34,28 +35,30 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("start/all")]
         public IActionResult Start()
         {
-            ProjectionManager.StartAllProjections();
+            ProjectionManager.Send<StartAllProjectionsRequested>();
             return Ok();
         }
 
         [HttpPost("start/{projectionName}")]
         public IActionResult Start(string projectionName)
         {
-            ProjectionManager.TryStartProjection(projectionName);
+            var projection = ProjectionManager.FindRegisteredProjectionFor(projectionName);
+            ProjectionManager.Send(new StartProjectionRequested(projection));
             return Ok();
         }
 
         [HttpPost("stop/all")]
         public IActionResult Stop()
         {
-            ProjectionManager.StopAllProjections();
+            ProjectionManager.Send<StopAllProjectionsRequested>();
             return Ok();
         }
 
         [HttpPost("stop/{projectionName}")]
         public IActionResult Stop(string projectionName)
         {
-            ProjectionManager.TryStopProjection(projectionName);
+            var projection = ProjectionManager.FindRegisteredProjectionFor(projectionName);
+            ProjectionManager.Send(new StopProjectionRequested(projection));
             return Ok();
         }
     }

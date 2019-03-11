@@ -7,6 +7,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using ConnectedProjections;
     using Exceptions;
     using Extensions;
+    using Messages;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
     using SqlStreamStore;
@@ -115,7 +116,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
             _eventBus.Send(new CatchUpStopped(_runnerName));
             if (CatchUpStopReason.Finished == reason)
-                _eventBus.Send(new CatchUpFinished(_runnerName));
+                _eventBus.Send(new SubscriptionRequested(_runnerName));
         }
 
         private async Task<ReadAllPage> ReadPages(
