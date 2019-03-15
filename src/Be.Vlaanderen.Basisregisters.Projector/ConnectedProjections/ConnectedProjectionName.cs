@@ -2,7 +2,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 {
     using System;
     using System.Reflection;
+    using Newtonsoft.Json;
 
+    [JsonConverter(typeof(ConnectedProjectionNameJsonConverter))]
     public class ConnectedProjectionName
     {
         private readonly string _name;
@@ -18,5 +20,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         public override int GetHashCode() => _name?.ToLowerInvariant().GetHashCode() ?? 0;
 
         public override string ToString() => _name;
+    }
+
+    public class ConnectedProjectionNameJsonConverter : JsonConverter<ConnectedProjectionName>
+    {
+        public override void WriteJson(
+            JsonWriter writer,
+            ConnectedProjectionName value,
+            JsonSerializer serializer)
+        {
+            writer.WriteValue(value.ToString());
+        }
+
+        public override ConnectedProjectionName ReadJson(
+            JsonReader reader,
+            Type objectType,
+            ConnectedProjectionName existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CanRead => false;
     }
 }

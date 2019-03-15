@@ -1,64 +1,49 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
-    using System.Linq;
+    using System.Threading.Tasks;
+    using Commands;
     using ConnectedProjections;
-    using Messages;
     using Microsoft.AspNetCore.Mvc;
 
     public abstract class DefaultProjectorController : ControllerBase
     {
-        protected readonly ConnectedProjectionsManager ProjectionManager;
+        protected readonly IConnectedProjectionsManager ProjectionManager;
 
-        protected DefaultProjectorController(ConnectedProjectionsManager connectedProjectionsManager) => ProjectionManager = connectedProjectionsManager;
+        protected DefaultProjectorController(IConnectedProjectionsManager connectedProjectionsManager) => ProjectionManager = connectedProjectionsManager;
 
         [HttpGet]
         public IActionResult Get()
         {
-            var registeredProjections = ProjectionManager
-                .ConnectedProjections
-                .Select(
-                    projection => new
-                    {
-                        Name = projection.Name.ToString(),
-                        projection.State
-                    });
-
-            var response = new
-            {
-                SubscriptionStream = ProjectionManager.SubscriptionStreamStatus,
-                Projections = registeredProjections
-            };
-
-            return Ok(response);
+            return Ok(ProjectionManager.GetRegisteredProjections());
         }
 
         [HttpPost("start/all")]
-        public IActionResult Start()
+        public async Task<IActionResult> Start()
         {
-            ProjectionManager.Send<StartAllProjectionsRequested>();
+            await ProjectionManager.Send<StartAll>();
             return Ok();
         }
 
         [HttpPost("start/{projectionName}")]
-        public IActionResult Start(string projectionName)
+        public async Task<IActionResult> Start(string projectionName)
         {
-            var projection = ProjectionManager.FindRegisteredProjectionFor(projectionName);
-            ProjectionManager.Send(new StartProjectionRequested(projection));
+            var projection = ProjectionManager.GetRegisteredProjectionName(projectionName);
+            await ProjectionManager.Send(new Start(projection));
             return Ok();
         }
 
         [HttpPost("stop/all")]
-        public IActionResult Stop()
+        public async Task<IActionResult> Stop()
         {
-            ProjectionManager.Send<StopAllProjectionsRequested>();
+            await ProjectionManager.Send<StopAll>();
             return Ok();
         }
 
         [HttpPost("stop/{projectionName}")]
-        public IActionResult Stop(string projectionName)
+        public async Task<IActionResult> Stop(string projectionName)
         {
-            var projection = ProjectionManager.FindRegisteredProjectionFor(projectionName);
-            ProjectionManager.Send(new StopProjectionRequested(projection));
+            var projection = ProjectionManager.GetRegisteredProjectionName(projectionName);
+            await ProjectionManager.Send(new Stop(projection));
             return Ok();
         }
     }
