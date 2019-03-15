@@ -61,25 +61,25 @@ builder
 #### Managing the registered projections
 
 ```csharp
-ConnectedProjectionsManager projectionManager;
+IConnectedProjectionsManager projectionManager;
 
 // Status of registered projections
-var projectsStatus = projectionManager.ConnectedProjections;
+var projectsStatus = projectionManager.GetRegisteredProjections();
 
 // Find the registered ProjectionName
-var projectionName = projectionManager.FindRegisteredProjectionFor("projection");
+var projectionName = projectionManager.GetRegisteredProjectionName("projection");
 
 // Start a specific projection by name
-projectionManager.Send(new StartProjectionRequested(projectionName));
+projectionManager.Send(new Start(projectionName));
 
 // Stop a specific projection by name
-projectionManager.Send(new StopProjectionRequested(projectionName));
+projectionManager.Send(new Stop(projectionName));
 
 // Start all registered projections
-projectionManager..Send<StartAllProjectionsRequested>();
+projectionManager.Send<StartAll>();
 
 // Stop all registered projections
-projectionManager..Send<StopAllProjectionsRequested>();
+projectionManager.Send<StopAll>();
 ```
 
 ## Quick contributing guide

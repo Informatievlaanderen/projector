@@ -4,19 +4,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac.Features.OwnedInstances;
+    using Commands.CatchUp;
     using ConnectedProjections;
     using Exceptions;
     using Extensions;
-    using Messages;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
+    using Projector.Commands;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
     internal class ConnectedProjectionCatchUp<TContext> where TContext : RunnerDbContext<TContext>
     {
         private readonly ConnectedProjectionMessageHandler<TContext> _messageHandler;
-        private readonly IConnectedProjectionEventBus _eventBus;
+        private readonly IProjectionManager _projectionManager;
         private readonly ConnectedProjectionName _runnerName;
         private readonly ILogger _logger;
         private readonly IReadonlyStreamStore _streamStore;
@@ -29,14 +30,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             IReadonlyStreamStore streamStore,
             Func<Owned<TContext>> contextFactory,
             ConnectedProjectionMessageHandler<TContext> messageHandler,
-            IConnectedProjectionEventBus eventBus,
+            IProjectionManager projectionManager,
             ILogger logger)
         {
             _runnerName = name ?? throw new ArgumentNullException(nameof(name));
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _messageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+            _projectionManager = projectionManager ?? throw new ArgumentNullException(nameof(projectionManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -45,7 +46,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             cancellationToken.Register(() => { CatchUpStopped(CatchUpStopReason.Aborted); });
             try
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (_projectionManager.IsProjecting(_runnerName) || cancellationToken.IsCancellationRequested)
                     return;
 
                 _logger.LogDebug(
@@ -114,9 +115,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 _runnerName,
                 reason);
 
-            _eventBus.Send(new CatchUpStopped(_runnerName));
+            _projectionManager.Send(new RemoveStoppedCatchUp(_runnerName));
             if (CatchUpStopReason.Finished == reason)
-                _eventBus.Send(new SubscriptionRequested(_runnerName));
+                _projectionManager.Send(new Start.Subscription(_runnerName));
         }
 
         private async Task<ReadAllPage> ReadPages(

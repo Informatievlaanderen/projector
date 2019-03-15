@@ -2,193 +2,211 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Commands.Subscription;
     using ConnectedProjections;
-    using ConnectedProjections.States;
     using Exceptions;
     using Extensions;
-    using Messages;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
+    using Projector.Commands;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using SqlStreamStore.Subscriptions;
 
     internal class ConnectedProjectionsSubscriptionRunner
     {
-        private static readonly SemaphoreSlim SubscriptionLock = new SemaphoreSlim(1, 1);
-
         private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
         private readonly IReadonlyStreamStore _streamStore;
         private readonly ILogger<ConnectedProjectionsSubscriptionRunner> _logger;
-        private readonly IConnectedProjectionEventBus _eventBus;
+        private readonly IProjectionManager _projectionManager;
         private IAllStreamSubscription _allStreamSubscription;
+        private long? _lastProcessedPosition;
 
         public ConnectedProjectionsSubscriptionRunner(
             IReadonlyStreamStore streamStore,
             ILoggerFactory loggerFactory,
-            IConnectedProjectionEventBus eventBus)
+            IProjectionManager projectionManager)
         {
             _handlers = new Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>>();
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+            _projectionManager = projectionManager ?? throw new ArgumentNullException(nameof(projectionManager));
         }
 
-        public SubscriptionStreamState SubscriptionsStreamStatus =>
-            null == _allStreamSubscription
-                ? SubscriptionStreamState.Stopped
-                : SubscriptionStreamState.Running;
-
-        private string SubscribedProjectionNames => string.Join(", ", _handlers.Keys);
-
-        public bool HasSubscription(ConnectedProjectionName connectedProjection)
-            => connectedProjection != null && _handlers.ContainsKey(connectedProjection);
-
-        public async Task TrySubscribe<TContext>(
-            IConnectedProjection<TContext> projection,
-            CancellationToken cancellationToken)
-            where TContext : RunnerDbContext<TContext>
+        public bool HasSubscription(ConnectedProjectionName projectionName)
         {
-            try
+            return null != projectionName && _handlers.ContainsKey(projectionName);
+        }
+
+        public async Task HandleSubscriptionCommand<TSubscriptionMessage>(TSubscriptionMessage subscriptionMessage)
+            where TSubscriptionMessage : SubscriptionCommand
+        {
+            switch (subscriptionMessage)
             {
-                await SubscriptionLock.WaitAsync(cancellationToken);
-
-                if (projection == null || HasSubscription(projection.Name) || cancellationToken.IsCancellationRequested)
-                    return;
-
-                var streamPosition = Stop() ?? await _streamStore.ReadHeadPosition(cancellationToken);
-                var restartPosition = streamPosition - BacktrackNumberOfPositions;
-                long? projectionPosition;
-
-                using (var context = projection.ContextFactory())
-                    projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, cancellationToken);
-
-                _logger.LogWarning(
-                    "Trying to subscribe {Projection} at {ProjectionPosition} on AllStream at {StreamPosition}",
-                    projection.Name,
-                    projectionPosition,
-                    restartPosition);
-
-                if (false == cancellationToken.IsCancellationRequested)
-                {
-                    var restartStream = restartPosition < Position.Start;
-                    var projectionIsUpToDate = projectionPosition.HasValue && projectionPosition >= restartPosition;
-
-                    if (restartStream || projectionIsUpToDate)
-                    {
-                        _logger.LogInformation("Add {ProjectionName} to subscriptions", projection.Name);
-                        _handlers.Add(
-                            projection.Name,
-                            async (message, token) =>
-                            {
-                                await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token);
-                            });
-                    }
-                    else
-                    {
-                        _eventBus.Send(new CatchUpRequested(projection.Name));
-                    }
-                }
-
-                Start(restartPosition);
-            }
-            finally
-            {
-                SubscriptionLock.Release();
+                case StartSubscriptionStream _:
+                    await StartStream();
+                    break;
+                case ProcessStreamEvent processStreamEvent:
+                    await Handle(processStreamEvent);
+                    break;
+                case Subscribe subscribe:
+                    await Handle(subscribe);
+                    break;
+                case Unsubscribe unsubscribe:
+                    Handle(unsubscribe);
+                    break;
+                case UnsubscribeAll _:
+                    UnsubscribeAll();
+                    break;
+                default:
+                    _logger.LogError("No handler defined for {Message}", subscriptionMessage.GetType().Name);
+                    break;
             }
         }
 
-        public void Unsubscribe(ConnectedProjectionName connectedProjection)
+        private async Task StartStream()
         {
-            if (connectedProjection == null || false == HasSubscription(connectedProjection))
+            if (StreamIsRunning)
                 return;
 
-            var lastPosition = Stop();
-            _handlers.Remove(connectedProjection);
-            Start(lastPosition);
-        }
+            if (_handlers.Count > 0)
+            {
+                var staleSubscriptions = _handlers.Keys.ToReadOnlyList();
+                _logger.LogInformation("Remove stale subscriptions before starting stream {subscriptions}", staleSubscriptions.ToString(", "));
+                _handlers.Clear();
+                foreach (var name in staleSubscriptions)
+                    await _projectionManager.Send(new Start(name));
+            }
 
-        public IEnumerable<ConnectedProjectionName> UnsubscribeAll()
-        {
-            var projectionNames = _handlers.Keys.ToList();
+            long? afterPosition = await _streamStore.ReadHeadPosition(CancellationToken.None);
+            if (afterPosition < 0)
+                afterPosition = null;
 
-            Stop();
-            _handlers.Clear();
-
-            return projectionNames;
-        }
-
-        private void Start(long? position)
-        {
-            var alreadyRunning = SubscriptionStreamState.Running == SubscriptionsStreamStatus;
-            if (alreadyRunning || false == _handlers.Any())
-                return;
-
-            var continueAfterPosition = false == position.HasValue || position < Position.Start ? null : position;
             _logger.LogInformation(
-                "Started subscription stream after position: {AfterPosition} for {ProjectionNames}",
-                continueAfterPosition,
-                SubscribedProjectionNames);
+                "Started subscription stream at position: {AfterPosition}",
+                afterPosition);
 
             _allStreamSubscription = _streamStore
                 .SubscribeToAll(
-                    continueAfterPosition,
-                    OnMessageReceived,
-                    OnSubscriptionDropped);
+                    afterPosition,
+                    OnStreamMessageReceived,
+                    OnSubscriptionDropped
+                );
+
+            _lastProcessedPosition = _allStreamSubscription.LastPosition;
         }
 
-        private const long BacktrackNumberOfPositions = 100;
-        private long? Stop()
+        private bool StreamIsRunning => null != _allStreamSubscription;
+
+        private async Task Handle(Subscribe subscribe)
         {
-            if (_allStreamSubscription == null)
-                return null;
-
-            var lastPosition = _allStreamSubscription.LastPosition;
-            _allStreamSubscription.Dispose();
-            _allStreamSubscription = null;
-
-            if (lastPosition.HasValue)
-                _logger.LogInformation("Stopped subscription stream at position: {AfterPosition}", lastPosition);
-
-            var lastCompletelyProcessedPosition = lastPosition - 1;
-            return lastCompletelyProcessedPosition;
+            if (StreamIsRunning)
+            {
+                Subscribe(subscribe.Projection.Instance);
+            }
+            else
+            {
+                await _projectionManager.Send<StartSubscriptionStream>();
+                await _projectionManager.Send(subscribe);
+            }
         }
 
-        private async Task OnMessageReceived(
-            IAllStreamSubscription subscription,
-            StreamMessage message,
-            CancellationToken cancellationToken)
+        private void Handle(Unsubscribe unsubscribe)
+        {
+            if (null == unsubscribe?.ProjectionName)
+                return;
+
+            _handlers.Remove(unsubscribe.ProjectionName);
+        }
+
+        private void UnsubscribeAll()
+        {
+            _handlers.Clear();
+        }
+
+        private async Task Subscribe<TContext>(IConnectedProjection<TContext> projection)
+            where TContext : RunnerDbContext<TContext>
+        {
+            if (null == projection || _projectionManager.IsProjecting(projection.Name))
+                return;
+
+            long? projectionPosition;
+            using (var context = projection.ContextFactory())
+            {
+                projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, CancellationToken.None);
+            }
+
+            if (null == _lastProcessedPosition)
+                throw new Exception("LastPosition should never be unset at this point");
+
+            _logger.LogWarning(
+                "Trying to subscribe {Projection} at {ProjectionPosition} on AllStream at {StreamPosition}",
+                projection.Name,
+                projectionPosition);
+
+
+            if ((projectionPosition ?? -1) > _lastProcessedPosition || _lastProcessedPosition < Position.Start)
+            {
+                _logger.LogInformation("Add {ProjectionName} to subscriptions", projection.Name);
+                _handlers.Add(
+                    projection.Name,
+                    async (message, token) =>
+                    {
+                        await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token);
+                    });
+            }
+            else
+                await _projectionManager.Send(new Start.CatchUp(projection.Name));
+        }
+
+        private async Task Handle(ProcessStreamEvent processStreamEvent)
         {
             _logger.LogInformation(
                 "Received message {MessageType} at {Position}, fanning out to projections: {ProjectionNames}.",
-                message.Type,
-                message.Position,
-                SubscribedProjectionNames);
+                processStreamEvent.Message.Type,
+                processStreamEvent.Message.Position,
+                _handlers.Keys.ToString(", "));
 
-            foreach (var handler in _handlers.Values.ToReadOnlyList())
-                await handler(message, cancellationToken);
+            _lastProcessedPosition = processStreamEvent.Subscription.LastPosition;
+            foreach (var handler in _handlers.Values)
+                await handler(processStreamEvent.Message, processStreamEvent.CancellationToken);
+        }
+     
+        private async Task OnStreamMessageReceived(IAllStreamSubscription subscription, StreamMessage message, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            await _projectionManager.Send(new ProcessStreamEvent(subscription, message, cancellationToken));
         }
 
-        private void OnSubscriptionDropped(
+        private async void OnSubscriptionDropped(
             IAllStreamSubscription subscription,
             SubscriptionDroppedReason reason,
             Exception exception)
         {
-            if (exception == null || exception is TaskCanceledException)
+            _allStreamSubscription = null;
+
+            if (null == exception || exception is TaskCanceledException)
                 return;
 
             if (exception is ConnectedProjectionMessageHandlingException messageHandlingException)
             {
+                var projectionInError = messageHandlingException.RunnerName;
                 _logger.LogError(
                     messageHandlingException.InnerException,
                     "Subscription {RunnerName} failed because an exception was thrown when handling the message at {Position}.",
-                    messageHandlingException.RunnerName,
+                    projectionInError,
                     messageHandlingException.RunnerPosition);
 
-                _eventBus.Send(new SubscriptionsHasThrownAnError(messageHandlingException.RunnerName));
+                _logger.LogInformation(
+                    "Removing faulty subscribed projection {Projection}",
+                    projectionInError);
+                _handlers.Remove(projectionInError);
+
+                await _projectionManager.Send<StartSubscriptionStream>();
             }
             else
             {
@@ -201,4 +219,3 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         }
     }
 }
-

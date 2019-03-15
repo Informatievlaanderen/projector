@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
     using System.Reflection;
     using Autofac;
     using ConnectedProjections;
+    using Internal;
     using Microsoft.Extensions.Logging;
     using Module = Autofac.Module;
 
@@ -21,8 +22,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
             builder.RegisterType<ConnectedProjectionsManager>()
                 .FindConstructorsWith(AllowNonPublicConstructor)
                 .WithParameter(new Parameter<ILoggerFactory>(_loggerFactory))
-                .AsSelf()
-                .As<IConnectedProjectionEventBus>()
+                .As<IProjectionManager>()
+                .As<IConnectedProjectionsManager>()
                 .SingleInstance();
         }
 
