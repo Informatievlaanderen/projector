@@ -107,7 +107,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     await Send<UnsubscribeAll>();
                     break;
                 default:
-                    _logger.LogError("No handler defined for {Event}", message.GetType().Name);
+                    _logger.LogError("No handler defined for {Command}", command);
                     break;
             }
         }

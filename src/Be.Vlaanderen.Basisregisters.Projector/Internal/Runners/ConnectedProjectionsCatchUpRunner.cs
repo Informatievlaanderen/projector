@@ -51,7 +51,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     StopAllCatchUps();
                     break;
                 default:
-                    _logger.LogError("No handler defined for {Message}", catchUpEvent.GetType().Name);
+                    _logger.LogError("No handler defined for {Command}", command);
                     break;
             }
         }

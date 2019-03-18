@@ -61,7 +61,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     UnsubscribeAll();
                     break;
                 default:
-                    _logger.LogError("No handler defined for {Message}", subscriptionMessage.GetType().Name);
+                    _logger.LogError("No handler defined for {Command}", command);
                     break;
             }
         }
