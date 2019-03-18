@@ -45,9 +45,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public async Task CatchUpAsync(CancellationToken cancellationToken)
         {
             cancellationToken.Register(() => { CatchUpStopped(CatchUpStopReason.Aborted); });
+
             try
             {
-                if (_projectionManager.IsProjecting(_runnerName) || cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested)
                     return;
 
                 _logger.LogDebug(
