@@ -1,6 +1,7 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Commands
 {
     using ConnectedProjections;
+    using Internal.Commands.Subscription;
 
     public class Start : ConnectedProjectionCommand
     {
@@ -8,31 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Commands
         
         public Start(ConnectedProjectionName projectionName)
         {
-             DefaultCommand = new Subscription(projectionName);
-        }
-        
-        internal class Subscription : ConnectedProjectionCommand
-        {
-            public new string Command => $"{typeof(Start).Name}.{GetType().Name}";
-
-            public ConnectedProjectionName ProjectionName { get; }
-            
-            public Subscription(ConnectedProjectionName projectionName)
-            {
-                ProjectionName = projectionName;
-            }
-        }
-
-        internal class CatchUp : ConnectedProjectionCommand
-        {
-            public new string Command => $"{typeof(Start).Name}.{GetType().Name}";
-
-            public ConnectedProjectionName ProjectionName { get; }
-            
-            public CatchUp(ConnectedProjectionName projectionName)
-            {
-                ProjectionName = projectionName;
-            }
+             DefaultCommand = new Subscribe(projectionName);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Commands.CatchUp;
     using Commands.Subscription;
     using ConnectedProjections;
     using Exceptions;
@@ -40,10 +41,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             return null != projectionName && _handlers.ContainsKey(projectionName);
         }
 
-        public async Task HandleSubscriptionCommand<TSubscriptionMessage>(TSubscriptionMessage subscriptionMessage)
-            where TSubscriptionMessage : SubscriptionCommand
+        public async Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand command)
+            where TSubscriptionCommand : SubscriptionCommand
         {
-            switch (subscriptionMessage)
+            _logger.LogInformation("Subscription: Handling {Command}", command);
+            switch (command)
             {
                 case StartSubscriptionStream _:
                     await StartStream();
@@ -104,7 +106,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         {
             if (StreamIsRunning)
             {
-                Subscribe(subscribe.Projection.Instance);
+                var projection = _projectionManager
+                    .GetProjection(subscribe?.ProjectionName)
+                    ?.Instance;
+                Subscribe(projection);
             }
             else
             {
@@ -158,7 +163,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     });
             }
             else
-                await _projectionManager.Send(new Start.CatchUp(projection.Name));
+                _projectionManager.Send(new StartCatchUp(projection.Name));
         }
 
         private async Task Handle(ProcessStreamEvent processStreamEvent)

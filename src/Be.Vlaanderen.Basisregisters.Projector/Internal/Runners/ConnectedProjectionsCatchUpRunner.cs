@@ -33,10 +33,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             return null != projectionName && _projectionCatchUps.ContainsKey(projectionName);
         }
 
-        public void HandleCatchUpCommand<TCatchUpEvent>(TCatchUpEvent catchUpEvent)
-            where TCatchUpEvent : CatchUpCommand
+        public void HandleCatchUpCommand<TCatchUpCommand>(TCatchUpCommand command)
+            where TCatchUpCommand : CatchUpCommand
         {
-            switch (catchUpEvent)
+            _logger.LogInformation("CatchUp: Handling {Command}", command);
+            switch (command)
             {
                 case StartCatchUp startCatchUp:
                     Handle(startCatchUp);
@@ -73,7 +74,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private void Handle(StartCatchUp startCatchUp)
         {
-            Start(startCatchUp?.Projection?.Instance);
+            var projection = _projectionManager
+                .GetProjection(startCatchUp?.ProjectionName)
+                ?.Instance;
+            Start(projection);
         }
 
         private void Start<TContext>(IConnectedProjection<TContext> projection)

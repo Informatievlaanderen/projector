@@ -13,5 +13,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             where TCommand : ConnectedProjectionCommand;
 
         bool IsProjecting(ConnectedProjectionName projectionName);
+        IConnectedProjection GetProjection(ConnectedProjectionName projectionName);
     }
 }

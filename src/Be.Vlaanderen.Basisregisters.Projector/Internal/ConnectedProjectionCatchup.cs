@@ -5,6 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Threading.Tasks;
     using Autofac.Features.OwnedInstances;
     using Commands.CatchUp;
+    using Commands.Subscription;
     using ConnectedProjections;
     using Exceptions;
     using Extensions;
@@ -117,7 +118,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
             _projectionManager.Send(new RemoveStoppedCatchUp(_runnerName));
             if (CatchUpStopReason.Finished == reason)
-                _projectionManager.Send(new Start.Subscription(_runnerName));
+                _projectionManager.Send(new Subscribe(_runnerName));
         }
 
         private async Task<ReadAllPage> ReadPages(
