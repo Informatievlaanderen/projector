@@ -1,6 +1,5 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
-    using System.Threading.Tasks;
     using Commands;
     using ConnectedProjections;
     using Microsoft.AspNetCore.Mvc;
@@ -18,32 +17,32 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         }
 
         [HttpPost("start/all")]
-        public async Task<IActionResult> Start()
+        public IActionResult Start()
         {
-            await ProjectionManager.Send<StartAll>();
+            ProjectionManager.Send<StartAll>();
             return Ok();
         }
 
         [HttpPost("start/{projectionName}")]
-        public async Task<IActionResult> Start(string projectionName)
+        public IActionResult Start(string projectionName)
         {
             var projection = ProjectionManager.GetRegisteredProjectionName(projectionName);
-            await ProjectionManager.Send(new Start(projection));
+            ProjectionManager.Send(new Start(projection));
             return Ok();
         }
 
         [HttpPost("stop/all")]
-        public async Task<IActionResult> Stop()
+        public IActionResult Stop()
         {
-            await ProjectionManager.Send<StopAll>();
+            ProjectionManager.Send<StopAll>();
             return Ok();
         }
 
         [HttpPost("stop/{projectionName}")]
-        public async Task<IActionResult> Stop(string projectionName)
+        public IActionResult Stop(string projectionName)
         {
             var projection = ProjectionManager.GetRegisteredProjectionName(projectionName);
-            await ProjectionManager.Send(new Stop(projection));
+            ProjectionManager.Send(new Stop(projection));
             return Ok();
         }
     }
