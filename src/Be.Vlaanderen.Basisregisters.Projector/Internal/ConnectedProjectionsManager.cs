@@ -72,27 +72,29 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             return ConnectedProjectionState.Stopped != GetState(projectionName);
         }
 
-        private async Task Handle(ConnectedProjectionCommand message)
+        public IConnectedProjection GetProjection(ConnectedProjectionName projectionName)
         {
-            _logger.LogInformation("Handling {Event}: {Message}", message.GetType().Name, message);
-            switch (message)
+            return _registeredProjections.Get(projectionName);
+        }
+
+        private async Task Handle(ConnectedProjectionCommand command)
+        {
+            switch (command)
             {
                 case SubscriptionCommand subscriptionCommand:
                     await _subscriptionRunner.HandleSubscriptionCommand(subscriptionCommand);
-                    break;
-
+                    return;
                 case CatchUpCommand catchUpCommand:
                     _catchUpRunner.HandleCatchUpCommand(catchUpCommand);
-                    break;
+                    return;
+            }
+
+            _logger.LogInformation("Handling {Command}", command);
+            switch (command)
+            {
 
                 case Start start:
-                    await Send(start.DefaultCommand);
-                    break;
-                case Start.Subscription startSubscription:
-                    await Send(new Subscribe(_registeredProjections.Get(startSubscription.ProjectionName)));
-                    break;
-                case Start.CatchUp startCatchUp:
-                    await Send(new Subscribe(_registeredProjections.Get(startCatchUp.ProjectionName)));
+                    Send(start.DefaultCommand);
                     break;
                 case StartAll _:
                     foreach (var projection in _registeredProjections ?? new List<IConnectedProjection>())

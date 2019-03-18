@@ -1,12 +1,14 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands.Subscription
 {
+    using ConnectedProjections;
+
     internal class Subscribe : SubscriptionCommand
     {
-        public IConnectedProjection Projection { get; }
+        public ConnectedProjectionName ProjectionName { get; }
 
-        public Subscribe(IConnectedProjection projection)
+        public Subscribe(ConnectedProjectionName projectionName)
         {
-            Projection = projection;
+            ProjectionName = projectionName;
         }
     }
 }
