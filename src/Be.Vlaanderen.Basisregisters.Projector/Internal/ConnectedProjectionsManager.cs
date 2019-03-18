@@ -43,16 +43,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             RunMigrations(projectionMigrationHelpers ?? throw new ArgumentNullException(nameof(projectionMigrationHelpers)));
         }
 
-        public async Task Send<TCommand>()
+        public void Send<TCommand>()
             where TCommand : ConnectedProjectionCommand, new()
         {
-            await Send(new TCommand());
+            Send(new TCommand());
         }
 
-        public async Task Send<TCommand>(TCommand command)
+        public void Send<TCommand>(TCommand command)
             where TCommand : ConnectedProjectionCommand
         {
-            await _mailbox.SendAsync(command);
+            _mailbox.SendAsync(command);
         }
 
         public IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections()
@@ -98,15 +98,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     break;
                 case StartAll _:
                     foreach (var projection in _registeredProjections ?? new List<IConnectedProjection>())
-                        await Send(new Start(projection?.Name));
+                        Send(new Start(projection?.Name));
                     break;
                 case Stop stop:
-                    await Send(new StopCatchUp(stop.ProjectionName));
-                    await Send(new Unsubscribe(stop.ProjectionName));
+                    Send(new StopCatchUp(stop.ProjectionName));
+                    Send(new Unsubscribe(stop.ProjectionName));
                     break;
                 case StopAll _:
-                    await Send<StopAllCatchUps>();
-                    await Send<UnsubscribeAll>();
+                    Send<StopAllCatchUps>();
+                    Send<UnsubscribeAll>();
                     break;
                 default:
                     _logger.LogError("No handler defined for {Command}", command);

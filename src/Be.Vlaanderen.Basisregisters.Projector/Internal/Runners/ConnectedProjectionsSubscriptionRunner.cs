@@ -54,7 +54,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     await Handle(processStreamEvent);
                     break;
                 case Subscribe subscribe:
-                    await Handle(subscribe);
+                    Handle(subscribe);
                     break;
                 case Unsubscribe unsubscribe:
                     Handle(unsubscribe);
@@ -79,7 +79,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 _logger.LogInformation("Remove stale subscriptions before starting stream {subscriptions}", staleSubscriptions.ToString(", "));
                 _handlers.Clear();
                 foreach (var name in staleSubscriptions)
-                    await _projectionManager.Send(new Start(name));
+                    _projectionManager.Send(new Start(name));
             }
 
             long? afterPosition = await _streamStore.ReadHeadPosition(CancellationToken.None);
@@ -102,7 +102,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private bool StreamIsRunning => null != _allStreamSubscription;
 
-        private async Task Handle(Subscribe subscribe)
+        private void Handle(Subscribe subscribe)
         {
             if (StreamIsRunning)
             {
@@ -113,8 +113,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             }
             else
             {
-                await _projectionManager.Send<StartSubscriptionStream>();
-                await _projectionManager.Send(subscribe);
+                _projectionManager.Send<StartSubscriptionStream>();
+                _projectionManager.Send(subscribe);
             }
         }
 
@@ -179,12 +179,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 await handler(processStreamEvent.Message, processStreamEvent.CancellationToken);
         }
      
-        private async Task OnStreamMessageReceived(IAllStreamSubscription subscription, StreamMessage message, CancellationToken cancellationToken)
+        private Task OnStreamMessageReceived(IAllStreamSubscription subscription, StreamMessage message, CancellationToken cancellationToken)
         {
-            if (cancellationToken.IsCancellationRequested)
-                return;
+            return new Task(() =>
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
 
-            await _projectionManager.Send(new ProcessStreamEvent(subscription, message, cancellationToken));
+                _projectionManager.Send(new ProcessStreamEvent(subscription, message, cancellationToken));
+            });
         }
 
         private async void OnSubscriptionDropped(
@@ -211,7 +214,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     projectionInError);
                 _handlers.Remove(projectionInError);
 
-                await _projectionManager.Send<StartSubscriptionStream>();
+                _projectionManager.Send<StartSubscriptionStream>();
             }
             else
             {

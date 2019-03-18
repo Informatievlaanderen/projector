@@ -6,10 +6,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal interface IProjectionManager
     {
-        Task Send<TCommand>()
+        void Send<TCommand>()
             where TCommand : ConnectedProjectionCommand, new();
 
-        Task Send<TCommand>(TCommand command)
+        void Send<TCommand>(TCommand command)
             where TCommand : ConnectedProjectionCommand;
 
         bool IsProjecting(ConnectedProjectionName projectionName);
