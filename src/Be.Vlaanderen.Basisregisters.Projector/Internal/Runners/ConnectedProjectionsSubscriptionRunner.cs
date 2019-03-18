@@ -114,7 +114,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             else
             {
                 _projectionManager.Send<StartSubscriptionStream>();
-                _projectionManager.Send(subscribe);
+                _projectionManager.Send(subscribe.Clone());
             }
         }
 

@@ -10,5 +10,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands.Subscription
         {
             ProjectionName = projectionName;
         }
+
+        public Subscribe Clone()
+        {
+            return new Subscribe(ProjectionName);
+        }
     }
 }
