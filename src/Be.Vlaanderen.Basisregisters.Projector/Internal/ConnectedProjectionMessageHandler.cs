@@ -59,18 +59,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         if (message.Position > expectedPositionToProcess)
                             throw new Exception($"Messages skipped, expected messages for position: {expectedPositionToProcess}");
 
-                        _logger.LogInformation(
-                            "{RunnerName} handling {MessageType} at {Position}",
-                            _runnerName,
-                            message.Type,
-                            message.Position);
-
                         _logger.LogTrace(
-                            "[{Latency}] [POS {Position}] [{StreamId}] [{Type}]",
-                            CalculateNotVeryPreciseLatency(message),
-                            message.Position,
+                            "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
+                            _runnerName,
                             message.StreamId,
-                            message.Type);
+                            message.Position,
+                            message.Type,
+                            CalculateNotVeryPreciseLatency(message));
 
                         lastProcessedMessagePosition = message.Position;
                         await _projector.ProjectAsync(context.Value, _envelopeFactory.Create(message), completeMessageInProcess);

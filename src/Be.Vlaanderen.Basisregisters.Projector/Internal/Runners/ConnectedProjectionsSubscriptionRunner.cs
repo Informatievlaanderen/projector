@@ -42,7 +42,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         public async Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand command)
             where TSubscriptionCommand : SubscriptionCommand
         {
-            _logger.LogInformation("Subscription: Handling {Command}", command);
+            _logger.LogTrace("Subscription: Handling {Command}", command);
             switch (command)
             {
                 case StartSubscriptionStream _:
@@ -74,7 +74,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             if (_handlers.Count > 0)
             {
                 var staleSubscriptions = _handlers.Keys.ToReadOnlyList();
-                _logger.LogInformation("Remove stale subscriptions before starting stream {subscriptions}", staleSubscriptions.ToString(", "));
+                _logger.LogInformation("Remove stale subscriptions before starting stream: {subscriptions}", staleSubscriptions.ToString(", "));
                 _handlers.Clear();
                 foreach (var name in staleSubscriptions)
                     _projectionManager.Send(new Start(name));
@@ -85,7 +85,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 afterPosition = null;
 
             _logger.LogInformation(
-                "Started subscription stream at position: {AfterPosition}",
+                "Started subscription stream after {AfterPosition}",
                 afterPosition);
 
             _allStreamSubscription = _streamStore
@@ -121,11 +121,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             if (unsubscribe?.ProjectionName == null)
                 return;
 
+            _logger.LogInformation("Unsubscribing {Projection}", unsubscribe.ProjectionName);
             _handlers.Remove(unsubscribe.ProjectionName);
         }
 
         private void UnsubscribeAll()
         {
+            _logger.LogInformation("Unsubscribing {Projections}", _handlers.Keys.ToString(", "));
             _handlers.Clear();
         }
 
@@ -141,17 +143,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
             if (null == _lastProcessedPosition)
                 throw new Exception("LastPosition should never be unset at this point");
-
-            _logger.LogInformation(
-                "Trying to subscribe {Projection} at {ProjectionPosition} on AllStream at {StreamPosition}",
-                projection.Name,
-                projectionPosition,
-                _lastProcessedPosition);
-
-
+            
             if ((projectionPosition ?? -1) > _lastProcessedPosition || _lastProcessedPosition < Position.Start)
             {
-                _logger.LogInformation("Add {ProjectionName} to subscriptions", projection.Name);
+                _logger.LogInformation(
+                    "Subscribing {ProjectionName} at {ProjectionPosition} to AllStream at {StreamPosition}",
+                    projection.Name,
+                    projectionPosition,
+                    _lastProcessedPosition);
+
                 _handlers.Add(
                     projection.Name,
                     async (message, token) =>
@@ -165,11 +165,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private async Task Handle(ProcessStreamEvent processStreamEvent)
         {
-            _logger.LogInformation(
-                "Received message {MessageType} at {Position}, fanning out to projections: {ProjectionNames}.",
+            _logger.LogTrace(
+                "Handling message {MessageType} at {Position}",
                 processStreamEvent.Message.Type,
-                processStreamEvent.Message.Position,
-                _handlers.Keys.ToString(", "));
+                processStreamEvent.Message.Position);
 
             _lastProcessedPosition = processStreamEvent.Subscription.LastPosition;
             foreach (var handler in _handlers.Values)

@@ -93,7 +93,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     return;
             }
 
-            _logger.LogInformation("Handling {Command}", command);
+            _logger.LogTrace("Handling {Command}", command);
             switch (command)
             {
                 case Start start:

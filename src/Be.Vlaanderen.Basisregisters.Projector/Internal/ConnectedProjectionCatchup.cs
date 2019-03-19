@@ -63,7 +63,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     return;
 
                 _logger.LogInformation(
-                    "Start {RunnerName} CatchUp at position: {Position}",
+                    "Start catch up {RunnerName} at {Position}",
                     _runnerName,
                     position);
 
@@ -113,7 +113,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private void CatchUpStopped(CatchUpStopReason reason)
         {
             _logger.LogInformation(
-                "Stopping {RunnerName} CatchUp: {Reason}",
+                "Stopping catch up {RunnerName}: {Reason}",
                 _runnerName,
                 reason);
 
