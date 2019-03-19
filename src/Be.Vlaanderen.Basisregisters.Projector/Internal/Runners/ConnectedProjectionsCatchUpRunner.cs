@@ -59,11 +59,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private void Handle(StopCatchUp stopCatchUp)
         {
-            if (null == stopCatchUp.ProjectionName)
+            if (stopCatchUp.ProjectionName == null || false == IsCatchingUp(stopCatchUp.ProjectionName))
                 return;
 
-            if (IsCatchingUp(stopCatchUp.ProjectionName))
-                _projectionCatchUps[stopCatchUp.ProjectionName].Cancel();
+            try
+            {
+                var catchUp = _projectionCatchUps[stopCatchUp.ProjectionName];
+                if (false == catchUp.IsCancellationRequested)
+                    catchUp.Cancel();
+            }
+            catch (KeyNotFoundException) { }
+            catch (ObjectDisposedException) { }
         }
 
         private void StopAllCatchUps()
