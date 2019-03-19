@@ -11,14 +11,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector
 
     public static class ContainerBuilderExtensions
     {
-        public static void RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder)
+        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder)
             where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>, new()
             where TContext : RunnerDbContext<TContext>
-        {
-            builder.RegisterProjections<TConnectedProjection,TContext>(() => new TConnectedProjection());
-        }
+            => builder.RegisterProjections<TConnectedProjection, TContext>(() => new TConnectedProjection());
 
-        public static void RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder, Func<TConnectedProjection> projectionFactory)
+        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder, Func<TConnectedProjection> projectionFactory)
             where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
             where TContext : RunnerDbContext<TContext>
         {
@@ -29,14 +27,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector
                         container.Resolve<Func<Owned<TContext>>>())
                 )
                 .As<IConnectedProjectionRegistration>();
+
+            return builder;
         }
 
-        public static void RegisterProjectionMigrator<TContextMigrationFactory>(this ContainerBuilder builder, IConfiguration configuration, ILoggerFactory loggerFactory)
+        public static ContainerBuilder RegisterProjectionMigrator<TContextMigrationFactory>(this ContainerBuilder builder, IConfiguration configuration, ILoggerFactory loggerFactory)
             where TContextMigrationFactory : IRunnerDbContextMigratorFactory, new()
         {
             builder
                 .RegisterInstance(new TContextMigrationFactory().CreateMigrator(configuration, loggerFactory))
                 .As<IRunnerDbContextMigrator>();
+
+            return builder;
         }
     }
 }
