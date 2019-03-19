@@ -37,7 +37,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         public void HandleCatchUpCommand<TCatchUpCommand>(TCatchUpCommand command)
             where TCatchUpCommand : CatchUpCommand
         {
-            _logger.LogInformation("CatchUp: Handling {Command}", command);
+            _logger.LogTrace("CatchUp: Handling {Command}", command);
             switch (command)
             {
                 case StartCatchUp startCatchUp:
