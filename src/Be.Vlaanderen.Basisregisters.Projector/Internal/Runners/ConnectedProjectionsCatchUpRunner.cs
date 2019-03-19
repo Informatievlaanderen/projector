@@ -24,13 +24,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         {
             _projectionCatchUps = new Dictionary<ConnectedProjectionName, CancellationTokenSource>();
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
-            _projectionManager = projectionManager ?? throw  new ArgumentNullException(nameof(projectionManager));
+            _projectionManager = projectionManager ?? throw new ArgumentNullException(nameof(projectionManager));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCatchUpRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public bool IsCatchingUp(ConnectedProjectionName projectionName)
         {
-            return null != projectionName && _projectionCatchUps.ContainsKey(projectionName);
+            return projectionName != null &&
+                   _projectionCatchUps.ContainsKey(projectionName);
         }
 
         public void HandleCatchUpCommand<TCatchUpCommand>(TCatchUpCommand command)
@@ -89,7 +90,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private void Start<TContext>(IConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if(null == projection || _projectionManager.IsProjecting(projection.Name))
+            if(projection == null || _projectionManager.IsProjecting(projection.Name))
                 return;
 
             _projectionCatchUps.Add(projection.Name, new CancellationTokenSource());
