@@ -144,7 +144,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             if (null == _lastProcessedPosition)
                 throw new Exception("LastPosition should never be unset at this point");
             
-            if ((projectionPosition ?? -1) > _lastProcessedPosition || _lastProcessedPosition < Position.Start)
+            if ((projectionPosition ?? -1) >= _lastProcessedPosition)
             {
                 _logger.LogInformation(
                     "Subscribing {ProjectionName} at {ProjectionPosition} to AllStream at {StreamPosition}",
