@@ -5,14 +5,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Extensions
 
     internal static class CollectionExtensions
     {
-        public static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> collection)
-        {
-            return collection?.ToList();
-        }
+        public static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> collection) => collection?.ToList();
 
-        public static IEnumerable<T> RemoveNullReferences<T>(this IEnumerable<T> collection)
-        {
-            return collection?.Where(item => null != item);
-        }
+        public static IEnumerable<T> RemoveNullReferences<T>(this IEnumerable<T> collection) => collection?.Where(item => null != item);
     }
 }

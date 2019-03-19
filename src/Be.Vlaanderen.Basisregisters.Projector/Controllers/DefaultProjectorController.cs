@@ -20,8 +20,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                     {
                         Name = projection.Name.ToString(),
                         projection.State
-                    }
-                );
+                    });
 
             var response = new
             {

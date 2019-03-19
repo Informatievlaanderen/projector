@@ -5,10 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal static class TaskRunner
     {
-        public static Task Dispatch(Func<Task> asyncAction)
-        {
-            return Dispatch(() => asyncAction().GetAwaiter());
-        }
+        public static Task Dispatch(Func<Task> asyncAction) => Dispatch(() => asyncAction().GetAwaiter());
 
         public static Task Dispatch(Action action)
         {
@@ -23,7 +20,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public static Task Dispatch(Action action, Action<Exception> exceptionHandler)
         {
-            if(null == exceptionHandler)
+            if (exceptionHandler == null)
                 throw new ArgumentNullException(nameof(exceptionHandler));
 
             return Dispatch(
@@ -31,7 +28,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 task =>
                 {
                     var exception = task?.Exception?.GetBaseException();
-                    if (null != exception)
+                    if (exception != null)
                         exceptionHandler(exception);
                 });
         }

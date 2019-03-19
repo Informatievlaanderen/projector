@@ -30,9 +30,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ILoggerFactory loggerFactory)
         {
             _runnerName = runnerName;
-            _contextFactory = contextFactory ?? throw  new ArgumentNullException(nameof(contextFactory));
+            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _projector = new ConnectedProjector<TContext>(Resolve.WhenEqualToHandlerMessageType(handlers));
-            _envelopeFactory = envelopeFactory ?? throw  new ArgumentNullException(nameof(envelopeFactory));
+            _envelopeFactory = envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
@@ -84,7 +84,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                     await context.Value.SaveChangesAsync(completeMessageInProcess);
                 }
-                catch (TaskCanceledException){ }
+                catch (TaskCanceledException) { }
                 catch (Exception exception)
                 {
                     throw new ConnectedProjectionMessageHandlingException(exception, _runnerName, lastProcessedMessagePosition);
@@ -96,7 +96,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             StreamMessage message,
             CancellationToken cancellationToken)
         {
-            await HandleAsync(new[] {message}, cancellationToken);
+            await HandleAsync(new[] { message }, cancellationToken);
         }
 
         private static TimeSpan CalculateNotVeryPreciseLatency(StreamMessage message)

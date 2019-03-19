@@ -22,8 +22,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         }
 
         IConnectedProjection IConnectedProjectionRegistration.CreateConnectedProjection(EnvelopeFactory envelopeFactory, ILoggerFactory loggerFactory)
-        {
-            return new ConnectedProjection<TConnectedProjection, TContext>(_contextFactory, _connectedProjection, envelopeFactory, loggerFactory);
-        }
+            => new ConnectedProjection<TConnectedProjection, TContext>(_contextFactory, _connectedProjection, envelopeFactory, loggerFactory);
     }
 }

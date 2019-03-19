@@ -8,7 +8,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Newtonsoft.Json;
 
     // Poor man's implementation to remove the callback out of manager/subscription/catchup
-    // ToDo: replace by lib that does this properly
+    // TODO: replace by lib that does this properly
     internal interface IConnectedProjectionEventBus
     {
         void Send<TMessage>(TMessage message)
@@ -53,6 +53,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             where TEvent : ConnectedProjectionEvent
         {
             Lock.Wait(CancellationToken.None);
+
             try
             {
                 var eventType = typeof(TEvent);
@@ -72,35 +73,30 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     {
         public override string ToString()
         {
-            var jsonSerializerSettings = 
+            var jsonSerializerSettings =
                 new JsonSerializerSettings
                 {
                     Converters = new List<JsonConverter> {new ConnectedProjectionNameConverter()}
                 };
+
             return JsonConvert.SerializeObject(this, jsonSerializerSettings);
         }
-        
+
         private class ConnectedProjectionNameConverter : JsonConverter<ConnectedProjectionName>
         {
+            public override bool CanRead => false;
+
             public override void WriteJson(
                 JsonWriter writer,
                 ConnectedProjectionName value,
-                JsonSerializer serializer)
-            {
-                writer.WriteValue(value.ToString());
-            }
+                JsonSerializer serializer) => writer.WriteValue(value.ToString());
 
             public override ConnectedProjectionName ReadJson(
                 JsonReader reader,
                 Type objectType,
                 ConnectedProjectionName existingValue,
                 bool hasExistingValue,
-                JsonSerializer serializer)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override bool CanRead => false;
+                JsonSerializer serializer) => throw new NotImplementedException();
         }
     }
 
@@ -108,40 +104,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     {
         public ConnectedProjectionName ProjectionInError { get; }
 
-        public SubscriptionsHasThrownAnError(ConnectedProjectionName projectionInError)
-        {
-            ProjectionInError = projectionInError;
-        }
+        public SubscriptionsHasThrownAnError(ConnectedProjectionName projectionInError) => ProjectionInError = projectionInError;
     }
 
     internal class CatchUpRequested : ConnectedProjectionEvent
     {
         public ConnectedProjectionName Projection { get; }
 
-        public CatchUpRequested(ConnectedProjectionName projection)
-        {
-            Projection = projection;
-        }
+        public CatchUpRequested(ConnectedProjectionName projection) => Projection = projection;
     }
 
     internal class CatchUpStopped : ConnectedProjectionEvent
     {
         public ConnectedProjectionName Projection { get; }
 
-        public CatchUpStopped(ConnectedProjectionName projection)
-        {
-            Projection = projection;
-        }
+        public CatchUpStopped(ConnectedProjectionName projection) => Projection = projection;
     }
 
     internal class CatchUpFinished : ConnectedProjectionEvent
     {
         public ConnectedProjectionName Projection { get; }
 
-        public CatchUpFinished(ConnectedProjectionName projection)
-        {
-            Projection = projection;
-        }
+        public CatchUpFinished(ConnectedProjectionName projection) => Projection = projection;
     }
 
 }

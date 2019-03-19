@@ -24,11 +24,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         {
             _projectionCatchUps = new Dictionary<ConnectedProjectionName, CancellationTokenSource>();
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
-            _eventBus = eventBus ?? throw  new ArgumentNullException(nameof(eventBus));
+            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCatchUpRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
 
-
-            if(null == connectedProjectionEventHandler)
+            if (connectedProjectionEventHandler == null)
                 throw new ArgumentNullException(nameof(connectedProjectionEventHandler));
 
             connectedProjectionEventHandler
@@ -36,14 +35,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         }
 
         public bool IsCatchingUp(ConnectedProjectionName connectedProjection)
-        {
-            return null != connectedProjection && _projectionCatchUps.ContainsKey(connectedProjection);
-        }
+            => connectedProjection != null && _projectionCatchUps.ContainsKey(connectedProjection);
 
         public void Start<TContext>(IConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if(null == projection || IsCatchingUp(projection.Name))
+            if (projection == null || IsCatchingUp(projection.Name))
                 return;
 
             _projectionCatchUps.Add(projection.Name, new CancellationTokenSource());
@@ -61,7 +58,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public void Stop(ConnectedProjectionName connectedProjection)
         {
-            if (null == connectedProjection)
+            if (connectedProjection == null)
                 return;
 
             if (IsCatchingUp(connectedProjection))

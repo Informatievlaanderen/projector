@@ -40,8 +40,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
             return type.GetConstructors(
                 BindingFlags.Instance |
                 BindingFlags.Public |
-                BindingFlags.NonPublic
-            );
+                BindingFlags.NonPublic);
         }
     }
 }

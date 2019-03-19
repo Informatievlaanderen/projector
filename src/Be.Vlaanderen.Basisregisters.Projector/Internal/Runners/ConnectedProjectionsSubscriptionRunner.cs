@@ -44,9 +44,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private string SubscribedProjectionNames => string.Join(", ", _handlers.Keys);
 
         public bool HasSubscription(ConnectedProjectionName connectedProjection)
-        {
-            return null != connectedProjection && _handlers.ContainsKey(connectedProjection);
-        }
+            => connectedProjection != null && _handlers.ContainsKey(connectedProjection);
 
         public async Task TrySubscribe<TContext>(
             IConnectedProjection<TContext> projection,
@@ -57,23 +55,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             {
                 await SubscriptionLock.WaitAsync(cancellationToken);
 
-                if (null == projection || HasSubscription(projection.Name) || cancellationToken.IsCancellationRequested)
+                if (projection == null || HasSubscription(projection.Name) || cancellationToken.IsCancellationRequested)
                     return;
 
                 var streamPosition = Stop() ?? await _streamStore.ReadHeadPosition(cancellationToken);
                 var restartPosition = streamPosition - BacktrackNumberOfPositions;
                 long? projectionPosition;
+
                 using (var context = projection.ContextFactory())
-                {
                     projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, cancellationToken);
-                }
 
                 _logger.LogWarning(
                     "Trying to subscribe {Projection} at {ProjectionPosition} on AllStream at {StreamPosition}",
                     projection.Name,
                     projectionPosition,
                     restartPosition);
-
 
                 if (false == cancellationToken.IsCancellationRequested)
                 {
@@ -91,7 +87,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                             });
                     }
                     else
+                    {
                         _eventBus.Send(new CatchUpRequested(projection.Name));
+                    }
                 }
 
                 Start(restartPosition);
@@ -104,7 +102,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public void Unsubscribe(ConnectedProjectionName connectedProjection)
         {
-            if (null == connectedProjection || false == HasSubscription(connectedProjection))
+            if (connectedProjection == null || false == HasSubscription(connectedProjection))
                 return;
 
             var lastPosition = Stop();
@@ -138,14 +136,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 .SubscribeToAll(
                     continueAfterPosition,
                     OnMessageReceived,
-                    OnSubscriptionDropped
-                );
+                    OnSubscriptionDropped);
         }
 
         private const long BacktrackNumberOfPositions = 100;
         private long? Stop()
         {
-            if (null == _allStreamSubscription)
+            if (_allStreamSubscription == null)
                 return null;
 
             var lastPosition = _allStreamSubscription.LastPosition;
@@ -179,7 +176,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             SubscriptionDroppedReason reason,
             Exception exception)
         {
-            if (null == exception || exception is TaskCanceledException)
+            if (exception == null || exception is TaskCanceledException)
                 return;
 
             if (exception is ConnectedProjectionMessageHandlingException messageHandlingException)

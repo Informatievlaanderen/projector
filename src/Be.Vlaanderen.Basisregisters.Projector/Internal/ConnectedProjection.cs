@@ -45,7 +45,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory))
             );
         }
-        
+
         public dynamic Instance => this;
     }
 }

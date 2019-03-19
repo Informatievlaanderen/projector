@@ -86,7 +86,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                 CatchUpStopped(CatchUpStopReason.Finished);
             }
-            catch (TaskCanceledException){ }
+            catch (TaskCanceledException) { }
             catch (ConnectedProjectionMessageHandlingException exception)
             {
                 CatchUpStopped(CatchUpStopReason.Error);
