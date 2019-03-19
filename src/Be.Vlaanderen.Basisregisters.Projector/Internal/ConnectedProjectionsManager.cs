@@ -57,7 +57,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections()
         {
-            return _registeredProjections.Select(projection => new RegisteredConnectedProjection(projection.Name,GetState(projection.Name)));
+            return _registeredProjections
+                .Select(projection =>
+                    new RegisteredConnectedProjection(
+                        projection.Name,
+                        GetState(projection.Name)));
         }
 
         public ConnectedProjectionName GetRegisteredProjectionName(string name)
@@ -92,7 +96,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             _logger.LogInformation("Handling {Command}", command);
             switch (command)
             {
-
                 case Start start:
                     Send(start.DefaultCommand);
                     break;

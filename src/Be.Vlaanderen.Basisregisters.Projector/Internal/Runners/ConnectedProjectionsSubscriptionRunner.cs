@@ -37,9 +37,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         }
 
         public bool HasSubscription(ConnectedProjectionName projectionName)
-        {
-            return null != projectionName && _handlers.ContainsKey(projectionName);
-        }
+            => projectionName != null && _handlers.ContainsKey(projectionName);
 
         public async Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand command)
             where TSubscriptionCommand : SubscriptionCommand
@@ -100,7 +98,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             _lastProcessedPosition = _allStreamSubscription.LastPosition;
         }
 
-        private bool StreamIsRunning => null != _allStreamSubscription;
+        private bool StreamIsRunning => _allStreamSubscription != null;
 
         private void Handle(Subscribe subscribe)
         {
@@ -120,7 +118,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private void Handle(Unsubscribe unsubscribe)
         {
-            if (null == unsubscribe?.ProjectionName)
+            if (unsubscribe?.ProjectionName == null)
                 return;
 
             _handlers.Remove(unsubscribe.ProjectionName);
@@ -134,14 +132,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private async Task Subscribe<TContext>(IConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if (null == projection || _projectionManager.IsProjecting(projection.Name))
+            if (projection == null || _projectionManager.IsProjecting(projection.Name))
                 return;
 
             long? projectionPosition;
             using (var context = projection.ContextFactory())
-            {
                 projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, CancellationToken.None);
-            }
 
             if (null == _lastProcessedPosition)
                 throw new Exception("LastPosition should never be unset at this point");
@@ -191,14 +187,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             });
         }
 
-        private async void OnSubscriptionDropped(
+        private void OnSubscriptionDropped(
             IAllStreamSubscription subscription,
             SubscriptionDroppedReason reason,
             Exception exception)
         {
             _allStreamSubscription = null;
 
-            if (null == exception || exception is TaskCanceledException)
+            if (exception == null || exception is TaskCanceledException)
                 return;
 
             if (exception is ConnectedProjectionMessageHandlingException messageHandlingException)
