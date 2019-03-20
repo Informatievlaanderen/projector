@@ -12,10 +12,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
     {
         private readonly ILoggerFactory _loggerFactory;
 
-        public ProjectorModule(ILoggerFactory loggerFactory)
-        {
-            _loggerFactory = loggerFactory;
-        }
+        public ProjectorModule(ILoggerFactory loggerFactory) => _loggerFactory = loggerFactory;
 
         protected override void Load(ContainerBuilder builder)
         {

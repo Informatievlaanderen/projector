@@ -29,10 +29,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         }
 
         public bool IsCatchingUp(ConnectedProjectionName projectionName)
-        {
-            return projectionName != null &&
-                   _projectionCatchUps.ContainsKey(projectionName);
-        }
+            => projectionName != null && _projectionCatchUps.ContainsKey(projectionName);
 
         public void HandleCatchUpCommand<TCatchUpCommand>(TCatchUpCommand command)
             where TCatchUpCommand : CatchUpCommand
@@ -43,15 +40,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 case StartCatchUp startCatchUp:
                     Handle(startCatchUp);
                     break;
+
                 case RemoveStoppedCatchUp removeStoppedCatchUp:
                     Handle(removeStoppedCatchUp);
                     break;
+
                 case StopCatchUp stopCatchUp:
                     Handle(stopCatchUp);
                     break;
+
                 case StopAllCatchUps _:
                     StopAllCatchUps();
                     break;
+
                 default:
                     _logger.LogError("No handler defined for {Command}", command);
                     break;
@@ -60,23 +61,27 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private void Handle(StopCatchUp stopCatchUp)
         {
-            if (stopCatchUp.ProjectionName == null || false == IsCatchingUp(stopCatchUp.ProjectionName))
-                return;
-
-            try
-            {
-                var catchUp = _projectionCatchUps[stopCatchUp.ProjectionName];
-                if (false == catchUp.IsCancellationRequested)
-                    catchUp.Cancel();
-            }
-            catch (KeyNotFoundException) { }
-            catch (ObjectDisposedException) { }
+            StopCatchUp(stopCatchUp?.ProjectionName);
         }
 
         private void StopAllCatchUps()
         {
             foreach (var projectionName in _projectionCatchUps.Keys.ToReadOnlyList())
-                _projectionCatchUps[projectionName].Cancel();
+                StopCatchUp(projectionName);
+        }
+
+        private void StopCatchUp(ConnectedProjectionName projectionName)
+        {
+            if (projectionName == null || IsCatchingUp(projectionName) == false)
+                return;
+
+            try
+            {
+                using (var catchUp = _projectionCatchUps[projectionName])
+                    catchUp.Cancel();
+            }
+            catch (KeyNotFoundException) { }
+            catch (ObjectDisposedException) { }
         }
 
         private void Handle(StartCatchUp startCatchUp)
@@ -84,13 +89,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             var projection = _projectionManager
                 .GetProjection(startCatchUp?.ProjectionName)
                 ?.Instance;
+
             Start(projection);
         }
 
         private void Start<TContext>(IConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if(projection == null || _projectionManager.IsProjecting(projection.Name))
+            if (projection == null || _projectionManager.IsProjecting(projection.Name))
                 return;
 
             _projectionCatchUps.Add(projection.Name, new CancellationTokenSource());
@@ -106,9 +112,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             TaskRunner.Dispatch(async () => { await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Name].Token); });
         }
 
-        private void Handle(RemoveStoppedCatchUp message)
-        {
-            _projectionCatchUps.Remove(message.ProjectionName);
-        }
+        private void Handle(RemoveStoppedCatchUp message) => _projectionCatchUps.Remove(message.ProjectionName);
     }
 }

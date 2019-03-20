@@ -64,23 +64,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         GetState(projection.Name)));
         }
 
-        public ConnectedProjectionName GetRegisteredProjectionName(string name)
-        {
-            return _registeredProjections
-                ?.SingleOrDefault(status => status.Name.Equals(name))
-                ?.Name;
-        }
+        public ConnectedProjectionName GetRegisteredProjectionName(string name) => _registeredProjections.Get(name)?.Name;
 
-        public bool IsProjecting(ConnectedProjectionName projectionName)
-        {
-            return ConnectedProjectionState.Stopped != GetState(projectionName);
-        }
+        public IConnectedProjection GetProjection(ConnectedProjectionName projectionName) => _registeredProjections.Get(projectionName);
 
-        public IConnectedProjection GetProjection(ConnectedProjectionName projectionName)
-        {
-            return _registeredProjections.Get(projectionName);
-        }
-
+        public bool IsProjecting(ConnectedProjectionName projectionName) => GetState(projectionName) != ConnectedProjectionState.Stopped;
+        
         private async Task Handle(ConnectedProjectionCommand command)
         {
             switch (command)
@@ -88,6 +77,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 case SubscriptionCommand subscriptionCommand:
                     await _subscriptionRunner.HandleSubscriptionCommand(subscriptionCommand);
                     return;
+
                 case CatchUpCommand catchUpCommand:
                     _catchUpRunner.HandleCatchUpCommand(catchUpCommand);
                     return;
@@ -99,18 +89,22 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 case Start start:
                     Send(start.DefaultCommand);
                     break;
+
                 case StartAll _:
                     foreach (var projection in _registeredProjections ?? new List<IConnectedProjection>())
                         Send(new Start(projection?.Name));
                     break;
+
                 case Stop stop:
                     Send(new StopCatchUp(stop.ProjectionName));
                     Send(new Unsubscribe(stop.ProjectionName));
                     break;
+
                 case StopAll _:
                     Send<StopAllCatchUps>();
                     Send<UnsubscribeAll>();
                     break;
+
                 default:
                     _logger.LogError("No handler defined for {Command}", command);
                     break;

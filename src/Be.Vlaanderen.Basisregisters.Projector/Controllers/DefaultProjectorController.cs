@@ -11,10 +11,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         protected DefaultProjectorController(IConnectedProjectionsManager connectedProjectionsManager) => ProjectionManager = connectedProjectionsManager;
 
         [HttpGet]
-        public IActionResult Get()
-        {
-            return Ok(ProjectionManager.GetRegisteredProjections());
-        }
+        public IActionResult Get() => Ok(ProjectionManager.GetRegisteredProjections());
 
         [HttpPost("start/all")]
         public IActionResult Start()

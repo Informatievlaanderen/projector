@@ -14,7 +14,7 @@ nuget Microsoft.AspNetCore.Mvc.Core 2.2.0
 nuget Autofac 4.9.1
 nuget Autofac.Extensions.DependencyInjection 4.4.0
 
-nuget System.Threading.Tasks.Dataflow 4.9.
+nuget System.Threading.Tasks.Dataflow 4.9.0
 
 nuget Microsoft.EntityFrameworkCore.Design 2.2.0
 

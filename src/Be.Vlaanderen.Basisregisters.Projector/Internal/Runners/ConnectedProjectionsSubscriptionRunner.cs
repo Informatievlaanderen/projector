@@ -48,18 +48,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 case StartSubscriptionStream _:
                     await StartStream();
                     break;
+
                 case ProcessStreamEvent processStreamEvent:
                     await Handle(processStreamEvent);
                     break;
+
                 case Subscribe subscribe:
                     Handle(subscribe);
                     break;
+
                 case Unsubscribe unsubscribe:
                     Handle(unsubscribe);
                     break;
+
                 case UnsubscribeAll _:
                     UnsubscribeAll();
                     break;
+
                 default:
                     _logger.LogError("No handler defined for {Command}", command);
                     break;
@@ -76,6 +81,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 var staleSubscriptions = _handlers.Keys.ToReadOnlyList();
                 _logger.LogInformation("Remove stale subscriptions before starting stream: {subscriptions}", staleSubscriptions.ToString(", "));
                 _handlers.Clear();
+
                 foreach (var name in staleSubscriptions)
                     _projectionManager.Send(new Start(name));
             }
@@ -107,6 +113,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 var projection = _projectionManager
                     .GetProjection(subscribe?.ProjectionName)
                     ?.Instance;
+
                 Subscribe(projection);
             }
             else
@@ -141,7 +148,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             using (var context = projection.ContextFactory())
                 projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, CancellationToken.None);
 
-            if (null == _lastProcessedPosition)
+            if (_lastProcessedPosition == null)
                 throw new Exception("LastPosition should never be unset at this point");
             
             if ((projectionPosition ?? -1) >= _lastProcessedPosition)
@@ -154,10 +161,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
                 _handlers.Add(
                     projection.Name,
-                    async (message, token) =>
-                    {
-                        await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token);
-                    });
+                    async (message, token) => await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token));
             }
             else
                 _projectionManager.Send(new StartCatchUp(projection.Name));
