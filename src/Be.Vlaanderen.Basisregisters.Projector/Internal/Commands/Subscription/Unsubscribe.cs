@@ -6,9 +6,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands.Subscription
     {
         public ConnectedProjectionName ProjectionName { get; }
 
-        public Unsubscribe(ConnectedProjectionName projectionName)
-        {
-            ProjectionName = projectionName;
-        }
+        public Unsubscribe(ConnectedProjectionName projectionName) => ProjectionName = projectionName;
     }
 }

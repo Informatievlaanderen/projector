@@ -11,7 +11,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         internal ConnectedProjectionName(MemberInfo connectedProjectionType) => _name = connectedProjectionType?.Name;
 
-        public override bool Equals(object obj) => Equals(obj as ConnectedProjectionName);
+        public override bool Equals(object obj)
+        {
+            switch (obj)
+            {
+                case ConnectedProjectionName name:
+                    return Equals(name);
+                case string nameString:
+                    return Equals(nameString);
+                default:
+                    return false;
+            }
+        }
 
         public bool Equals(ConnectedProjectionName other) => other != null && Equals(other._name);
 
@@ -24,13 +35,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
     public class ConnectedProjectionNameJsonConverter : JsonConverter<ConnectedProjectionName>
     {
+        public override bool CanRead => false;
+
         public override void WriteJson(
             JsonWriter writer,
             ConnectedProjectionName value,
             JsonSerializer serializer)
-        {
-            writer.WriteValue(value.ToString());
-        }
+            => writer.WriteValue(value.ToString());
 
         public override ConnectedProjectionName ReadJson(
             JsonReader reader,
@@ -38,10 +49,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             ConnectedProjectionName existingValue,
             bool hasExistingValue,
             JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool CanRead => false;
+            => throw new NotImplementedException();
     }
 }

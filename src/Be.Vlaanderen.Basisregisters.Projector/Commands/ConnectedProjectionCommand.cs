@@ -8,14 +8,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Commands
     [JsonConverter(typeof(ConnectedProjectionCommandJsonConverter))]
     public abstract class ConnectedProjectionCommand
     {
-        public override string ToString()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
+        public override string ToString() => JsonConvert.SerializeObject(this);
     }
 
     public class ConnectedProjectionCommandJsonConverter : JsonConverter<ConnectedProjectionCommand>
     {
+        public override bool CanRead => false;
+
         public override void WriteJson(
             JsonWriter writer,
             ConnectedProjectionCommand value,
@@ -37,11 +36,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Commands
             ConnectedProjectionCommand existingValue,
             bool hasExistingValue,
             JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool CanRead => false;
+            => throw new NotImplementedException();
     }
-
 }

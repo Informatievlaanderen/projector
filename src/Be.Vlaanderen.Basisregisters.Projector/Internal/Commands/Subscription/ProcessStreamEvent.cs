@@ -6,6 +6,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands.Subscription
 
     internal class ProcessStreamEvent : SubscriptionCommand
     {
+        public IAllStreamSubscription Subscription { get; }
+        public StreamMessage Message { get; }
+        public CancellationToken CancellationToken { get; }
+
         public ProcessStreamEvent(
             IAllStreamSubscription subscription,
             StreamMessage message,
@@ -15,9 +19,5 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands.Subscription
             Message = message;
             CancellationToken = cancellationToken;
         }
-
-        public IAllStreamSubscription Subscription { get; }
-        public StreamMessage Message { get; }
-        public CancellationToken CancellationToken { get; }
     }
 }

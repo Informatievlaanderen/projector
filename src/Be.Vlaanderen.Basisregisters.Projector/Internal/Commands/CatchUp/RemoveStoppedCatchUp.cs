@@ -6,9 +6,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands.CatchUp
     {
         public ConnectedProjectionName ProjectionName { get; }
 
-        public RemoveStoppedCatchUp(ConnectedProjectionName projectionName)
-        {
-            ProjectionName = projectionName;
-        }
+        public RemoveStoppedCatchUp(ConnectedProjectionName projectionName) => ProjectionName = projectionName;
     }
 }

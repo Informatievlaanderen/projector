@@ -7,9 +7,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Commands
     {
         public ConnectedProjectionCommand DefaultCommand { get; }
         
-        public Start(ConnectedProjectionName projectionName)
-        {
-             DefaultCommand = new Subscribe(projectionName);
-        }
+        public Start(ConnectedProjectionName projectionName) => DefaultCommand = new Subscribe(projectionName);
     }
 }
