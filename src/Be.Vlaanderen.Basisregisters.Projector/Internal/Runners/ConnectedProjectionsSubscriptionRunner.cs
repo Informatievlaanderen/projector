@@ -12,27 +12,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
     using Projector.Commands;
-    using SqlStreamStore;
     using SqlStreamStore.Streams;
-    using SqlStreamStore.Subscriptions;
 
     internal class ConnectedProjectionsSubscriptionRunner
     {
         private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
-        private readonly IReadonlyStreamStore _streamStore;
         private readonly ILogger<ConnectedProjectionsSubscriptionRunner> _logger;
+        private readonly ConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
         private readonly IProjectionManager _projectionManager;
-        private IAllStreamSubscription _allStreamSubscription;
-        private long? _lastProcessedPosition;
 
         public ConnectedProjectionsSubscriptionRunner(
-            IReadonlyStreamStore streamStore,
+            ConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
             ILoggerFactory loggerFactory,
             IProjectionManager projectionManager)
         {
             _handlers = new Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>>();
-            _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _streamsStoreSubscription = streamsStoreSubscription ?? throw new ArgumentNullException(nameof(streamsStoreSubscription));
             _projectionManager = projectionManager ?? throw new ArgumentNullException(nameof(projectionManager));
         }
 
@@ -45,16 +41,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             _logger.LogTrace("Subscription: Handling {Command}", command);
             switch (command)
             {
-                case StartSubscriptionStream _:
-                    await StartStream();
-                    break;
-
                 case ProcessStreamEvent processStreamEvent:
                     await Handle(processStreamEvent);
                     break;
 
                 case Subscribe subscribe:
-                    Handle(subscribe);
+                    await Handle(subscribe);
                     break;
 
                 case Unsubscribe unsubscribe:
@@ -73,7 +65,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private async Task StartStream()
         {
-            if (StreamIsRunning)
+            if (_streamsStoreSubscription.StreamIsRunning)
                 return;
 
             if (_handlers.Count > 0)
@@ -86,29 +78,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     _projectionManager.Send(new Start(name));
             }
 
-            long? afterPosition = await _streamStore.ReadHeadPosition(CancellationToken.None);
-            if (afterPosition < 0)
-                afterPosition = null;
-
-            _logger.LogInformation(
-                "Started subscription stream after {AfterPosition}",
-                afterPosition);
-
-            _allStreamSubscription = _streamStore
-                .SubscribeToAll(
-                    afterPosition,
-                    OnStreamMessageReceived,
-                    OnSubscriptionDropped
-                );
-
-            _lastProcessedPosition = _allStreamSubscription.LastPosition;
+            await _streamsStoreSubscription.Start();
         }
-
-        private bool StreamIsRunning => _allStreamSubscription != null;
-
-        private void Handle(Subscribe subscribe)
+        
+        private async Task Handle(Subscribe subscribe)
         {
-            if (StreamIsRunning)
+            if (_streamsStoreSubscription.StreamIsRunning)
             {
                 var projection = _projectionManager
                     .GetProjection(subscribe?.ProjectionName)
@@ -118,7 +93,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             }
             else
             {
-                _projectionManager.Send<StartSubscriptionStream>();
+                await StartStream();
                 _projectionManager.Send(subscribe.Clone());
             }
         }
@@ -148,16 +123,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             using (var context = projection.ContextFactory())
                 projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, CancellationToken.None);
 
-            if (_lastProcessedPosition == null)
-                throw new Exception("LastPosition should never be unset at this point");
-            
-            if ((projectionPosition ?? -1) >= _lastProcessedPosition)
+            var lastProcessedPosition = _streamsStoreSubscription.LastProcessedPosition;
+            if ((projectionPosition ?? -1) >= (lastProcessedPosition ?? -1))
             {
                 _logger.LogInformation(
                     "Subscribing {ProjectionName} at {ProjectionPosition} to AllStream at {StreamPosition}",
                     projection.Name,
                     projectionPosition,
-                    _lastProcessedPosition);
+                    lastProcessedPosition);
 
                 _handlers.Add(
                     projection.Name,
@@ -210,32 +183,5 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             }
         }
 
-        private Task OnStreamMessageReceived(IAllStreamSubscription subscription, StreamMessage message, CancellationToken cancellationToken)
-        {
-            return new Task(() =>
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    return;
-
-                _projectionManager.Send(new ProcessStreamEvent(subscription, message, cancellationToken));
-            });
-        }
-
-        private void OnSubscriptionDropped(
-            IAllStreamSubscription subscription,
-            SubscriptionDroppedReason reason,
-            Exception exception)
-        {
-            _allStreamSubscription = null;
-
-            if (exception == null || exception is TaskCanceledException)
-                return;
-
-            _logger.LogError(
-                exception,
-                "Subscription {SubscriptionName} was dropped. Reason: {Reason}",
-                subscription.Name,
-                reason);
-        }
     }
 }
