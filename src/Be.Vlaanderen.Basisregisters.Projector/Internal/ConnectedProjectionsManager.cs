@@ -27,7 +27,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private readonly ActionBlock<ConnectedProjectionCommand> _mailbox;
 
         internal ConnectedProjectionsManager(
-            IEnumerable<IRunnerDbContextMigrator> projectionMigrationHelpers,
+            IEnumerable<IRunnerDbContextMigrator> projectionMigrators,
             IEnumerable<IConnectedProjectionRegistration> projectionRegistrations,
             IReadonlyStreamStore streamStore,
             ILoggerFactory loggerFactory,
@@ -35,12 +35,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsManager>() ?? throw new ArgumentNullException(nameof(loggerFactory));
             _catchUpRunner = new ConnectedProjectionsCatchUpRunner(streamStore, loggerFactory, this);
-            _subscriptionRunner = new ConnectedProjectionsSubscriptionRunner(streamStore, loggerFactory, this);
+            var streamStoreSubscription = new ConnectedProjectionsStreamStoreSubscription(streamStore, this, loggerFactory);
+            _subscriptionRunner = new ConnectedProjectionsSubscriptionRunner(streamStoreSubscription, loggerFactory, this);
             _registeredProjections = projectionRegistrations?.RegisterWith(envelopeFactory, loggerFactory) ?? throw new ArgumentNullException(nameof(projectionRegistrations));
 
             _mailbox = new ActionBlock<ConnectedProjectionCommand>(Handle);
 
-            RunMigrations(projectionMigrationHelpers ?? throw new ArgumentNullException(nameof(projectionMigrationHelpers)));
+            RunMigrations(projectionMigrators ?? throw new ArgumentNullException(nameof(projectionMigrators)));
         }
 
         public void Send<TCommand>()
