@@ -174,11 +174,42 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 processStreamEvent.Message.Type,
                 processStreamEvent.Message.Position);
 
-            _lastProcessedPosition = processStreamEvent.Subscription.LastPosition;
-            foreach (var handler in _handlers.Values)
-                await handler(processStreamEvent.Message, processStreamEvent.CancellationToken);
+            foreach (var projectionName in _handlers.Keys.ToReadOnlyList())
+            {
+                try
+                {
+                    await _handlers[projectionName](processStreamEvent.Message, processStreamEvent.CancellationToken);
+                }
+                catch (ConnectedProjectionMessageHandlingException messageHandlingException)
+                {
+                    var projectionInError = messageHandlingException.RunnerName;
+                    _logger.LogError(
+                        messageHandlingException.InnerException,
+                        "Handle message Subscription {RunnerName} failed because an exception was thrown when handling the message at {Position}.",
+                        projectionInError,
+                        messageHandlingException.RunnerPosition);
+
+                    _logger.LogInformation(
+                        "Removing faulty subscribed projection {Projection}",
+                        projectionInError);
+
+                    _handlers.Remove(projectionInError);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(
+                        exception,
+                        "Unhandled exception in Handle:{Command}.", nameof(ProcessStreamEvent));
+
+                    _logger.LogInformation(
+                        "Removing faulty subscribed projection {Projection}",
+                        projectionName);
+
+                    _handlers.Remove(projectionName);
+                }
+            }
         }
-     
+
         private Task OnStreamMessageReceived(IAllStreamSubscription subscription, StreamMessage message, CancellationToken cancellationToken)
         {
             return new Task(() =>
@@ -200,30 +231,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             if (exception == null || exception is TaskCanceledException)
                 return;
 
-            if (exception is ConnectedProjectionMessageHandlingException messageHandlingException)
-            {
-                var projectionInError = messageHandlingException.RunnerName;
-                _logger.LogError(
-                    messageHandlingException.InnerException,
-                    "Subscription {RunnerName} failed because an exception was thrown when handling the message at {Position}.",
-                    projectionInError,
-                    messageHandlingException.RunnerPosition);
-
-                _logger.LogInformation(
-                    "Removing faulty subscribed projection {Projection}",
-                    projectionInError);
-                _handlers.Remove(projectionInError);
-
-                _projectionManager.Send<StartSubscriptionStream>();
-            }
-            else
-            {
-                _logger.LogError(
-                    exception,
-                    "Subscription {SubscriptionName} was dropped. Reason: {Reason}",
-                    subscription.Name,
-                    reason);
-            }
+            _logger.LogError(
+                exception,
+                "Subscription {SubscriptionName} was dropped. Reason: {Reason}",
+                subscription.Name,
+                reason);
         }
     }
 }
