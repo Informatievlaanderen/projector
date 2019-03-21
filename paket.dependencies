@@ -6,6 +6,7 @@ framework: netstandard20, netcoreapp22, net472
 source https://api.nuget.org/v3/index.json
 
 // DOTNETCORE & PAKET ISSUES
+nuget Microsoft.NETCore.App 2.2.0
 nuget NETStandard.Library 2.0.3
 
 nuget Microsoft.AspNetCore.Mvc.Abstractions 2.2.0
