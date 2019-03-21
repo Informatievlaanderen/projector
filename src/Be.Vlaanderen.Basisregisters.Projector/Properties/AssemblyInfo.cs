@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Resources;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
@@ -13,3 +14,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("0518aafb-85ec-4412-a3cc-967f2d062e74")]
 
 [assembly: NeutralResourcesLanguage("en")]
+[assembly: InternalsVisibleTo("Be.Vlaanderen.Basisregisters.Projector.Tests")]
