@@ -3,6 +3,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Commands;
     using Commands.CatchUp;
     using ConnectedProjections;
     using Extensions;
@@ -14,21 +15,27 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     {
         private readonly Dictionary<ConnectedProjectionName, CancellationTokenSource> _projectionCatchUps;
         private readonly IReadonlyStreamStore _streamStore;
-        private readonly IProjectionManager _projectionManager;
+        private readonly IConnectedProjectionsCommandBus _commandBus;
+        private readonly RegisteredProjections _registeredProjections;
         private readonly ILogger<ConnectedProjectionsCatchUpRunner> _logger;
 
         public ConnectedProjectionsCatchUpRunner(
+            RegisteredProjections registeredProjections,
             IReadonlyStreamStore streamStore,
-            ILoggerFactory loggerFactory,
-            IProjectionManager projectionManager)
+            IConnectedProjectionsCommandBus commandBus,
+            ILoggerFactory loggerFactory)
         {
             _projectionCatchUps = new Dictionary<ConnectedProjectionName, CancellationTokenSource>();
+
+            _registeredProjections = registeredProjections ?? throw new ArgumentNullException(nameof(registeredProjections));
+            _registeredProjections.IsCatchingUp = IsCatchingUp;
+
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
-            _projectionManager = projectionManager ?? throw new ArgumentNullException(nameof(projectionManager));
+            _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCatchUpRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        public bool IsCatchingUp(ConnectedProjectionName projectionName)
+        private bool IsCatchingUp(ConnectedProjectionName projectionName)
             => projectionName != null && _projectionCatchUps.ContainsKey(projectionName);
 
         public void HandleCatchUpCommand<TCatchUpCommand>(TCatchUpCommand command)
@@ -86,7 +93,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private void Handle(StartCatchUp startCatchUp)
         {
-            var projection = _projectionManager
+            var projection = _registeredProjections
                 .GetProjection(startCatchUp?.ProjectionName)
                 ?.Instance;
 
@@ -96,7 +103,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private void Start<TContext>(IConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if (projection == null || _projectionManager.IsProjecting(projection.Name))
+            if (projection == null || _registeredProjections.IsProjecting(projection.Name))
                 return;
 
             _projectionCatchUps.Add(projection.Name, new CancellationTokenSource());
@@ -106,7 +113,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 _streamStore,
                 projection.ContextFactory,
                 projection.ConnectedProjectionMessageHandler,
-                _projectionManager,
+                _commandBus,
                 _logger);
 
             TaskRunner.Dispatch(async () => { await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Name].Token); });

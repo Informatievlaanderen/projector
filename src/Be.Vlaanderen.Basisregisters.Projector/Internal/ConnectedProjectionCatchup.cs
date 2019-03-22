@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac.Features.OwnedInstances;
+    using Commands;
     using Commands.CatchUp;
     using Commands.Subscription;
     using ConnectedProjections;
@@ -11,14 +12,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Extensions;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
-    using Projector.Commands;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
     internal class ConnectedProjectionCatchUp<TContext> where TContext : RunnerDbContext<TContext>
     {
         private readonly ConnectedProjectionMessageHandler<TContext> _messageHandler;
-        private readonly IProjectionManager _projectionManager;
+        private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ConnectedProjectionName _runnerName;
         private readonly ILogger _logger;
         private readonly IReadonlyStreamStore _streamStore;
@@ -31,14 +31,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             IReadonlyStreamStore streamStore,
             Func<Owned<TContext>> contextFactory,
             ConnectedProjectionMessageHandler<TContext> messageHandler,
-            IProjectionManager projectionManager,
+            IConnectedProjectionsCommandBus commandBus,
             ILogger logger)
         {
             _runnerName = name ?? throw new ArgumentNullException(nameof(name));
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _messageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
-            _projectionManager = projectionManager ?? throw new ArgumentNullException(nameof(projectionManager));
+            _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -117,9 +117,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 _runnerName,
                 reason);
 
-            _projectionManager.Send(new RemoveStoppedCatchUp(_runnerName));
+            _commandBus.Queue(new RemoveStoppedCatchUp(_runnerName));
             if (CatchUpStopReason.Finished == reason)
-                _projectionManager.Send(new Subscribe(_runnerName));
+                _commandBus.Queue(new Subscribe(_runnerName));
         }
 
         private async Task<ReadAllPage> ReadPages(

@@ -3,6 +3,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Commands;
     using Commands.Subscription;
     using Microsoft.Extensions.Logging;
     using SqlStreamStore;
@@ -12,18 +13,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     internal class ConnectedProjectionsStreamStoreSubscription
     {
         private readonly IReadonlyStreamStore _streamStore;
-        private readonly IProjectionManager _projectionManager;
+        private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ILogger _logger;
 
         private IAllStreamSubscription _allStreamSubscription;
 
         public ConnectedProjectionsStreamStoreSubscription(
             IReadonlyStreamStore streamStore,
-            IProjectionManager projectionManager,
+            IConnectedProjectionsCommandBus commandBus,
             ILoggerFactory loggerFactory)
         {
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
-            _projectionManager = projectionManager ?? throw new ArgumentNullException(nameof(projectionManager));
+            _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
@@ -59,7 +60,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 if (cancellationToken.IsCancellationRequested)
                     return;
 
-                _projectionManager.Send(new ProcessStreamEvent(subscription, message, cancellationToken));
+                _commandBus.Queue(new ProcessStreamEvent(subscription, message, cancellationToken));
             });
         }
 

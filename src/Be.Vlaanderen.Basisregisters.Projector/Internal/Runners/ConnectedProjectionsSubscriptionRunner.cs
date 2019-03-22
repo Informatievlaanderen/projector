@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Commands;
     using Commands.CatchUp;
     using Commands.Subscription;
     using ConnectedProjections;
@@ -17,22 +18,29 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     internal class ConnectedProjectionsSubscriptionRunner
     {
         private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
-        private readonly ILogger<ConnectedProjectionsSubscriptionRunner> _logger;
+        private readonly RegisteredProjections _registeredProjections;
         private readonly ConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
-        private readonly IProjectionManager _projectionManager;
+        private readonly IConnectedProjectionsCommandBus _commandBus;
+        private readonly ILogger<ConnectedProjectionsSubscriptionRunner> _logger;
+
 
         public ConnectedProjectionsSubscriptionRunner(
+            RegisteredProjections registeredProjections,
             ConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
-            ILoggerFactory loggerFactory,
-            IProjectionManager projectionManager)
+            IConnectedProjectionsCommandBus commandBus,
+            ILoggerFactory loggerFactory)
         {
             _handlers = new Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>>();
-            _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+
+            _registeredProjections = registeredProjections ?? throw new ArgumentNullException(nameof(registeredProjections));
+            _registeredProjections.IsSubscribed = HasSubscription;
+
             _streamsStoreSubscription = streamsStoreSubscription ?? throw new ArgumentNullException(nameof(streamsStoreSubscription));
-            _projectionManager = projectionManager ?? throw new ArgumentNullException(nameof(projectionManager));
+            _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
+            _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        public bool HasSubscription(ConnectedProjectionName projectionName)
+        private bool HasSubscription(ConnectedProjectionName projectionName)
             => projectionName != null && _handlers.ContainsKey(projectionName);
 
         public async Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand command)
@@ -47,6 +55,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
                 case Subscribe subscribe:
                     await Handle(subscribe);
+                    break;
+
+                case SubscribeAll _:
+                    await SubscribeAll();
                     break;
 
                 case Unsubscribe unsubscribe:
@@ -75,7 +87,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 _handlers.Clear();
 
                 foreach (var name in staleSubscriptions)
-                    _projectionManager.Send(new Start(name));
+                    _commandBus.Queue(new Start(name));
             }
 
             await _streamsStoreSubscription.Start();
@@ -85,7 +97,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         {
             if (_streamsStoreSubscription.StreamIsRunning)
             {
-                var projection = _projectionManager
+                var projection = _registeredProjections
                     .GetProjection(subscribe?.ProjectionName)
                     ?.Instance;
 
@@ -94,7 +106,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             else
             {
                 await StartStream();
-                _projectionManager.Send(subscribe.Clone());
+                _commandBus.Queue(subscribe.Clone());
+            }
+        }
+
+        private async Task SubscribeAll()
+        {
+            if (_streamsStoreSubscription.StreamIsRunning)
+            {
+                foreach (var projectionName in _registeredProjections.Names)
+                    await Handle(new Subscribe(projectionName));
+            }
+            else
+            {
+                await StartStream();
+                _commandBus.Queue<SubscribeAll>();
             }
         }
 
@@ -116,7 +142,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private async Task Subscribe<TContext>(IConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if (projection == null || _projectionManager.IsProjecting(projection.Name))
+            if (projection == null || _registeredProjections.IsProjecting(projection.Name))
                 return;
 
             long? projectionPosition;
@@ -137,7 +163,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     async (message, token) => await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token));
             }
             else
-                _projectionManager.Send(new StartCatchUp(projection.Name));
+                _commandBus.Queue(new StartCatchUp(projection.Name));
         }
 
         private async Task Handle(ProcessStreamEvent processStreamEvent)

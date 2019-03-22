@@ -3,11 +3,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector
     using System;
     using Autofac;
     using Autofac.Features.OwnedInstances;
-    using ConnectedProjections;
     using Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
+    using ProjectionHandling.SqlStreamStore;
 
     public static class ContainerBuilderExtensions
     {
@@ -22,11 +22,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector
         {
             builder
                 .Register(container =>
-                    new ConnectedProjectionRegistrationRegistration<TConnectedProjection, TContext>(
+                    new ConnectedProjection<TConnectedProjection, TContext>(
+                        container.Resolve<Func<Owned<TContext>>>(),
                         projectionFactory(),
-                        container.Resolve<Func<Owned<TContext>>>())
-                )
-                .As<IConnectedProjectionRegistration>();
+                        container.Resolve<EnvelopeFactory>(),
+                        container.Resolve<ILoggerFactory>()))
+                .As<IConnectedProjection>();
 
             return builder;
         }

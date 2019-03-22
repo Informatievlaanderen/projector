@@ -5,6 +5,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
     using Autofac;
     using ConnectedProjections;
     using Internal;
+    using Internal.Commands;
+    using Internal.Runners;
     using Microsoft.Extensions.Logging;
     using Module = Autofac.Module;
 
@@ -16,20 +18,35 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<ConnectedProjectionsCommandBus>()
+                .AsSelf()
+                .As<IConnectedProjectionsCommandBus>()
+                .SingleInstance();
+
+            builder.RegisterType<RegisteredProjections>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<ConnectedProjectionsStreamStoreSubscription>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<ConnectedProjectionsSubscriptionRunner>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<ConnectedProjectionsCatchUpRunner>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<ConnectedProjectionsCommandHandler>()
+                .AsSelf()
+                .SingleInstance();
+
             builder.RegisterType<ConnectedProjectionsManager>()
-                .FindConstructorsWith(AllowNonPublicConstructor)
                 .WithParameter(new Parameter<ILoggerFactory>(_loggerFactory))
-                .As<IProjectionManager>()
                 .As<IConnectedProjectionsManager>()
                 .SingleInstance();
-        }
-
-        private static ConstructorInfo[] AllowNonPublicConstructor(Type type)
-        {
-            return type.GetConstructors(
-                BindingFlags.Instance |
-                BindingFlags.Public |
-                BindingFlags.NonPublic);
         }
         
         private class Parameter<T> : TypedParameter
