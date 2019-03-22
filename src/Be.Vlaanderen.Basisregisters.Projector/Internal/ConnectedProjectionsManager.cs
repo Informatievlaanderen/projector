@@ -5,123 +5,43 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Threading.Tasks.Dataflow;
-    using Commands.CatchUp;
-    using Commands.Subscription;
+    using Commands;
     using ConnectedProjections;
-    using Extensions;
-    using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
-    using ProjectionHandling.SqlStreamStore;
     using Projector.Commands;
-    using Runners;
-    using SqlStreamStore;
 
-    internal class ConnectedProjectionsManager : IConnectedProjectionsManager, IProjectionManager
+    internal class ConnectedProjectionsManager : IConnectedProjectionsManager
     {
-        private readonly IEnumerable<IConnectedProjection> _registeredProjections;
-        private readonly ConnectedProjectionsCatchUpRunner _catchUpRunner;
-        private readonly ConnectedProjectionsSubscriptionRunner _subscriptionRunner;
-        private readonly ILogger _logger;
+        private readonly RegisteredProjections _registeredProjections;
+        private readonly ConnectedProjectionsCommandBus _commandBus;
 
-        private readonly ActionBlock<ConnectedProjectionCommand> _mailbox;
-
-        internal ConnectedProjectionsManager(
+        public ConnectedProjectionsManager(
             IEnumerable<IRunnerDbContextMigrator> projectionMigrators,
-            IEnumerable<IConnectedProjectionRegistration> projectionRegistrations,
-            IReadonlyStreamStore streamStore,
-            ILoggerFactory loggerFactory,
-            EnvelopeFactory envelopeFactory)
+            RegisteredProjections registeredProjections,
+            ConnectedProjectionsCommandBus commandBus,
+            ConnectedProjectionsCommandHandler commandHandler)
         {
-            _logger = loggerFactory?.CreateLogger<ConnectedProjectionsManager>() ?? throw new ArgumentNullException(nameof(loggerFactory));
-            _catchUpRunner = new ConnectedProjectionsCatchUpRunner(streamStore, loggerFactory, this);
-            var streamStoreSubscription = new ConnectedProjectionsStreamStoreSubscription(streamStore, this, loggerFactory);
-            _subscriptionRunner = new ConnectedProjectionsSubscriptionRunner(streamStoreSubscription, loggerFactory, this);
-            _registeredProjections = projectionRegistrations?.RegisterWith(envelopeFactory, loggerFactory) ?? throw new ArgumentNullException(nameof(projectionRegistrations));
+            _registeredProjections = registeredProjections ?? throw new ArgumentNullException(nameof(registeredProjections));
 
-            _mailbox = new ActionBlock<ConnectedProjectionCommand>(Handle);
+            _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
+            _commandBus.Set(commandHandler ?? throw new ArgumentNullException(nameof(commandHandler)));
 
             RunMigrations(projectionMigrators ?? throw new ArgumentNullException(nameof(projectionMigrators)));
         }
 
         public void Send<TCommand>()
             where TCommand : ConnectedProjectionCommand, new()
-        {
-            Send(new TCommand());
-        }
+            => _commandBus.Queue(new TCommand());
 
         public void Send<TCommand>(TCommand command)
             where TCommand : ConnectedProjectionCommand
-        {
-            _mailbox.SendAsync(command);
-        }
+            => _commandBus.Queue(command);
 
         public IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections()
-        {
-            return _registeredProjections
-                .Select(projection =>
-                    new RegisteredConnectedProjection(
-                        projection.Name,
-                        GetState(projection.Name)));
-        }
+            => _registeredProjections.GetStates();
 
-        public ConnectedProjectionName GetRegisteredProjectionName(string name) => _registeredProjections.Get(name)?.Name;
-
-        public IConnectedProjection GetProjection(ConnectedProjectionName projectionName) => _registeredProjections.Get(projectionName);
-
-        public bool IsProjecting(ConnectedProjectionName projectionName) => GetState(projectionName) != ConnectedProjectionState.Stopped;
-        
-        private async Task Handle(ConnectedProjectionCommand command)
-        {
-            switch (command)
-            {
-                case SubscriptionCommand subscriptionCommand:
-                    await _subscriptionRunner.HandleSubscriptionCommand(subscriptionCommand);
-                    return;
-
-                case CatchUpCommand catchUpCommand:
-                    _catchUpRunner.HandleCatchUpCommand(catchUpCommand);
-                    return;
-            }
-
-            _logger.LogTrace("Handling {Command}", command);
-            switch (command)
-            {
-                case Start start:
-                    Send(start.DefaultCommand);
-                    break;
-
-                case StartAll _:
-                    foreach (var projection in _registeredProjections ?? new List<IConnectedProjection>())
-                        Send(new Start(projection?.Name));
-                    break;
-
-                case Stop stop:
-                    Send(new StopCatchUp(stop.ProjectionName));
-                    Send(new Unsubscribe(stop.ProjectionName));
-                    break;
-
-                case StopAll _:
-                    Send<StopAllCatchUps>();
-                    Send<UnsubscribeAll>();
-                    break;
-
-                default:
-                    _logger.LogError("No handler defined for {Command}", command);
-                    break;
-            }
-        }
-
-        private ConnectedProjectionState GetState(ConnectedProjectionName projectionName)
-        {
-            if (_catchUpRunner.IsCatchingUp(projectionName))
-                return ConnectedProjectionState.CatchingUp;
-
-            if (_subscriptionRunner.HasSubscription(projectionName))
-                return ConnectedProjectionState.Subscribed;
-
-            return ConnectedProjectionState.Stopped;
-        }
+        public ConnectedProjectionName GetRegisteredProjectionName(string name)
+            => _registeredProjections.GetName(name);
 
         private void RunMigrations(IEnumerable<IRunnerDbContextMigrator> projectionMigrationHelpers)
         {
