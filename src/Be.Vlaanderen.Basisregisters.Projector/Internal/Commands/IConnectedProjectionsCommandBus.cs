@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
     {
         void Queue<TCommand>()
             where TCommand : ConnectedProjectionCommand, new();
+
         void Queue<TCommand>(TCommand command)
             where TCommand : ConnectedProjectionCommand;
     }
