@@ -34,14 +34,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public bool IsProjecting(ConnectedProjectionName projectionName) =>
             GetState(projectionName) != ConnectedProjectionState.Stopped;
 
-        public IEnumerable<RegisteredConnectedProjection> GetStates()
-        {
-            return _registeredProjections
-                .Select(projection =>
-                    new RegisteredConnectedProjection(
-                        projection.Name,
-                        GetState(projection.Name)));
-        }  
+        public IEnumerable<RegisteredConnectedProjection> GetStates() => _registeredProjections
+            .Select(projection =>
+                new RegisteredConnectedProjection(
+                    projection.Name,
+                    GetState(projection.Name)));
 
         private ConnectedProjectionState GetState(ConnectedProjectionName projectionName)
         {
