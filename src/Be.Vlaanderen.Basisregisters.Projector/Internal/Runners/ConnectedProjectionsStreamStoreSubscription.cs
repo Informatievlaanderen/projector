@@ -54,14 +54,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private Task OnStreamMessageReceived(IAllStreamSubscription subscription, StreamMessage message, CancellationToken cancellationToken)
         {
             LastProcessedPosition = subscription.LastPosition;
+            _commandBus.Queue(new ProcessStreamEvent(subscription, message, cancellationToken));
 
-            return new Task(() =>
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    return;
-
-                _commandBus.Queue(new ProcessStreamEvent(subscription, message, cancellationToken));
-            });
+            return Task.CompletedTask;
         }
 
         private void OnSubscriptionDropped(

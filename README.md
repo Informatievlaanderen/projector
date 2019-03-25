@@ -93,10 +93,10 @@ Inherit Controller from `DefaultProjectionContoller`
 ```
 
 Status of registered projections: [GET] https://projector.url/controller-path/  
-Start all registered projections: [POST] https://projector./st/controller.ur-pathart/all  
-Start a specific projection by name: [POST] https://projector./st/controller.ur-pathart/{projectionName}  
-Stop all registered projections: [POST] https://projector./st/controller.ur-pathop/all  
-Stop a specific projection by name: [POST] https://projector./st/controller.ur-pathop/{projectionName}  
+Start all registered projections: [POST] https://projector.url/controller-path/start/all  
+Start a specific projection by name: [POST] https://projector.url/controller-path/start/{projectionName}  
+Stop all registered projections: [POST] https://projector.url/controller-path/stop/all  
+Stop a specific projection by name: [POST] https://projector.url/controller-path/stop/{projectionName}  
 
 ## Quick contributing guide
 
