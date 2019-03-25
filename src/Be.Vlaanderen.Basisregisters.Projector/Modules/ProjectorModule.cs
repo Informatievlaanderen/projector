@@ -1,13 +1,10 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Modules
 {
-    using System;
-    using System.Reflection;
     using Autofac;
     using ConnectedProjections;
     using Internal;
     using Internal.Commands;
     using Internal.Runners;
-    using Microsoft.Extensions.Logging;
     using Module = Autofac.Module;
 
     public class ProjectorModule : Module
@@ -17,6 +14,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
             builder.RegisterType<ConnectedProjectionsCommandBus>()
                 .AsSelf()
                 .As<IConnectedProjectionsCommandBus>()
+                .SingleInstance();
+
+            builder.RegisterType<MigrationHelper>()
+                .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<RegisteredProjections>()
