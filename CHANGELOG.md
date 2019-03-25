@@ -1,3 +1,23 @@
+# [3.0.0](https://github.com/informatievlaanderen/projector/compare/v2.0.0...v3.0.0) (2019-03-25)
+
+
+### Bug Fixes
+
+* catch exception on handle:ProcessEvent ([c623121](https://github.com/informatievlaanderen/projector/commit/c623121))
+* extract migrationhelper from mananger ([d29ac6f](https://github.com/informatievlaanderen/projector/commit/d29ac6f))
+* push all received messages on commande bus ([3ba2942](https://github.com/informatievlaanderen/projector/commit/3ba2942))
+* remove commands from public interface ([1ac18d2](https://github.com/informatievlaanderen/projector/commit/1ac18d2))
+* remove logger dependency in projectormodule ([86e1f89](https://github.com/informatievlaanderen/projector/commit/86e1f89))
+* split streamstore subscription and subscription runner ([575ee3d](https://github.com/informatievlaanderen/projector/commit/575ee3d))
+* splite mananger into manager, commandbus and commandhandler ([e4e2cab](https://github.com/informatievlaanderen/projector/commit/e4e2cab))
+* use referenced test project properties ([88edf56](https://github.com/informatievlaanderen/projector/commit/88edf56))
+
+
+### BREAKING CHANGES
+
+* manager no longer receives commands
+* removed the constructor with ILoggerFactory dependency
+
 # [2.0.0](https://github.com/informatievlaanderen/projector/compare/v1.1.1...v2.0.0) (2019-03-20)
 
 
