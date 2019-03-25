@@ -8,7 +8,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Commands;
     using ConnectedProjections;
     using ProjectionHandling.Runner;
-    using Projector.Commands;
 
     internal class ConnectedProjectionsManager : IConnectedProjectionsManager
     {
@@ -29,19 +28,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             RunMigrations(projectionMigrators ?? throw new ArgumentNullException(nameof(projectionMigrators)));
         }
 
-        public void Send<TCommand>()
-            where TCommand : ConnectedProjectionCommand, new()
-            => _commandBus.Queue(new TCommand());
-
-        public void Send<TCommand>(TCommand command)
-            where TCommand : ConnectedProjectionCommand
-            => _commandBus.Queue(command);
-
         public IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections()
             => _registeredProjections.GetStates();
-
-        public ConnectedProjectionName GetRegisteredProjectionName(string name)
-            => _registeredProjections.GetName(name);
 
         private void RunMigrations(IEnumerable<IRunnerDbContextMigrator> projectionMigrationHelpers)
         {
@@ -52,6 +40,25 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     .ToArray(),
                 cancellationToken
             );
+        }
+
+        public void Start() => _commandBus.Queue<StartAll>();
+
+        public void Start(string name)
+        {
+            var projectionName = _registeredProjections.GetName(name);
+            if (projectionName != null)
+                _commandBus.Queue(new Start(projectionName));
+
+        }
+
+        public void Stop() => _commandBus.Queue<StopAll>();
+
+        public void Stop(string name)
+        {
+            var projectionName = _registeredProjections.GetName(name);
+            if (projectionName != null)
+                _commandBus.Queue(new Stop(projectionName));
         }
     }
 }

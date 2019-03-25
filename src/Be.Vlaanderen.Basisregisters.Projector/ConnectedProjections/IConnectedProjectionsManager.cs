@@ -1,17 +1,34 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 {
     using System.Collections.Generic;
-    using Commands;
 
     public interface IConnectedProjectionsManager
     {
-        void Send<TCommand>()
-            where TCommand : ConnectedProjectionCommand, new();
+        /// <summary>
+        /// Starts all registered projections
+        /// </summary>
+        void Start();
 
-        void Send<TCommand>(TCommand command)
-            where TCommand : ConnectedProjectionCommand;
+        /// <summary>
+        /// Starts a specific projection
+        /// </summary>
+        /// <param name="name">Case insensitive name of the projection to start</param>
+        void Start(string name);
 
+        /// <summary>
+        /// Stops all running projections
+        /// </summary>
+        void Stop();
+
+        /// <summary>
+        /// Stops a specific running projection
+        /// </summary>
+        /// <param name="name">Case insensitive name of the projection to stop</param>
+        void Stop(string name);
+
+        /// <summary>
+        /// Lists all the registered projections
+        /// </summary>
         IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections();
-        ConnectedProjectionName GetRegisteredProjectionName(string name);
     }
 }

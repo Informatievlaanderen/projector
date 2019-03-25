@@ -12,7 +12,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using Extensions;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
-    using Projector.Commands;
     using SqlStreamStore.Streams;
 
     internal class ConnectedProjectionsSubscriptionRunner

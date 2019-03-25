@@ -2,7 +2,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 {
     using System;
     using System.Threading.Tasks.Dataflow;
-    using Projector.Commands;
 
     internal class ConnectedProjectionsCommandBus : IConnectedProjectionsCommandBus
     {

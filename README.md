@@ -58,7 +58,7 @@ builder
     );
 ```
 
-#### Managing the registered projections
+#### Managing the registered projections from code
 
 ```csharp
 IConnectedProjectionsManager projectionManager;
@@ -66,21 +66,37 @@ IConnectedProjectionsManager projectionManager;
 // Status of registered projections
 var projectsStatus = projectionManager.GetRegisteredProjections();
 
-// Find the registered ProjectionName
-var projectionName = projectionManager.GetRegisteredProjectionName("projection");
+// Start all registered projections
+projectionManager.Start();
 
 // Start a specific projection by name
-projectionManager.Send(new Start(projectionName));
-
-// Stop a specific projection by name
-projectionManager.Send(new Stop(projectionName));
-
-// Start all registered projections
-projectionManager.Send<StartAll>();
+projectionManager.Start(projectionName);
 
 // Stop all registered projections
-projectionManager.Send<StopAll>();
+projectionManager.Stop();
+
+// Stop a specific projection by name
+projectionManager.Stop(projectionName);
 ```
+
+#### Managing the registered projections with api calls
+
+Inherit Controller from `DefaultProjectionContoller`
+```csharp
+    [ApiRoute("controller-path")]
+    public class ProjectionsController : DefaultProjectorController
+    {
+        public ProjectionsController(IConnectedProjectionsManager connectedProjectionsManager)
+            : base(connectedProjectionsManager)
+        { }
+    }
+```
+
+Status of registered projections: [GET] https://projector.url/controller-path/  
+Start all registered projections: [POST] https://projector./st/controller.ur-pathart/all  
+Start a specific projection by name: [POST] https://projector./st/controller.ur-pathart/{projectionName}  
+Stop all registered projections: [POST] https://projector./st/controller.ur-pathop/all  
+Stop a specific projection by name: [POST] https://projector./st/controller.ur-pathop/{projectionName}  
 
 ## Quick contributing guide
 
