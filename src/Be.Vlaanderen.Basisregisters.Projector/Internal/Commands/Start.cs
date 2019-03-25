@@ -1,9 +1,9 @@
-namespace Be.Vlaanderen.Basisregisters.Projector.Commands
+namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 {
     using ConnectedProjections;
-    using Internal.Commands.Subscription;
+    using Subscription;
 
-    public class Start : ConnectedProjectionCommand
+    internal class Start : ConnectedProjectionCommand
     {
         public ConnectedProjectionCommand DefaultCommand { get; }
         

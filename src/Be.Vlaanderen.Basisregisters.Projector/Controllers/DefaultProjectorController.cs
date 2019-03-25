@@ -1,6 +1,5 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
-    using Commands;
     using ConnectedProjections;
     using Microsoft.AspNetCore.Mvc;
 
@@ -16,30 +15,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("start/all")]
         public IActionResult Start()
         {
-            ProjectionManager.Send<StartAll>();
+            ProjectionManager.Start();
             return Ok();
         }
 
         [HttpPost("start/{projectionName}")]
         public IActionResult Start(string projectionName)
         {
-            var projection = ProjectionManager.GetRegisteredProjectionName(projectionName);
-            ProjectionManager.Send(new Start(projection));
+            ProjectionManager.Start(projectionName);
             return Ok();
         }
 
         [HttpPost("stop/all")]
         public IActionResult Stop()
         {
-            ProjectionManager.Send<StopAll>();
+            ProjectionManager.Stop();
             return Ok();
         }
 
         [HttpPost("stop/{projectionName}")]
         public IActionResult Stop(string projectionName)
         {
-            var projection = ProjectionManager.GetRegisteredProjectionName(projectionName);
-            ProjectionManager.Send(new Stop(projection));
+            ProjectionManager.Stop(projectionName);
             return Ok();
         }
     }

@@ -1,8 +1,8 @@
-namespace Be.Vlaanderen.Basisregisters.Projector.Commands
+namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 {
     using ConnectedProjections;
 
-    public class Stop : ConnectedProjectionCommand
+    internal class Stop : ConnectedProjectionCommand
     {
         public ConnectedProjectionName ProjectionName { get; }
 

@@ -1,4 +1,4 @@
-namespace Be.Vlaanderen.Basisregisters.Projector.Commands
+namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Commands
         public override string ToString() => JsonConvert.SerializeObject(this);
     }
 
-    public class ConnectedProjectionCommandJsonConverter : JsonConverter<ConnectedProjectionCommand>
+    internal class ConnectedProjectionCommandJsonConverter : JsonConverter<ConnectedProjectionCommand>
     {
         public override bool CanRead => false;
 
