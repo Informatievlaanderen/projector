@@ -12,10 +12,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
 
     public class ProjectorModule : Module
     {
-        private readonly ILoggerFactory _loggerFactory;
-
-        public ProjectorModule(ILoggerFactory loggerFactory) => _loggerFactory = loggerFactory;
-
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<ConnectedProjectionsCommandBus>()
@@ -44,16 +40,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .SingleInstance();
 
             builder.RegisterType<ConnectedProjectionsManager>()
-                .WithParameter(new Parameter<ILoggerFactory>(_loggerFactory))
                 .As<IConnectedProjectionsManager>()
                 .SingleInstance();
-        }
-        
-        private class Parameter<T> : TypedParameter
-        {
-            public Parameter(T value)
-                : base(typeof(T), value)
-            { }
         }
     }
 }
