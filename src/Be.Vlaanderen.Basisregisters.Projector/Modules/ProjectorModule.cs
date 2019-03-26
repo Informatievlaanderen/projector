@@ -12,12 +12,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<ConnectedProjectionsCommandBus>()
-                .AsSelf()
+                .As<IConnectedProjectionsCommandBusHandlerConfiguration>()
                 .As<IConnectedProjectionsCommandBus>()
                 .SingleInstance();
 
             builder.RegisterType<MigrationHelper>()
-                .AsSelf()
+                .As<IMigrationHelper>()
                 .SingleInstance();
 
             builder.RegisterType<RegisteredProjections>()
@@ -37,7 +37,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .SingleInstance();
 
             builder.RegisterType<ConnectedProjectionsCommandHandler>()
-                .AsSelf()
+                .As<IConnectedProjectionsCommandHandler>()
                 .SingleInstance();
 
             builder.RegisterType<ConnectedProjectionsManager>()

@@ -7,7 +7,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
     using Runners;
     using Subscription;
 
-    internal class ConnectedProjectionsCommandHandler
+    public interface IConnectedProjectionsCommandHandler
+    {
+        Task Handle(ConnectedProjectionCommand command);
+    }
+
+    internal class ConnectedProjectionsCommandHandler : IConnectedProjectionsCommandHandler
     {
         private readonly ConnectedProjectionsCatchUpRunner _catchUpRunner;
         private readonly ConnectedProjectionsSubscriptionRunner _subscriptionRunner;

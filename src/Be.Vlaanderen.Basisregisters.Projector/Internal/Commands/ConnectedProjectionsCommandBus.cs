@@ -3,10 +3,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
     using System;
     using System.Threading.Tasks.Dataflow;
 
-    internal class ConnectedProjectionsCommandBus : IConnectedProjectionsCommandBus
+    internal interface IConnectedProjectionsCommandBusHandlerConfiguration
+    {
+        void Register(IConnectedProjectionsCommandHandler commandHandler);
+    }
+
+    internal class ConnectedProjectionsCommandBus : IConnectedProjectionsCommandBus, IConnectedProjectionsCommandBusHandlerConfiguration
     {
         private readonly ActionBlock<ConnectedProjectionCommand> _mailbox;
-        private ConnectedProjectionsCommandHandler _commandHandler;
+        private IConnectedProjectionsCommandHandler _commandHandler;
 
         public ConnectedProjectionsCommandBus()
         {
@@ -20,7 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
                 });
         }
 
-        public void Set(ConnectedProjectionsCommandHandler commandHandler)
+        public void Register(IConnectedProjectionsCommandHandler commandHandler)
         {
             if (_commandHandler != null)
                 throw new Exception("CommandHandler is already assigned");

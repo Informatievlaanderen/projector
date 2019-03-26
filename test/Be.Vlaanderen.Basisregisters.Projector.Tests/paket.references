@@ -6,6 +6,7 @@ xunit.runner.visualstudio
 xunit.categories
 AutoFixture
 FluentAssertions
+Moq
 
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner

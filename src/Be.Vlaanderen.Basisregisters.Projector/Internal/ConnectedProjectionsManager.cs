@@ -8,19 +8,25 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     internal class ConnectedProjectionsManager : IConnectedProjectionsManager
     {
         private readonly RegisteredProjections _registeredProjections;
-        private readonly ConnectedProjectionsCommandBus _commandBus;
+        private readonly IConnectedProjectionsCommandBus _commandBus;
 
         public ConnectedProjectionsManager(
-            MigrationHelper migrationHelper,
+            IMigrationHelper migrationHelper,
             RegisteredProjections registeredProjections,
-            ConnectedProjectionsCommandBus commandBus,
-            ConnectedProjectionsCommandHandler commandHandler)
+            IConnectedProjectionsCommandBus commandBus,
+            IConnectedProjectionsCommandBusHandlerConfiguration commandBusHandlerConfiguration,
+            IConnectedProjectionsCommandHandler commandHandler)
         {
             _registeredProjections = registeredProjections ?? throw new ArgumentNullException(nameof(registeredProjections));
-
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
-            _commandBus.Set(commandHandler ?? throw new ArgumentNullException(nameof(commandHandler)));
 
+            if (commandBusHandlerConfiguration == null)
+                throw new ArgumentNullException(nameof(commandBusHandlerConfiguration));
+            if (commandHandler == null)
+                throw new ArgumentNullException(nameof(commandHandler));
+
+            commandBusHandlerConfiguration.Register(commandHandler);
+            
             if (migrationHelper == null)
                 throw new ArgumentNullException(nameof(migrationHelper));
 
