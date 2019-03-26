@@ -7,7 +7,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Threading.Tasks;
     using ProjectionHandling.Runner;
 
-    internal class MigrationHelper
+    internal interface IMigrationHelper
+    {
+        void RunMigrations();
+    }
+
+    internal class MigrationHelper : IMigrationHelper
     {
         private readonly IEnumerable<IRunnerDbContextMigrator> _migrators;
 

@@ -14,4 +14,6 @@ using System.Runtime.InteropServices;
 [assembly: Guid("0518aafb-85ec-4412-a3cc-967f2d062e74")]
 
 [assembly: NeutralResourcesLanguage("en")]
+
 [assembly: InternalsVisibleTo("Be.Vlaanderen.Basisregisters.Projector.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
