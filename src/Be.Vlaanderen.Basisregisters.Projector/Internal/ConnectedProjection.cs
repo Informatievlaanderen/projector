@@ -37,13 +37,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ILoggerFactory loggerFactory)
         {
             ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+
             ConnectedProjectionMessageHandler = new ConnectedProjectionMessageHandler<TContext>(
                 Name,
                 connectedProjection?.Handlers ?? throw new ArgumentNullException(nameof(connectedProjection)),
                 ContextFactory,
                 envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory)),
-                loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory))
-            );
+                loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory)));
         }
 
         public dynamic Instance => this;

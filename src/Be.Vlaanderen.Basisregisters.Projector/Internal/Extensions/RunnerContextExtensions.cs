@@ -15,15 +15,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Extensions
             CancellationToken cancellationToken)
             where TContext : RunnerDbContext<TContext>
         {
-            {
-                var runnerPositions = await context
-                    .ProjectionStates
-                    .ToListAsync(cancellationToken);
+            var runnerPositions = await context
+                .ProjectionStates
+                .ToListAsync(cancellationToken);
 
-                return runnerPositions
-                    .SingleOrDefault(p => runnerName.Equals(p.Name))
-                    ?.Position;
-            }
+            return runnerPositions
+                .SingleOrDefault(p => runnerName.Equals(p.Name))
+                ?.Position;
         }
 
         public static async Task UpdateProjectionStateAsync<TContext>(
@@ -33,12 +31,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Extensions
             CancellationToken cancellationToken)
             where TContext : RunnerDbContext<TContext>
         {
-            {
-                await context.UpdateProjectionState(
-                    runnerName.ToString(),
-                    position,
-                    cancellationToken);
-            }
+            await context.UpdateProjectionState(
+                runnerName.ToString(),
+                position,
+                cancellationToken);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
         private readonly ConnectedProjectionsSubscriptionRunner _subscriptionRunner;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ILogger _logger;
-        
+
         public ConnectedProjectionsCommandHandler(
             ConnectedProjectionsSubscriptionRunner subscriptionRunner,
             ConnectedProjectionsCatchUpRunner catchUpRunner,

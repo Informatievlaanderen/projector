@@ -21,7 +21,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private readonly ConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ILogger<ConnectedProjectionsSubscriptionRunner> _logger;
-        
+
         public ConnectedProjectionsSubscriptionRunner(
             RegisteredProjections registeredProjections,
             ConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
@@ -90,7 +90,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
             await _streamsStoreSubscription.Start();
         }
-        
+
         private async Task Handle(Subscribe subscribe)
         {
             if (_streamsStoreSubscription.StreamIsRunning)

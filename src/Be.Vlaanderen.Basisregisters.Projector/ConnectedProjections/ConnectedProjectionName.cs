@@ -17,8 +17,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             {
                 case ConnectedProjectionName name:
                     return Equals(name);
+
                 case string nameString:
                     return Equals(nameString);
+
                 default:
                     return false;
             }

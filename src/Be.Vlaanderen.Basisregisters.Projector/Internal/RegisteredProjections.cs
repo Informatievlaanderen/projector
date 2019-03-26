@@ -11,12 +11,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private readonly IEnumerable<IConnectedProjection> _registeredProjections;
 
         public Func<ConnectedProjectionName, bool> IsCatchingUp { private get; set; }
-        public Func<ConnectedProjectionName, bool> IsSubscribed { private get; set; } 
+        public Func<ConnectedProjectionName, bool> IsSubscribed { private get; set; }
 
         public RegisteredProjections(IEnumerable<IConnectedProjection> registeredProjections)
-        {
-            _registeredProjections = registeredProjections?.RemoveNullReferences() ?? throw new ArgumentNullException(nameof(registeredProjections));
-        }
+            => _registeredProjections = registeredProjections?.RemoveNullReferences() ?? throw new ArgumentNullException(nameof(registeredProjections));
 
         public IEnumerable<ConnectedProjectionName> Names =>
             _registeredProjections
@@ -30,7 +28,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public IConnectedProjection GetProjection(ConnectedProjectionName projectionName) =>
             _registeredProjections
                 ?.SingleOrDefault(projection => projection.Name.Equals(projectionName));
-        
+
         public bool IsProjecting(ConnectedProjectionName projectionName) =>
             GetState(projectionName) != ConnectedProjectionState.Stopped;
 
