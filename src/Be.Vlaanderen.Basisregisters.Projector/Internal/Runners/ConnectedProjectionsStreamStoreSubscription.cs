@@ -45,13 +45,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 .SubscribeToAll(
                     afterPosition,
                     OnStreamMessageReceived,
-                    OnSubscriptionDropped
-                );
+                    OnSubscriptionDropped);
 
             LastProcessedPosition = _allStreamSubscription.LastPosition;
         }
 
-        private Task OnStreamMessageReceived(IAllStreamSubscription subscription, StreamMessage message, CancellationToken cancellationToken)
+        private Task OnStreamMessageReceived(
+            IAllStreamSubscription subscription,
+            StreamMessage message,
+            CancellationToken cancellationToken)
         {
             LastProcessedPosition = subscription.LastPosition;
             _commandBus.Queue(new ProcessStreamEvent(subscription, message, cancellationToken));

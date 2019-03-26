@@ -44,7 +44,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public async Task CatchUpAsync(CancellationToken cancellationToken)
         {
-            cancellationToken.Register(() => { CatchUpStopped(CatchUpStopReason.Aborted); });
+            cancellationToken.Register(() => CatchUpStopped(CatchUpStopReason.Aborted));
 
             try
             {
@@ -69,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                 var page = await ReadPages(_streamStore, position, cancellationToken);
 
-                var continueProcessing = false == cancellationToken.IsCancellationRequested;
+                var continueProcessing = cancellationToken.IsCancellationRequested == false;
                 while (continueProcessing)
                 {
                     _logger.LogDebug(

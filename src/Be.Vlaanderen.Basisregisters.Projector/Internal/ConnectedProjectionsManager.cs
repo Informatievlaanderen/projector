@@ -9,7 +9,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     {
         private readonly RegisteredProjections _registeredProjections;
         private readonly ConnectedProjectionsCommandBus _commandBus;
-        private readonly MigrationHelper _migrationHelper;
 
         public ConnectedProjectionsManager(
             MigrationHelper migrationHelper,
@@ -22,8 +21,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
             _commandBus.Set(commandHandler ?? throw new ArgumentNullException(nameof(commandHandler)));
 
-            _migrationHelper = migrationHelper ?? throw new ArgumentNullException(nameof(migrationHelper));
-            _migrationHelper.RunMigrations();
+            if (migrationHelper == null)
+                throw new ArgumentNullException(nameof(migrationHelper));
+
+            migrationHelper.RunMigrations();
         }
 
         public IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections()

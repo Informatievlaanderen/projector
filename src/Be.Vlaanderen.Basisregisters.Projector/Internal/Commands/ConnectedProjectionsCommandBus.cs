@@ -27,7 +27,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 
             _commandHandler = commandHandler ?? throw new ArgumentNullException(nameof(commandHandler));
         }
-        
+
         public void Queue<TCommand>()
             where TCommand : ConnectedProjectionCommand, new()
             => Queue(new TCommand());

@@ -66,10 +66,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             }
         }
 
-        private void Handle(StopCatchUp stopCatchUp)
-        {
-            StopCatchUp(stopCatchUp?.ProjectionName);
-        }
+        private void Handle(StopCatchUp stopCatchUp) => StopCatchUp(stopCatchUp?.ProjectionName);
 
         private void StopAllCatchUps()
         {
@@ -116,7 +113,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 _commandBus,
                 _logger);
 
-            TaskRunner.Dispatch(async () => { await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Name].Token); });
+            TaskRunner.Dispatch(async () => await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Name].Token));
         }
 
         private void Handle(RemoveStoppedCatchUp message) => _projectionCatchUps.Remove(message.ProjectionName);
