@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/informatievlaanderen/projector/compare/v3.0.0...v3.0.1) (2019-03-26)
+
+
+### Bug Fixes
+
+* use dotnetcore guid for test project ([a7dc108](https://github.com/informatievlaanderen/projector/commit/a7dc108))
+
 # [3.0.0](https://github.com/informatievlaanderen/projector/compare/v2.0.0...v3.0.0) (2019-03-25)
 
 
