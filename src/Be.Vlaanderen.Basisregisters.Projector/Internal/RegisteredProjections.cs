@@ -11,6 +11,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private readonly IEnumerable<IConnectedProjection> _registeredProjections;
 
         public Func<ConnectedProjectionName, bool> IsCatchingUp { private get; set; }
+
         public Func<ConnectedProjectionName, bool> IsSubscribed { private get; set; }
 
         public RegisteredProjections(IEnumerable<IConnectedProjection> registeredProjections)

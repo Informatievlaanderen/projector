@@ -29,14 +29,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_initializing_the_manager_Then_the_command_handler_is_assigned_to_the_command_bus()
         {
-            var helperMock = new Mock<IMigrationHelper>().Object;
+            var migrationHelper = new Mock<IMigrationHelper>().Object;
             var registeredProjections = new RegisteredProjections(new IConnectedProjection[0]);
             var commandBus = new Mock<IConnectedProjectionsCommandBus>().Object;
             var commandBusHandlerConfigurationMock = new Mock<IConnectedProjectionsCommandBusHandlerConfiguration>();
             var commandHandler = new Mock<IConnectedProjectionsCommandHandler>().Object;
 
             var manager = new ConnectedProjectionsManager(
-                helperMock,
+                migrationHelper,
                 registeredProjections,
                 commandBus,
                 commandBusHandlerConfigurationMock.Object,

@@ -3,6 +3,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Be.Vlaanderen.Basisregisters.Projector\Be.Vlaanderen.Basisregisters.Projector.csproj" />
+    <ProjectReference Include="..\Be.Vlaanderen.Basisregisters.Projector.TestProjections\Be.Vlaanderen.Basisregisters.Projector.TestProjections.csproj" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
