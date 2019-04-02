@@ -6,9 +6,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
     using Newtonsoft.Json;
 
     [JsonConverter(typeof(ConnectedProjectionCommandJsonConverter))]
-    public abstract class ConnectedProjectionCommand
+    internal abstract class ConnectedProjectionCommand
     {
-        public override string ToString() => JsonConvert.SerializeObject(this);
+        public string Serialize() => JsonConvert.SerializeObject(this);
+
+        public override string ToString() => Serialize();
+
+        public override int GetHashCode() => Serialize().ToLowerInvariant().GetHashCode();
+
+        public override bool Equals(object obj)
+        {
+            return GetType() == obj?.GetType()
+                   && obj is ConnectedProjectionCommand command
+                   && string.Equals(Serialize(), command.Serialize(), StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 
     internal class ConnectedProjectionCommandJsonConverter : JsonConverter<ConnectedProjectionCommand>

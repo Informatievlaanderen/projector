@@ -18,8 +18,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 
         public ConnectedProjectionsManagerTests()
         {
-            var fixture = new Fixture();
-            fixture.CustomizeRegisteredProjectionsStub();
+            var fixture = new Fixture()
+                .CustomizeRegisteredProjectionsStub();
 
             _registeredProjections = fixture.Create<RegisteredProjections>();
             _commandBusMock = new Mock<IConnectedProjectionsCommandBus>();
