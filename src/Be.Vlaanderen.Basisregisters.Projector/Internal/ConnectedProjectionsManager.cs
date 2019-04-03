@@ -7,12 +7,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal class ConnectedProjectionsManager : IConnectedProjectionsManager
     {
-        private readonly RegisteredProjections _registeredProjections;
+        private readonly IRegisteredProjections _registeredProjections;
         private readonly IConnectedProjectionsCommandBus _commandBus;
 
         public ConnectedProjectionsManager(
             IMigrationHelper migrationHelper,
-            RegisteredProjections registeredProjections,
+            IRegisteredProjections registeredProjections,
             IConnectedProjectionsCommandBus commandBus,
             IConnectedProjectionsCommandBusHandlerConfiguration commandBusHandlerConfiguration,
             IConnectedProjectionsCommandHandler commandHandler)

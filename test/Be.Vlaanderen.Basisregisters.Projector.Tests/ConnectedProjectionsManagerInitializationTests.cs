@@ -11,7 +11,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_initializing_the_manager_then_the_migration_helper_is_called()
         {
             var migrationHelperMock = new Mock<IMigrationHelper>();
-            var projections = new RegisteredProjections(new IConnectedProjection[0]);
+            var projections = new Mock<IRegisteredProjections>().Object;
             var bus = new Mock<IConnectedProjectionsCommandBus>().Object;
             var commandBusHandlerConfiguration = new Mock<IConnectedProjectionsCommandBusHandlerConfiguration>().Object;
             var commandHandler = new Mock<IConnectedProjectionsCommandHandler>().Object;
@@ -30,7 +30,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_initializing_the_manager_Then_the_command_handler_is_assigned_to_the_command_bus()
         {
             var migrationHelper = new Mock<IMigrationHelper>().Object;
-            var registeredProjections = new RegisteredProjections(new IConnectedProjection[0]);
+            var registeredProjections = new Mock<IRegisteredProjections>().Object;
             var commandBus = new Mock<IConnectedProjectionsCommandBus>().Object;
             var commandBusHandlerConfigurationMock = new Mock<IConnectedProjectionsCommandBusHandlerConfiguration>();
             var commandHandler = new Mock<IConnectedProjectionsCommandHandler>().Object;

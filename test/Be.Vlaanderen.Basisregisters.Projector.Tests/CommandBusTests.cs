@@ -20,7 +20,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public CommandBusTests()
         {
             _fixture = new Fixture()
-                .CustomizeRegisteredProjectionsStub()
                 .CustomizeConnectedProjectionNames()
                 .CustomizeConnectedProjectionCommands();
 

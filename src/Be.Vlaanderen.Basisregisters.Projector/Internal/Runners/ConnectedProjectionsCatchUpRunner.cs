@@ -20,13 +20,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     internal class ConnectedProjectionsCatchUpRunner : IConnectedProjectionsCatchUpRunner
     {
         private readonly Dictionary<ConnectedProjectionName, CancellationTokenSource> _projectionCatchUps;
+        private readonly IRegisteredProjections _registeredProjections;
         private readonly IReadonlyStreamStore _streamStore;
         private readonly IConnectedProjectionsCommandBus _commandBus;
-        private readonly RegisteredProjections _registeredProjections;
         private readonly ILogger _logger;
 
         public ConnectedProjectionsCatchUpRunner(
-            RegisteredProjections registeredProjections,
+            IRegisteredProjections registeredProjections,
             IReadonlyStreamStore streamStore,
             IConnectedProjectionsCommandBus commandBus,
             ILoggerFactory loggerFactory)
