@@ -6,7 +6,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using ConnectedProjections;
     using Extensions;
 
-    internal class RegisteredProjections
+    internal interface IRegisteredProjections
+    {
+        Func<ConnectedProjectionName, bool> IsCatchingUp { set; }
+        Func<ConnectedProjectionName, bool> IsSubscribed { set; }
+        IEnumerable<ConnectedProjectionName> Names { get; }
+        ConnectedProjectionName GetName(string name);
+        IConnectedProjection GetProjection(ConnectedProjectionName projectionName);
+        bool IsProjecting(ConnectedProjectionName projectionName);
+        IEnumerable<RegisteredConnectedProjection> GetStates();
+    }
+
+    internal class RegisteredProjections : IRegisteredProjections
     {
         private readonly IEnumerable<IConnectedProjection> _registeredProjections;
 

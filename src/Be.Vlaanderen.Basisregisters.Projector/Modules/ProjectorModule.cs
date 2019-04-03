@@ -21,7 +21,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .SingleInstance();
 
             builder.RegisterType<RegisteredProjections>()
-                .AsSelf()
+                .As<IRegisteredProjections>()
                 .SingleInstance();
 
             builder.RegisterType<ConnectedProjectionsStreamStoreSubscription>()

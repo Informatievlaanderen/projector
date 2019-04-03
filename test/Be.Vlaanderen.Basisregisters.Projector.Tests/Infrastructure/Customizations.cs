@@ -26,23 +26,22 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
             return fixture;
         }
 
-        public static IFixture CustomizeRegisteredProjectionsStub(this IFixture fixture)
+        public static IFixture CustomizeRegisteredProjectionsCollection(this IFixture fixture)
         {
-            fixture.Customize<RegisteredProjections>(composer =>
-                composer.FromFactory(() => new RegisteredProjections(
-                    Generators.ProjectionName.Select(generator =>
-                    {
-                        var projectionMock = new Mock<IConnectedProjection>();
-                        projectionMock
-                            .SetupGet(projection => projection.Name)
-                            .Returns(generator(fixture));
+            fixture.Customize<IEnumerable<IConnectedProjection>>(composer =>
+                composer.FromFactory(() => Generators.ProjectionName.Select(generator =>
+                {
+                    var projectionMock = new Mock<IConnectedProjection>();
+                    projectionMock
+                        .SetupGet(projection => projection.Name)
+                        .Returns(generator(fixture));
 
-                        projectionMock
-                            .SetupGet(projection => projection.Instance)
-                            .Returns(() => throw new Exception("Instance not supported in current setup"));
+                    projectionMock
+                        .SetupGet(projection => projection.Instance)
+                        .Returns(() => throw new Exception("Instance not supported in current setup"));
 
-                        return projectionMock.Object;
-                    }))));
+                    return projectionMock.Object;
+                })));
 
             return fixture;
         }

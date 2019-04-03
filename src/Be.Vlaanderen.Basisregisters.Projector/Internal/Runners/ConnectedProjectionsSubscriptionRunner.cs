@@ -23,13 +23,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     internal class ConnectedProjectionsSubscriptionRunner : IConnectedProjectionsSubscriptionRunner
     {
         private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
-        private readonly RegisteredProjections _registeredProjections;
+        private readonly IRegisteredProjections _registeredProjections;
         private readonly ConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ILogger _logger;
 
         public ConnectedProjectionsSubscriptionRunner(
-            RegisteredProjections registeredProjections,
+            IRegisteredProjections registeredProjections,
             ConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
             IConnectedProjectionsCommandBus commandBus,
             ILoggerFactory loggerFactory)

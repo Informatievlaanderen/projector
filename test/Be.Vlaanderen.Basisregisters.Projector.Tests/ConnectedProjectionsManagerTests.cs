@@ -1,32 +1,33 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 {
-    using System.Linq;
+    using System.Collections.Generic;
     using AutoFixture;
+    using ConnectedProjections;
     using FluentAssertions;
     using Infrastructure;
     using Internal;
     using Internal.Commands;
-    using Internal.Commands.Subscription;
     using Moq;
     using Xunit;
 
     public class ConnectedProjectionsManagerTests
     {
+        private readonly IFixture _fixture;
         private readonly ConnectedProjectionsManager _sut;
-        private readonly RegisteredProjections _registeredProjections;
+        private readonly Mock<IRegisteredProjections> _registeredProjections;
         private readonly Mock<IConnectedProjectionsCommandBus> _commandBusMock;
 
         public ConnectedProjectionsManagerTests()
         {
-            var fixture = new Fixture()
-                .CustomizeRegisteredProjectionsStub();
+            _fixture = new Fixture()
+                .CustomizeConnectedProjectionNames();
 
-            _registeredProjections = fixture.Create<RegisteredProjections>();
+            _registeredProjections = new Mock<IRegisteredProjections>();
             _commandBusMock = new Mock<IConnectedProjectionsCommandBus>();
 
             _sut = new ConnectedProjectionsManager(
                 new Mock<IMigrationHelper>().Object,
-                _registeredProjections,
+                _registeredProjections.Object,
                 _commandBusMock.Object,
                 new Mock<IConnectedProjectionsCommandBusHandlerConfiguration>().Object,
                 new Mock<IConnectedProjectionsCommandHandler>().Object);
@@ -35,9 +36,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_requesting_the_registered_projections_then_the_projections_with_state_are_returned()
         {
+            IEnumerable<RegisteredConnectedProjection> projectionStates = new[]
+            {
+                new RegisteredConnectedProjection(
+                    _fixture.Create<ConnectedProjectionName>(),
+                    ConnectedProjectionState.CatchingUp),
+            };
+
+            _registeredProjections
+                .Setup(projections => projections.GetStates())
+                .Returns(projectionStates);
+
             _sut.GetRegisteredProjections()
-                .Should().BeEquivalentTo(
-                    _registeredProjections.GetStates());
+                .Should()
+                .BeEquivalentTo(projectionStates);
         }
 
         [Fact]
@@ -51,22 +63,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_starting_a_projection_by_name_then_the_start_command_is_dispatched_with_projection_command()
         {
-            var projection = _registeredProjections.Names.ToArray()[2];
+            var projectionName = "projection-name";
+            var projection = _fixture.Create<ConnectedProjectionName>();
+            _registeredProjections
+                .Setup(projections => projections.GetName(projectionName))
+                .Returns(projection);
 
-            _sut.Start(projection.ToString());
-
-            _commandBusMock
-                .Verify(bus =>
-                    bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals(projection))),
-                    Times.Once);
-        }
-
-        [Fact]
-        public void When_starting_a_projection_by_incorrectly_cased_name_then_the_start_command_is_dispatched_with_the_projection_command()
-        {
-            var projection = _registeredProjections.Names.ToArray()[2];
-
-            _sut.Start(projection.ToString().ToUpper());
+            _sut.Start(projectionName);
 
             _commandBusMock
                 .Verify(bus =>
@@ -77,9 +80,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_starting_an_unknown_projection_by_name_then_no_start_command_is_dispatched()
         {
-            _sut.Start("non-existing-projection");
+            var projectionName = "non-existing-projection";
+            _registeredProjections
+                .Setup(projections => projections.GetName(projectionName))
+                .Returns((ConnectedProjectionName)null);
 
-            _commandBusMock.Verify(bus =>bus.Queue(It.IsAny<Start>()), Times.Never());
+            _sut.Stop(projectionName);
+
+            _commandBusMock.Verify(bus => bus.Queue(It.IsAny<Start>()), Times.Never());
         }
 
         [Fact]
@@ -93,22 +101,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_stopping_a_projection_by_name_then_the_stop_projection_command_is_dispatched()
         {
-            var projection = _registeredProjections.Names.ToArray()[2];
+            var projectionName = "projection-name";
+            var projection = _fixture.Create<ConnectedProjectionName>();
+            _registeredProjections
+                .Setup(projections => projections.GetName(projectionName))
+                .Returns(projection);
 
-            _sut.Stop(projection.ToString());
-
-            _commandBusMock
-                .Verify(bus =>
-                    bus.Queue(It.Is<Stop>(stop => stop.ProjectionName.Equals(projection))),
-                    Times.Once);
-        }
-
-        [Fact]
-        public void When_stopping_a_projection_by_incorrectly_cased_name_then_the_stop_projection_command_is_dispatched()
-        {
-            var projection = _registeredProjections.Names.ToArray()[2];
-
-            _sut.Stop(projection.ToString().ToUpper());
+            _sut.Stop(projectionName);
 
             _commandBusMock
                 .Verify(bus =>
@@ -119,9 +118,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_stopping_an_unknown_projection_by_name_then_no_stop_command_is_dispatched()
         {
-            _sut.Stop("non-existing-projection");
+            var projectionName = "non-existing-projection";
+            _registeredProjections
+                .Setup(projections => projections.GetName(projectionName))
+                .Returns((ConnectedProjectionName)null);
 
-            _commandBusMock.Verify(bus =>bus.Queue(It.IsAny<Stop>()), Times.Never());
+            _sut.Stop(projectionName);
+
+            _commandBusMock.Verify(bus => bus.Queue(It.IsAny<Stop>()), Times.Never());
         }
     }
 }
