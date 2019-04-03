@@ -25,7 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         {
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
-            _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _logger = loggerFactory?.CreateLogger<ConnectedProjectionsStreamStoreSubscription>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public bool StreamIsRunning => _allStreamSubscription != null;

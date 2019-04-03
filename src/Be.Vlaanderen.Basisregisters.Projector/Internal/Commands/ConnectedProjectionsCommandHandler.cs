@@ -14,21 +14,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 
     internal class ConnectedProjectionsCommandHandler : IConnectedProjectionsCommandHandler
     {
-        private readonly ConnectedProjectionsCatchUpRunner _catchUpRunner;
-        private readonly ConnectedProjectionsSubscriptionRunner _subscriptionRunner;
+        private readonly IConnectedProjectionsSubscriptionRunner _subscriptionRunner;
+        private readonly IConnectedProjectionsCatchUpRunner _catchUpRunner;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ILogger _logger;
 
         public ConnectedProjectionsCommandHandler(
-            ConnectedProjectionsSubscriptionRunner subscriptionRunner,
-            ConnectedProjectionsCatchUpRunner catchUpRunner,
+            IConnectedProjectionsSubscriptionRunner subscriptionRunner,
+            IConnectedProjectionsCatchUpRunner catchUpRunner,
             IConnectedProjectionsCommandBus commandBus,
             ILoggerFactory loggerFactory)
         {
             _subscriptionRunner = subscriptionRunner ?? throw new ArgumentNullException(nameof(subscriptionRunner));
             _catchUpRunner = catchUpRunner ?? throw new ArgumentNullException(nameof(catchUpRunner));
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
-            _logger = loggerFactory?.CreateLogger<ConnectedProjectionsManager>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCommandHandler>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public async Task Handle(ConnectedProjectionCommand command)
@@ -48,7 +48,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
             switch (command)
             {
                 case Start start:
-                    _commandBus.Queue(start.DefaultCommand);
+                    _commandBus.Queue(new Subscribe(start.ProjectionName));
                     break;
 
                 case StartAll _:

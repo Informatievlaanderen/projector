@@ -29,11 +29,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .SingleInstance();
 
             builder.RegisterType<ConnectedProjectionsSubscriptionRunner>()
-                .AsSelf()
+                .As<IConnectedProjectionsSubscriptionRunner>()
                 .SingleInstance();
 
             builder.RegisterType<ConnectedProjectionsCatchUpRunner>()
-                .AsSelf()
+                .As<IConnectedProjectionsCatchUpRunner>()
                 .SingleInstance();
 
             builder.RegisterType<ConnectedProjectionsCommandHandler>()
