@@ -14,13 +14,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using ProjectionHandling.Runner;
     using SqlStreamStore.Streams;
 
-    internal class ConnectedProjectionsSubscriptionRunner
+    internal interface IConnectedProjectionsSubscriptionRunner
+    {
+        Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand command)
+            where TSubscriptionCommand : SubscriptionCommand;
+    }
+
+    internal class ConnectedProjectionsSubscriptionRunner : IConnectedProjectionsSubscriptionRunner
     {
         private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
         private readonly RegisteredProjections _registeredProjections;
         private readonly ConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
         private readonly IConnectedProjectionsCommandBus _commandBus;
-        private readonly ILogger<ConnectedProjectionsSubscriptionRunner> _logger;
+        private readonly ILogger _logger;
 
         public ConnectedProjectionsSubscriptionRunner(
             RegisteredProjections registeredProjections,

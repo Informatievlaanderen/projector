@@ -49,7 +49,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
         [Fact]
-        public void When_starting_a_projection_by_name_then_the_start_command_is_dispatched_with_the_subscribe_projection_as_default_command()
+        public void When_starting_a_projection_by_name_then_the_start_command_is_dispatched_with_projection_command()
         {
             var projection = _registeredProjections.Names.ToArray()[2];
 
@@ -57,12 +57,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 
             _commandBusMock
                 .Verify(bus =>
-                    bus.Queue(It.Is<Start>(start => start.DefaultCommand is Subscribe && ((Subscribe)start.DefaultCommand).ProjectionName.Equals(projection))),
+                    bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals(projection))),
                     Times.Once);
         }
 
         [Fact]
-        public void When_starting_a_projection_by_incorrectly_cased_name_then_the_start_command_is_dispatched_with_the_subscribe_projection_as_default_command()
+        public void When_starting_a_projection_by_incorrectly_cased_name_then_the_start_command_is_dispatched_with_the_projection_command()
         {
             var projection = _registeredProjections.Names.ToArray()[2];
 
@@ -70,7 +70,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 
             _commandBusMock
                 .Verify(bus =>
-                    bus.Queue(It.Is<Start>(start => start.DefaultCommand is Subscribe && ((Subscribe)start.DefaultCommand).ProjectionName.Equals(projection))),
+                    bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals(projection))),
                     Times.Once);
         }
 

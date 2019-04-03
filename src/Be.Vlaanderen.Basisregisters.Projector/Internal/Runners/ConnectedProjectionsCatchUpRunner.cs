@@ -11,13 +11,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using ProjectionHandling.Runner;
     using SqlStreamStore;
 
-    internal class ConnectedProjectionsCatchUpRunner
+    internal interface IConnectedProjectionsCatchUpRunner
+    {
+        void HandleCatchUpCommand<TCatchUpCommand>(TCatchUpCommand command)
+            where TCatchUpCommand : CatchUpCommand;
+    }
+
+    internal class ConnectedProjectionsCatchUpRunner : IConnectedProjectionsCatchUpRunner
     {
         private readonly Dictionary<ConnectedProjectionName, CancellationTokenSource> _projectionCatchUps;
         private readonly IReadonlyStreamStore _streamStore;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly RegisteredProjections _registeredProjections;
-        private readonly ILogger<ConnectedProjectionsCatchUpRunner> _logger;
+        private readonly ILogger _logger;
 
         public ConnectedProjectionsCatchUpRunner(
             RegisteredProjections registeredProjections,
