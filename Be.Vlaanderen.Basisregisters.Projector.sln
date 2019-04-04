@@ -24,7 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Vlaanderen.Basisregister
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Vlaanderen.Basisregisters.Projector.Tests", "test\Be.Vlaanderen.Basisregisters.Projector.Tests\Be.Vlaanderen.Basisregisters.Projector.Tests.csproj", "{EF030F24-7C90-4F67-8515-9E310B400170}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Be.Vlaanderen.Basisregisters.Projector.TestProjections", "test\Be.Vlaanderen.Basisregisters.Projector.TestProjections\Be.Vlaanderen.Basisregisters.Projector.TestProjections.csproj", "{79816993-125A-4D83-9846-FDFB12C42BB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Vlaanderen.Basisregisters.Projector.TestProjections", "test\Be.Vlaanderen.Basisregisters.Projector.TestProjections\Be.Vlaanderen.Basisregisters.Projector.TestProjections.csproj", "{79816993-125A-4D83-9846-FDFB12C42BB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
