@@ -10,7 +10,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using SqlStreamStore.Streams;
     using SqlStreamStore.Subscriptions;
 
-    internal class ConnectedProjectionsStreamStoreSubscription
+    internal interface IConnectedProjectionsStreamStoreSubscription
+    {
+        bool StreamIsRunning { get; }
+        Task Start();
+    }
+
+    internal class ConnectedProjectionsStreamStoreSubscription : IConnectedProjectionsStreamStoreSubscription
     {
         private readonly IReadonlyStreamStore _streamStore;
         private readonly IConnectedProjectionsCommandBus _commandBus;
