@@ -24,7 +24,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     {
         private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
         private readonly IRegisteredProjections _registeredProjections;
-        private readonly ConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
+        private readonly IConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ILogger _logger;
 
@@ -32,7 +32,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public ConnectedProjectionsSubscriptionRunner(
             IRegisteredProjections registeredProjections,
-            ConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
+            IConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
             IConnectedProjectionsCommandBus commandBus,
             ILoggerFactory loggerFactory)
         {
