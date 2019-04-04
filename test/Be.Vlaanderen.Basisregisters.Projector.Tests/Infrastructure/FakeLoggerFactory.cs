@@ -76,9 +76,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
                 logger => logger.Log(
                     logLevel,
                     It.IsAny<EventId>(),
-//                    It.Is<object>(o => o is FormattedLogValues),
-                    It.Is<object>(o => o is FormattedLogValues && ((FormattedLogValues)o).ToString() == message),
+                    It.Is<FormattedLogValues>(o => o.ToString() == message),
                     It.IsAny<Exception>(),
+                    It.IsAny<Func<object, Exception, string>>()),
+                times);
+        }
+
+        public void Verify(string message, Exception exception, Func<Times> times)
+        {
+            _mock.Verify(
+                logger => logger.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<FormattedLogValues>(o => o.ToString() == message),
+                    It.Is<Exception>(ex => ex == exception || ex.Message == exception.Message),
                     It.IsAny<Func<object, Exception, string>>()),
                 times);
         }

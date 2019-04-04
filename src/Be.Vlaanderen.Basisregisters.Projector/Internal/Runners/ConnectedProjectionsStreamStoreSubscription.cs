@@ -36,6 +36,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public bool StreamIsRunning => _allStreamSubscription != null;
 
+        public string StreamName => _allStreamSubscription?.Name;
+
         public async Task Start()
         {
             long? afterPosition = await _streamStore.ReadHeadPosition(CancellationToken.None);
@@ -58,7 +60,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             StreamMessage message,
             CancellationToken cancellationToken)
         {
-            _commandBus.Queue(new ProcessStreamEvent(subscription, message, cancellationToken));
+            _commandBus.Queue(new ProcessStreamEvent(message, cancellationToken));
 
             return Task.CompletedTask;
         }
