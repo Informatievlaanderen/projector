@@ -61,7 +61,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             _sut.Queue(_fixture.Create<ConnectedProjectionCommand>());
 
             await Task.Delay(300); // give handler time to catch up with queued commands before asserting
-            _commandHandlerMock.Verify(handler => handler.Handle(command), Times.Once);
+            _commandHandlerMock.Verify(handler => handler.Handle(It.Is<ConnectedProjectionCommand>(projectionCommand => ReferenceEquals(projectionCommand, command))), Times.Once);
         }
 
         [Fact]
