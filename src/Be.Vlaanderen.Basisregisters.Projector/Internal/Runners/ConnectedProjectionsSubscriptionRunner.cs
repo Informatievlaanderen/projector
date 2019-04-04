@@ -28,6 +28,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ILogger _logger;
 
+        private long? _lastProcessedMessagePosition;
+
         public ConnectedProjectionsSubscriptionRunner(
             IRegisteredProjections registeredProjections,
             ConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
@@ -135,12 +137,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
             _logger.LogInformation("Unsubscribing {Projection}", unsubscribe.ProjectionName);
             _handlers.Remove(unsubscribe.ProjectionName);
+            if (_handlers.Count == 0)
+                _lastProcessedMessagePosition = null;
         }
 
         private void UnsubscribeAll()
         {
             _logger.LogInformation("Unsubscribing {Projections}", _handlers.Keys.ToString(", "));
             _handlers.Clear();
+            _lastProcessedMessagePosition = null;
         }
 
         private async Task Subscribe<TContext>(IConnectedProjection<TContext> projection)
@@ -153,14 +158,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             using (var context = projection.ContextFactory())
                 projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, CancellationToken.None);
 
-            var lastProcessedPosition = _streamsStoreSubscription.LastProcessedPosition;
-            if ((projectionPosition ?? -1) >= (lastProcessedPosition ?? -1))
+            if ((projectionPosition ?? -1) >= (_lastProcessedMessagePosition ?? -1))
             {
                 _logger.LogInformation(
                     "Subscribing {ProjectionName} at {ProjectionPosition} to AllStream at {StreamPosition}",
                     projection.Name,
                     projectionPosition,
-                    lastProcessedPosition);
+                    _lastProcessedMessagePosition);
 
                 _handlers.Add(
                     projection.Name,
@@ -172,10 +176,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private async Task Handle(ProcessStreamEvent processStreamEvent)
         {
+            if (_handlers.Count == 0)
+                return;
+
+            _lastProcessedMessagePosition = processStreamEvent.Message.Position;
+
             _logger.LogTrace(
                 "Handling message {MessageType} at {Position}",
                 processStreamEvent.Message.Type,
                 processStreamEvent.Message.Position);
+
 
             foreach (var projectionName in _handlers.Keys.ToReadOnlyList())
             {

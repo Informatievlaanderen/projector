@@ -29,7 +29,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         }
 
         public bool StreamIsRunning => _allStreamSubscription != null;
-        public long? LastProcessedPosition { get; private set; }
 
         public async Task Start()
         {
@@ -46,8 +45,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     afterPosition,
                     OnStreamMessageReceived,
                     OnSubscriptionDropped);
-
-            LastProcessedPosition = _allStreamSubscription.LastPosition;
         }
 
         private Task OnStreamMessageReceived(
@@ -55,7 +52,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             StreamMessage message,
             CancellationToken cancellationToken)
         {
-            LastProcessedPosition = subscription.LastPosition;
             _commandBus.Queue(new ProcessStreamEvent(subscription, message, cancellationToken));
 
             return Task.CompletedTask;
