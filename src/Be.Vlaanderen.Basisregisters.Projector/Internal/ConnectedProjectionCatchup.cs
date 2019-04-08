@@ -93,29 +93,30 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             catch (TaskCanceledException) { }
             catch (ConnectedProjectionMessageHandlingException exception)
             {
-                CatchUpStopped(CatchUpStopReason.Error);
                 _logger.LogError(
                     exception.InnerException,
                     "{RunnerName} catching up failed because an exception was thrown when handling the message at {Position}.",
                     exception.RunnerName,
                     exception.RunnerPosition);
+                CatchUpStopped(CatchUpStopReason.Error);
             }
             catch (Exception exception)
             {
-                CatchUpStopped(CatchUpStopReason.Error);
                 _logger.LogError(
                     exception,
                     "{RunnerName} catching up failed because an exception was thrown",
                     _runnerName);
+                CatchUpStopped(CatchUpStopReason.Error);
             }
         }
 
         private void CatchUpStopped(CatchUpStopReason reason)
         {
-            _logger.LogInformation(
-                "Stopping catch up {RunnerName}: {Reason}",
-                _runnerName,
-                reason);
+            var message = "Stopping catch up {RunnerName}: {Reason}";
+            if (reason == CatchUpStopReason.Error)
+                _logger.LogWarning(message, _runnerName, reason);
+            else
+                _logger.LogInformation(message, _runnerName, reason);
 
             _commandBus.Queue(new RemoveStoppedCatchUp(_runnerName));
             if (CatchUpStopReason.Finished == reason)
