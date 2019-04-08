@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac.Features.OwnedInstances;
@@ -56,8 +57,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                             continue;
 
                         var expectedPositionToProcess = (lastProcessedMessagePosition ?? runnerPosition ?? -1L) + 1;
-                        if (message.Position > expectedPositionToProcess)
-                            throw new Exception($"Messages skipped, expected messages for position: {expectedPositionToProcess}");
+                        if (expectedPositionToProcess < message.Position)
+                        {
+                            var positions = new List<long>();
+                            for (var position = expectedPositionToProcess; position < message.Position; position++)
+                                positions.Add(position);
+
+                            _logger.LogWarning(
+                                "Expected messages at positions [{unprocessedPositions}] were not processed for {RunnerName}.",
+                                string.Join(", ", positions),
+                                _runnerName);
+                        }
 
                         _logger.LogTrace(
                             "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
