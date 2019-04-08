@@ -202,8 +202,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                         projectionInError,
                         messageHandlingException.RunnerPosition);
 
-                    _logger.LogInformation(
-                        "Removing faulty subscribed projection {Projection}",
+                    _logger.LogWarning(
+                        "Stopped faulty subscribed projection {Projection}",
                         projectionInError);
 
                     _handlers.Remove(projectionInError);
