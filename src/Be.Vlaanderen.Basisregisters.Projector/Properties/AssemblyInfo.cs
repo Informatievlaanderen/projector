@@ -16,4 +16,5 @@ using System.Runtime.InteropServices;
 [assembly: NeutralResourcesLanguage("en")]
 
 [assembly: InternalsVisibleTo("Be.Vlaanderen.Basisregisters.Projector.Tests")]
+[assembly: InternalsVisibleTo("Be.Vlaanderen.Basisregisters.Projector.TestScenarios")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

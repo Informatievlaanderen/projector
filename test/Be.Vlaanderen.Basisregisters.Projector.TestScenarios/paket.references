@@ -1,0 +1,14 @@
+Microsoft.NETCore.App
+
+Microsoft.NET.Test.Sdk
+xunit
+xunit.runner.visualstudio
+xunit.categories
+AutoFixture
+FluentAssertions
+
+Autofac
+
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
+Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac
