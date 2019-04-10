@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/informatievlaanderen/projector/compare/v3.0.1...v3.1.0) (2019-04-10)
+
+
+### Features
+
+* allow access to container when registering projections, fixes [#10](https://github.com/informatievlaanderen/projector/issues/10) ([78c0cd8](https://github.com/informatievlaanderen/projector/commit/78c0cd8))
+
 ## [3.0.1](https://github.com/informatievlaanderen/projector/compare/v3.0.0...v3.0.1) (2019-03-26)
 
 
