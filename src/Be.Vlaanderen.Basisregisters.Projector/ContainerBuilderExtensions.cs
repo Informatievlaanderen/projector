@@ -14,9 +14,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector
         public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder)
             where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>, new()
             where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(() => new TConnectedProjection());
+            => builder.RegisterProjections<TConnectedProjection, TContext>(container => new TConnectedProjection());
 
         public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder, Func<TConnectedProjection> projectionFactory)
+            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
+            where TContext : RunnerDbContext<TContext>
+            => builder.RegisterProjections<TConnectedProjection, TContext>(container => projectionFactory());
+
+        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder, Func<IComponentContext, TConnectedProjection> projectionFactory)
             where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
             where TContext : RunnerDbContext<TContext>
         {
@@ -24,7 +29,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector
                 .Register(container =>
                     new ConnectedProjection<TConnectedProjection, TContext>(
                         container.Resolve<Func<Owned<TContext>>>(),
-                        projectionFactory(),
+                        projectionFactory(container),
                         container.Resolve<EnvelopeFactory>(),
                         container.Resolve<ILoggerFactory>()))
                 .As<IConnectedProjection>();

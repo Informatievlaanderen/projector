@@ -51,10 +51,16 @@ builder
 builder
     .RegisterProjections<Projections, ProjectionContext>();
 
-// Register ConnectedProjections that require initalisation parameters
+// Register ConnectedProjections that require initialisation parameters
 builder
     .RegisterProjections<Projections, ProjectionContext>(
         () => new Projections(parameter1, parameter2, ...)
+    );
+
+// Register ConnectedProjections that require initialisation parameters and/or automically resolved dependencies
+builder
+    .RegisterProjections<Projections, ProjectionContext>(
+        container => new Projections(parameter1, container.Resolve<TDependency>(), ...)
     );
 ```
 
