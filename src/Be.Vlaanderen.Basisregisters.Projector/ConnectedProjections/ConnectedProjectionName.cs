@@ -33,6 +33,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         public override int GetHashCode() => _name?.ToLowerInvariant().GetHashCode() ?? 0;
 
         public override string ToString() => _name;
+
+        public static implicit operator string(ConnectedProjectionName name) => name?.ToString();
     }
 
     public class ConnectedProjectionNameJsonConverter : JsonConverter<ConnectedProjectionName>

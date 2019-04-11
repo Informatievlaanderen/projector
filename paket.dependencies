@@ -24,6 +24,9 @@ nuget Be.Vlaanderen.Basisregisters.Build.Pipeline ~> 1.5
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 3.1
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector ~> 3.1
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore ~> 3.1
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac ~> 3.1
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac ~> 3.0
+nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac ~> 1.0
 
 // TEST STUFF
 nuget Microsoft.NET.Test.Sdk 16.0.1
