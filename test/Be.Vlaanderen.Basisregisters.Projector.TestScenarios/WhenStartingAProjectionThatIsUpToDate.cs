@@ -1,13 +1,11 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 {
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac;
     using AutoFixture;
     using ConnectedProjections;
     using FluentAssertions;
-    using Infrastructure;
     using Internal.Extensions;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
