@@ -96,7 +96,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     _commandBus.Queue(new Start(name));
             }
 
-            await _streamsStoreSubscription.Start();
+            _lastProcessedMessagePosition = await _streamsStoreSubscription.Start();
         }
 
         private async Task Handle(Subscribe subscribe)

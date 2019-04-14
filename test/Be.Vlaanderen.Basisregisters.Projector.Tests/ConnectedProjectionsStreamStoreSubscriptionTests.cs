@@ -69,6 +69,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             
             _loggerMock.Verify(LogLevel.Information, $"Started subscription stream after {headPosition}", Times.Once);
         }
+
+        [Fact]
+        public async Task When_the_subscription_is_started_then_start_position_was_returned()
+        {
+            var headPosition = _fixture.Create<uint>();
+            _streamStoreMock.SetHeadPosition(headPosition);
+
+            (await _sut.Start())
+                .Should()
+                .Be(headPosition);
+        }
         
         [Fact]
         public async Task When_the_subscription_is_started_with_the_head_position_before_zero_then_the_subscription_was_subscribed_without_a_start_position()

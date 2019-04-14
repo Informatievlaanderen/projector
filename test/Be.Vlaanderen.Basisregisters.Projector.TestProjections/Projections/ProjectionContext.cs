@@ -7,6 +7,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
     {
         public override string ProjectionStateSchema => Schemas.Projections;
 
+        public DbSet<ProcessedEvent> ProcessedEvents { get; set; }
+
         public ProjectionContext(DbContextOptions<ProjectionContext> options)
             :base(options)
         { }
