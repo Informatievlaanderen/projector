@@ -1,43 +1,55 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 {
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Autofac;
+    using AutoFixture;
     using ConnectedProjections;
     using FluentAssertions;
+    using FluentAssertions.Execution;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
+    using TestProjections.Messages;
     using TestProjections.Projections;
     using Xunit;
 
     public class WhenStartingAProjectionForAnEmptyStream : Scenario
     {
         private ConnectedProjectionName _projection;
+        private AutoResetEvent _projectionStarted;
 
         protected override void ContainerSetup(ContainerBuilder builder)
         {
             builder
-                .RegisterProjections<TrackHandledEventsProjection, ProjectionContext>()
+                .RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(() => new TrackHandledEventsProjection(MessageWasHandled))
                 .RegisterProjections<SlowProjections, ProjectionContext>();
         }
 
-        protected override void Setup()
+        protected override Task Setup()
         {
             _projection = new ConnectedProjectionName(typeof(TrackHandledEventsProjection));
+            _projectionStarted = new AutoResetEvent(false);
+            return Task.CompletedTask;
         }
+
+        private ConnectedProjectionState GetStateFor(ConnectedProjectionName projection) => ProjectionManager
+            .GetRegisteredProjections()
+            .Single(connectedProjection => connectedProjection.Name.Equals(projection))
+            .State;
+
+        private void MessageWasHandled() => _projectionStarted?.Set();
 
         [Fact]
         public async Task VerifySetup()
         {
-            (await Resolve<IStreamStore>().ReadHeadPosition())
+            (await Resolve<IReadonlyStreamStore>().ReadHeadPosition())
                 .Should()
                 .Be(ExpectedVersion.NoStream);
 
-            ProjectionManager
-                .GetRegisteredProjections()
+            GetStateFor(_projection)
                 .Should()
-                .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
-                    && connectedProjection.State == ConnectedProjectionState.Stopped);
+                .Be(ConnectedProjectionState.Stopped);
         }
 
         [Fact]
@@ -46,12 +58,29 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
             ProjectionManager.Start(_projection);
 
             await Task.Delay(1000);
-            ProjectionManager
-                .GetRegisteredProjections()
+
+            GetStateFor(_projection)
                 .Should()
-                .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
-                    && connectedProjection.State == ConnectedProjectionState.Subscribed);
+                .Be(ConnectedProjectionState.Subscribed);
+        }
+
+        [Fact]
+        public async Task Then_the_events_pushed_to_the_store_while_subscribed_are_handled()
+        {
+            ProjectionManager.Start(_projection);
+            // wait for projection to be in subscription
+            while (GetStateFor(_projection) != ConnectedProjectionState.Subscribed)
+                await Task.Delay(25);
+
+            var message = Fixture.Create<SomethingHappened>();
+            await PushToStream(message);
+            _projectionStarted.WaitOne(1000);
+            await Task.Delay(500);
+
+            var assertContext = new ProjectionContext(CreateContextOptionsFor<ProjectionContext>());
+            assertContext.ProcessedEvents
+                .Should()
+                .Contain(@event => @event.Position == 0L && @event.Event == message.GetType().Name && @event.EvenTime == message.On);
         }
     }
 }

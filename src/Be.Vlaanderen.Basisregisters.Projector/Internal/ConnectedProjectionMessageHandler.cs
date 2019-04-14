@@ -77,8 +77,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                             message.Type,
                             CalculateNotVeryPreciseLatency(message));
 
+                        var envelope = _envelopeFactory.Create(message);
+                        await _projector.ProjectAsync(context.Value, envelope, completeMessageInProcess);
                         lastProcessedMessagePosition = message.Position;
-                        await _projector.ProjectAsync(context.Value, _envelopeFactory.Create(message), completeMessageInProcess);
                     }
 
                     if (lastProcessedMessagePosition.HasValue)

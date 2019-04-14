@@ -13,7 +13,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     internal interface IConnectedProjectionsStreamStoreSubscription
     {
         bool StreamIsRunning { get; }
-        Task Start();
+        Task<long?> Start();
     }
 
     internal class ConnectedProjectionsStreamStoreSubscription : IConnectedProjectionsStreamStoreSubscription
@@ -38,7 +38,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public string StreamName => _allStreamSubscription?.Name;
 
-        public async Task Start()
+        public async Task<long?> Start()
         {
             long? afterPosition = await _streamStore.ReadHeadPosition(CancellationToken.None);
             if (afterPosition < 0)
@@ -53,6 +53,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     afterPosition,
                     OnStreamMessageReceived,
                     OnSubscriptionDropped);
+
+            return afterPosition;
         }
 
         private Task OnStreamMessageReceived(

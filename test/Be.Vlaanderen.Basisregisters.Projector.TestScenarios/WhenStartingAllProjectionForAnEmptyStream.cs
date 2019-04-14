@@ -19,13 +19,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .RegisterProjections<FastProjections, ProjectionContext>();
         }
 
-        protected override void Setup()
-        { }
-
         [Fact]
         public async Task VerifySetup()
         {
-            (await Resolve<IStreamStore>().ReadHeadPosition())
+            (await Resolve<IReadonlyStreamStore>().ReadHeadPosition())
                 .Should()
                 .Be(ExpectedVersion.NoStream);
 
