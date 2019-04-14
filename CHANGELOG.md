@@ -1,3 +1,14 @@
+## [3.1.1](https://github.com/informatievlaanderen/projector/compare/v3.1.0...v3.1.1) (2019-04-14)
+
+
+### Bug Fixes
+
+* don't use same instance of projectioncontext ([36a85f3](https://github.com/informatievlaanderen/projector/commit/36a85f3))
+* lastProcessedPosition is set when picking message of the queue ([d5de81d](https://github.com/informatievlaanderen/projector/commit/d5de81d))
+* log warning instead of throwning exception on gaps in messages ([aed5b9e](https://github.com/informatievlaanderen/projector/commit/aed5b9e))
+* log warnings when projections are stopped due to exception ([5d18978](https://github.com/informatievlaanderen/projector/commit/5d18978))
+* set project type to dotnet core guid ([b61b947](https://github.com/informatievlaanderen/projector/commit/b61b947))
+
 # [3.1.0](https://github.com/informatievlaanderen/projector/compare/v3.0.1...v3.1.0) (2019-04-10)
 
 
