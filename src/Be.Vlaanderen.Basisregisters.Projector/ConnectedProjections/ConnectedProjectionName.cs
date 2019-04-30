@@ -1,7 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 {
     using System;
-    using System.Reflection;
     using Newtonsoft.Json;
 
     [JsonConverter(typeof(ConnectedProjectionNameJsonConverter))]
@@ -9,7 +8,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     {
         private readonly string _name;
 
-        internal ConnectedProjectionName(MemberInfo connectedProjectionType) => _name = connectedProjectionType?.Name;
+        internal ConnectedProjectionName(Type connectedProjectionType) => _name = connectedProjectionType?.FullName;
 
         public override bool Equals(object obj)
         {
