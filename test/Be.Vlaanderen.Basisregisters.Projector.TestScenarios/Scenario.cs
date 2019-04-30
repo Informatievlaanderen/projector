@@ -33,7 +33,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
         protected IFixture Fixture { get; }
         protected Random Random { get; }
-        
+
         protected Scenario()
         {
             Fixture = new Fixture();
@@ -49,7 +49,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
             // ReSharper disable once VirtualMemberCallInConstructor
             Task.Run(Setup).GetAwaiter().GetResult();
         }
-        
+
         private IContainer CreateContainer()
         {
             var builder = new ContainerBuilder();
@@ -79,15 +79,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         protected T Resolve<T>() => _containerScope.Resolve<T>();
 
         protected virtual Task Setup() => Task.CompletedTask;
-        protected virtual void ContainerSetup(ContainerBuilder builder) {}
-        
+        protected virtual void ContainerSetup(ContainerBuilder builder) { }
+
         protected IConnectedProjectionsManager ProjectionManager { get; set; }
 
         protected DbContextOptions<TContext> CreateContextOptionsFor<TContext>()
             where TContext : RunnerDbContext<TContext>
         {
             return new DbContextOptionsBuilder<TContext>()
-                .UseInMemoryDatabase(_databaseName, builder => {})
+                .UseInMemoryDatabase(_databaseName, builder => { })
                 .EnableSensitiveDataLogging()
                 .Options;
         }

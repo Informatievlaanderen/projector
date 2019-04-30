@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector
 {
     using System;
     using Autofac;
+    using Autofac.Builder;
     using Autofac.Features.OwnedInstances;
     using Internal;
     using Microsoft.Extensions.Configuration;
@@ -32,7 +33,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector
                         projectionFactory(container),
                         container.Resolve<EnvelopeFactory>(),
                         container.Resolve<ILoggerFactory>()))
-                .As<IConnectedProjection>();
+                .As<IConnectedProjection>()
+                .IfConcreteTypeIsNotRegistered();
 
             return builder;
         }
@@ -45,6 +47,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector
                 .As<IRunnerDbContextMigrator>();
 
             return builder;
+        }
+
+        private static void IfConcreteTypeIsNotRegistered<T>(this IRegistrationBuilder<T, SimpleActivatorData, SingleRegistrationStyle> builder)
+        {
+            builder
+                .AsSelf()
+                .IfNotRegistered(typeof(T));
         }
     }
 }
