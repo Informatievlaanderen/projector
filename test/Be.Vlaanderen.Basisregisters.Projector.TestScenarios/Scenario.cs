@@ -69,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
             builder.RegisterModule<EnvelopeModule>();
 
             builder
-                .RegisterInstance(new ProjectionContext(CreateContextOptionsFor<ProjectionContext>()))
+                .Register(context => new ProjectionContext(CreateContextOptionsFor<ProjectionContext>()))
                 .AsSelf();
 
             ContainerSetup(builder);
