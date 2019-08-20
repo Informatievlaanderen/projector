@@ -28,10 +28,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
             _waitForProjection = new AutoResetEvent(false);
             _projection = new ConnectedProjectionName(typeof(TrackHandledEventsProjection));
             await PushToStream(Fixture.Create<SomethingHappened>());
-            ProjectionManager.Start();
+            await ProjectionManager.Start(CancellationToken.None);
             _waitForProjection.WaitOne();
             _waitForProjection.Reset();
-            ProjectionManager.Stop();
+            await ProjectionManager.Stop(CancellationToken.None);
             await Task.Delay(500);
         }
 
@@ -59,7 +59,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         [Fact]
         public async Task Then_the_projection_is_subscribed()
         {
-            ProjectionManager.Start(_projection);
+            await ProjectionManager.Start(_projection, CancellationToken.None);
 
             await Task.Delay(250);
             ProjectionManager
@@ -73,7 +73,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         [Fact]
         public async Task Then_the_projection_process_new_events()
         {
-            ProjectionManager.Start(_projection);
+            await ProjectionManager.Start(_projection, CancellationToken.None);
             await Task.Delay(250);
             var somethingHappened = Fixture.Create<SomethingHappened>();
             await PushToStream(somethingHappened);

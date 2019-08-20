@@ -13,6 +13,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         Func<ConnectedProjectionName, bool> IsCatchingUp { set; }
         Func<ConnectedProjectionName, bool> IsSubscribed { set; }
         IEnumerable<ConnectedProjectionName> Names { get; }
+        IEnumerable<IConnectedProjection> Projections { get; }
         ConnectedProjectionName GetName(string name);
         IConnectedProjection GetProjection(ConnectedProjectionName projectionName);
         bool IsProjecting(ConnectedProjectionName projectionName);
@@ -33,6 +34,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public IEnumerable<ConnectedProjectionName> Names =>
             _registeredProjections
                 .Select(projection => projection.Name);
+
+        public IEnumerable<IConnectedProjection> Projections => _registeredProjections;
 
         public ConnectedProjectionName GetName(string name) =>
             _registeredProjections

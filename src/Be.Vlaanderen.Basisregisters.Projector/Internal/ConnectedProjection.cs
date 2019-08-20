@@ -1,17 +1,19 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 {
     using System;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Connector;
     using ProjectionHandling.Runner;
     using ProjectionHandling.SqlStreamStore;
-
     internal interface IConnectedProjection
     {
         ConnectedProjectionName Name { get; }
         dynamic Instance { get; }
+        Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken);
     }
 
     internal interface IConnectedProjection<TContext>
@@ -44,6 +46,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 ContextFactory,
                 envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory)),
                 loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory)));
+        }
+
+        public async Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken)
+        {
+            using (var ctx = ContextFactory().Value)
+            {
+                await ctx.UpdateProjectionDesiredState(Name, userDesiredState, cancellationToken);
+            }
         }
 
         public dynamic Instance => this;
