@@ -61,6 +61,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
         [Fact]
+        public void When_starting_the_projections_then_the_user_desired_state_is_saved()
+        {
+            _sut.Start();
+
+            _registeredProjections.Verify(bus => bus, Times.Once);
+        }
+
+        [Fact]
         public void When_starting_a_projection_by_name_then_the_start_command_is_dispatched_with_projection_command()
         {
             var projectionName = "projection-name";
