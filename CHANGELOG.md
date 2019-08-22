@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/informatievlaanderen/projector/compare/v3.1.3...v3.2.0) (2019-08-22)
+
+
+### Features
+
+* return 400 when projection name is incorrect fixes [#20](https://github.com/informatievlaanderen/projector/issues/20) ([fd907d3](https://github.com/informatievlaanderen/projector/commit/fd907d3))
+
 ## [3.1.3](https://github.com/informatievlaanderen/projector/compare/v3.1.2...v3.1.3) (2019-04-30)
 
 ## [3.1.2](https://github.com/informatievlaanderen/projector/compare/v3.1.1...v3.1.2) (2019-04-26)
