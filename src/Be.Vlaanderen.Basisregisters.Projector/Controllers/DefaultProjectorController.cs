@@ -25,7 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         public IActionResult Start(string projectionName)
         {
             if (!DoesNameExists(projectionName))
-                return BadRequest("Invalid projection name");
+                return BadRequest("Invalid projection name.");
 
             ProjectionManager.Start(projectionName);
             return Ok();
@@ -41,8 +41,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("stop/{projectionName}")]
         public IActionResult Stop(string projectionName)
         {
-            if(!DoesNameExists(projectionName))
-                return BadRequest("Invalid projection name");
+            if (!DoesNameExists(projectionName))
+                return BadRequest("Invalid projection name.");
 
             ProjectionManager.Stop(projectionName);
             return Ok();
