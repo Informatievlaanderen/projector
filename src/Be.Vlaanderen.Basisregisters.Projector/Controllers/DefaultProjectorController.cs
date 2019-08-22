@@ -1,5 +1,7 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
+    using System;
+    using System.Linq;
     using ConnectedProjections;
     using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +24,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("start/{projectionName}")]
         public IActionResult Start(string projectionName)
         {
+            if (!DoesNameExists(projectionName))
+                return BadRequest("Invalid projection name");
+
             ProjectionManager.Start(projectionName);
             return Ok();
         }
@@ -36,8 +41,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("stop/{projectionName}")]
         public IActionResult Stop(string projectionName)
         {
+            if(!DoesNameExists(projectionName))
+                return BadRequest("Invalid projection name");
+
             ProjectionManager.Stop(projectionName);
             return Ok();
+        }
+
+        private bool DoesNameExists(string projectionName)
+        {
+            var projections = ProjectionManager.GetRegisteredProjections();
+            return projections.Any(x => string.Equals(x.Name, projectionName, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }
