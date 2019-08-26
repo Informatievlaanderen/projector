@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/informatievlaanderen/projector/compare/v3.3.0...v3.3.1) (2019-08-26)
+
+
+### Bug Fixes
+
+* use fixed datadog tracing ([abd74a4](https://github.com/informatievlaanderen/projector/commit/abd74a4))
+
 # [3.3.0](https://github.com/informatievlaanderen/projector/compare/v3.2.0...v3.3.0) (2019-08-22)
 
 
