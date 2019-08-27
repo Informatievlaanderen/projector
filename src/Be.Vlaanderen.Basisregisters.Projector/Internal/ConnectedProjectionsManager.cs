@@ -61,6 +61,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             }
         }
 
+        public async Task Resume(CancellationToken cancellationToken)
+        {
+            foreach (var projection in _registeredProjections.Projections)
+            {
+                if (await projection.ShouldResume(cancellationToken))
+                {
+                    _commandBus.Queue(new Start(projection.Name));
+                }
+            }
+        }
+
         public async Task Stop(CancellationToken cancellationToken)
         {
             foreach (var projection in _registeredProjections.Projections)

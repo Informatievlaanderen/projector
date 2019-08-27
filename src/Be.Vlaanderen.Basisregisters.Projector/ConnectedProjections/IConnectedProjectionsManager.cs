@@ -33,6 +33,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         Task Stop(string name, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Starts any projections that were previously running.
+        /// Does not start projections that have never been started, eg: new projections.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        Task Resume(CancellationToken cancellationToken);
+
+        /// <summary>
         /// Lists all the registered projections
         /// </summary>
         IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections();
