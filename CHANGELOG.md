@@ -1,3 +1,10 @@
+## [3.3.2](https://github.com/informatievlaanderen/projector/compare/v3.3.1...v3.3.2) (2019-08-27)
+
+
+### Bug Fixes
+
+* make datadog tracing check more for nulls ([8e07d08](https://github.com/informatievlaanderen/projector/commit/8e07d08))
+
 ## [3.3.1](https://github.com/informatievlaanderen/projector/compare/v3.3.0...v3.3.1) (2019-08-26)
 
 
