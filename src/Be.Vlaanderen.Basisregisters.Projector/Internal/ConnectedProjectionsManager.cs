@@ -50,15 +50,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public async Task Start(string name, CancellationToken cancellationToken)
         {
-            var projectionName = _registeredProjections.GetName(name);
-            if (projectionName != null)
-            {
-                await _registeredProjections
-                    .GetProjection(projectionName)
-                    .UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
+            var projectionName = new ConnectedProjectionName(name);
 
-                _commandBus.Queue(new Start(projectionName));
-            }
+            if (!_registeredProjections.Exists(projectionName))
+                return;
+
+            await _registeredProjections
+                .GetProjection(projectionName)
+                .UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
+
+            _commandBus.Queue(new Start(projectionName));
         }
 
         public async Task Resume(CancellationToken cancellationToken)
@@ -83,15 +84,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public async Task Stop(string name, CancellationToken cancellationToken)
         {
-            var projectionName = _registeredProjections.GetName(name);
-            if (projectionName != null)
-            {
-                await _registeredProjections
-                    .GetProjection(projectionName)
-                    .UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken);
+            var projectionName = new ConnectedProjectionName(name);
 
-                _commandBus.Queue(new Stop(projectionName));
-            }
+            if (!_registeredProjections.Exists(projectionName))
+                return;
+
+            await _registeredProjections
+                .GetProjection(projectionName)
+                .UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken);
+
+            _commandBus.Queue(new Stop(projectionName));
         }
     }
 }

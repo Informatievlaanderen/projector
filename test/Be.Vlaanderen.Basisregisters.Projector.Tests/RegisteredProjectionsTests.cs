@@ -37,21 +37,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
         [Fact]
-        public void When_requesting_the_name_of_an_registered_projection_then_the_typed_name_is_returned()
+        public void When_checking_if_an_existing_projection_exists_returns_true()
         {
             var projectionName = _registeredProjections.ToArray()[1].Name;
 
-            _sut.GetName(projectionName.ToString())
+            _sut.Exists(projectionName)
                 .Should()
-                .Be(projectionName);
+                .Be(true);
         }
 
         [Fact]
-        public void When_requesting_the_name_of_a_unregistered_projection_then_the_typed_name_is_returned()
+        public void When_checking_if_a_non_existing_projection_exists_returns_false()
         {
-            _sut.GetName(_fixture.Create<string>())
+            _sut.Exists(new ConnectedProjectionName(_fixture.Create<string>()))
                 .Should()
-                .Be(null);
+                .Be(false);
         }
 
         [Fact]

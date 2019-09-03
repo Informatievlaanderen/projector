@@ -14,7 +14,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         Func<ConnectedProjectionName, bool> IsSubscribed { set; }
         IEnumerable<ConnectedProjectionName> Names { get; }
         IEnumerable<IConnectedProjection> Projections { get; }
-        ConnectedProjectionName GetName(string name);
+        bool Exists(ConnectedProjectionName name);
         IConnectedProjection GetProjection(ConnectedProjectionName projectionName);
         bool IsProjecting(ConnectedProjectionName projectionName);
         IEnumerable<RegisteredConnectedProjection> GetStates();
@@ -37,10 +37,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public IEnumerable<IConnectedProjection> Projections => _registeredProjections;
 
-        public ConnectedProjectionName GetName(string name) =>
+        public bool Exists(ConnectedProjectionName name) =>
+            _registeredProjections != null &&
             _registeredProjections
-                ?.SingleOrDefault(projection => projection.Name.Equals(name))
-                ?.Name;
+                .Any(projection => projection.Name.Equals(name));
 
         public IConnectedProjection GetProjection(ConnectedProjectionName projectionName) =>
             _registeredProjections

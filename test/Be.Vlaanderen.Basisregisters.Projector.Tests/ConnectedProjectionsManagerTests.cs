@@ -114,8 +114,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             var projectionNameString = "non-existing-projection";
             _registeredProjections
-                .Setup(projections => projections.GetName(projectionNameString))
-                .Returns((ConnectedProjectionName)null);
+                .Setup(projections => projections.Exists(new ConnectedProjectionName(projectionNameString)))
+                .Returns(false);
 
             await _sut.Stop(projectionNameString, CancellationToken.None);
 

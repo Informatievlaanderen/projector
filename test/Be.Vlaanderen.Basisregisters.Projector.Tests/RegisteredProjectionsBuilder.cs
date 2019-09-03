@@ -68,8 +68,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             foreach (var connectedProjection in _connectedProjections)
             {
                 _registeredProjectionsMock
-                    .Setup(projections => projections.GetName(connectedProjection.ProjectionName.ToString()))
-                    .Returns(connectedProjection.ProjectionName);
+                    .Setup(projections => projections.Exists(connectedProjection.ProjectionName))
+                    .Returns(true);
 
                 _registeredProjectionsMock
                     .Setup(projections => projections.GetProjection(connectedProjection.ProjectionName))
