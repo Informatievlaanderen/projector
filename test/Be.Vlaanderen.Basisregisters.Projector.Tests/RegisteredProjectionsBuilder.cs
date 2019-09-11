@@ -1,5 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -26,38 +27,25 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             _connectedProjections = new List<ProjectionMock>();
         }
 
-        public RegisteredProjectionsBuilder AddNamedProjection(string projectionNameString, bool shouldResume = false)
+
+        public RegisteredProjectionsBuilder AddNamedProjection(string projectionNameString) =>
+            AddNamedProjection(projectionNameString, mock => { });
+
+        public RegisteredProjectionsBuilder AddNamedProjection(string projectionNameString, Action<ProjectionMock> configure)
         {
-            var aName = new AssemblyName("ProjectionsDynamicAssembly");
-
-            var mb =
-                AssemblyBuilder.DefineDynamicAssembly(aName, AssemblyBuilderAccess.RunAndCollect)
-                    .DefineDynamicModule(aName.Name);
-
-            var tb = mb.DefineType(
-                projectionNameString,
-                TypeAttributes.Public);
-
-            var projectionName = new ConnectedProjectionName(tb);
-            var projection = new Mock<IConnectedProjection>();
-
-            projection
-                .Setup(connectedProjection => connectedProjection.ShouldResume(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(shouldResume);
-
-            _connectedProjections.Add(new ProjectionMock(projectionName, projection));
+            var projectionMock = new ProjectionMock(projectionNameString);
+            configure?.Invoke(projectionMock);
+            _connectedProjections.Add(projectionMock);
 
             return this;
         }
 
         public RegisteredProjectionsBuilder AddRandomProjections()
         {
-            for (int i = 0; i < _fixture.Create<int>(); i++)
+            for (var i = 0; i < _fixture.Create<int>(); i++)
             {
                 var projectionName = _fixture.Create<ConnectedProjectionName>();
-                var projection = new Mock<IConnectedProjection>();
-
-                _connectedProjections.Add(new ProjectionMock(projectionName, projection));
+                _connectedProjections.Add(new ProjectionMock(projectionName));
             }
 
             return this;
@@ -93,13 +81,41 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 
         internal class ProjectionMock
         {
+            private bool _shouldResume;
+
             public ConnectedProjectionName ProjectionName { get; }
             public Mock<IConnectedProjection> Projection { get; }
 
-            public ProjectionMock(ConnectedProjectionName projectionName, Mock<IConnectedProjection> projection)
+            public ProjectionMock(string projectionName)
+                :this(BuildName(projectionName))
+            { }
+
+            public ProjectionMock(ConnectedProjectionName projectionName)
             {
                 ProjectionName = projectionName;
-                Projection = projection;
+                Projection = new Mock<IConnectedProjection>();
+
+                Projection
+                    .Setup(connectedProjection => connectedProjection.ShouldResume(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => _shouldResume);
+            }
+
+            private static ConnectedProjectionName BuildName(string name)
+            {
+                var assemblyName = new AssemblyName("ProjectionsDynamicAssembly");
+
+                var moduleBuilder = AssemblyBuilder
+                    .DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect)
+                    .DefineDynamicModule(assemblyName.Name);
+
+                var connectedProjectionType = moduleBuilder.DefineType(name, TypeAttributes.Public);
+
+                return new ConnectedProjectionName(connectedProjectionType);
+            }
+
+            public void SetToResume()
+            {
+                _shouldResume = true;
             }
         }
 

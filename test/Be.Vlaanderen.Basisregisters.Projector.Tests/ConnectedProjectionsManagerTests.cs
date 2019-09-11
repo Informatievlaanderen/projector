@@ -198,7 +198,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             var projectionNameString = "unknown-projection-name";
 
             new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
-                .AddNamedProjection("some-projection", true)
+                .AddNamedProjection("some-projection", projection => projection.SetToResume())
                 .AddNamedProjection("another-projection")
                 .Build();
 
@@ -227,7 +227,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public async Task When_resuming_the_projections_then_the_start_command_is_dispatched_for_projections_with_a_desired_state_started()
         {
             new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
-                .AddNamedProjection("some-projection", true)
+                .AddNamedProjection("some-projection", projection => projection.SetToResume())
                 .AddNamedProjection("another-projection")
                 .Build();
 
