@@ -52,7 +52,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.Stopped);
         }
 
@@ -66,7 +66,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.Subscribed);
         }
 

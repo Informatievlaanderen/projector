@@ -45,7 +45,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.Stopped);
         }
 
@@ -59,7 +59,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.CatchingUp);
         }
 
@@ -77,7 +77,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.Subscribed);
             var assertionContext = new ProjectionContext(CreateContextOptionsFor<ProjectionContext>());
             assertionContext.ProcessedEvents
@@ -102,7 +102,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.Subscribed);
 
             await PushToStream(Fixture.CreateMany<SomethingHappened>(4));

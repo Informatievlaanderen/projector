@@ -40,11 +40,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public bool Exists(ConnectedProjectionName name) =>
             _registeredProjections != null &&
             _registeredProjections
-                .Any(projection => projection.Name.Equals(name));
+                .Any(projection => projection.Name == name);
 
         public IConnectedProjection GetProjection(ConnectedProjectionName projectionName) =>
             _registeredProjections
-                ?.SingleOrDefault(projection => projection.Name.Equals(projectionName));
+                ?.SingleOrDefault(projection => projection.Name == projectionName);
 
         public bool IsProjecting(ConnectedProjectionName projectionName) =>
             GetState(projectionName) != ConnectedProjectionState.Stopped;

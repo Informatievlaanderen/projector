@@ -58,7 +58,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_checking_if_a_projection_that_is_catching_up_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionName>();
-            _sut.IsCatchingUp = name => name.Equals(projection);
+            _sut.IsCatchingUp = name => name == projection;
 
             _sut.IsProjecting(projection)
                 .Should()
@@ -69,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_checking_if_a_projection_that_is_subscribed_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionName>();
-            _sut.IsSubscribed = name => name.Equals(projection);
+            _sut.IsSubscribed = name => name == projection;
 
             _sut.IsProjecting(projection)
                 .Should()
@@ -80,8 +80,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_checking_if_a_projection_that_is_not_catching_up_or_subscribed_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionName>();
-            _sut.IsCatchingUp = name => !name.Equals(projection);
-            _sut.IsSubscribed = name => !name.Equals(projection);
+            _sut.IsCatchingUp = name => name != projection;
+            _sut.IsSubscribed = name => name != projection;
 
             _sut.IsProjecting(projection)
                 .Should()

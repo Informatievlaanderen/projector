@@ -35,7 +35,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
         private ConnectedProjectionState GetStateFor(ConnectedProjectionName projection) => ProjectionManager
             .GetRegisteredProjections()
-            .Single(connectedProjection => connectedProjection.Name.Equals(projection))
+            .Single(connectedProjection => connectedProjection.Name == projection)
             .State;
 
         private void MessageWasHandled() => _projectionStarted?.Set();

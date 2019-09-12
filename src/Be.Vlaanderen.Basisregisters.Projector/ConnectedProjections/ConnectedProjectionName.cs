@@ -34,6 +34,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         public override string ToString() => _name;
 
+        public static bool operator ==(ConnectedProjectionName left, ConnectedProjectionName right) => Equals(left, right);
+
+        public static bool operator !=(ConnectedProjectionName left, ConnectedProjectionName right) => !Equals(left, right);
+
         public static implicit operator string(ConnectedProjectionName name) => name?.ToString();
     }
 
