@@ -87,7 +87,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             public Mock<IConnectedProjection> Projection { get; }
 
             public ProjectionMock(string projectionName)
-                :this(BuildName(projectionName))
+                :this(BuildConnectedProjectionNameFor(projectionName))
             { }
 
             public ProjectionMock(ConnectedProjectionName projectionName)
@@ -100,7 +100,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                     .ReturnsAsync(() => _shouldResume);
             }
 
-            private static ConnectedProjectionName BuildName(string name)
+            private static ConnectedProjectionName BuildConnectedProjectionNameFor(string name)
             {
                 var assemblyName = new AssemblyName("ProjectionsDynamicAssembly");
 
