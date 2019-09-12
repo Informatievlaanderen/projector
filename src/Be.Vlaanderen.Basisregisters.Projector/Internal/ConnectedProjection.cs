@@ -55,6 +55,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             using (var ctx = ContextFactory().Value)
             {
                 await ctx.UpdateProjectionDesiredState(Name, userDesiredState, cancellationToken);
+                await ctx.SaveChangesAsync(cancellationToken);
             }
         }
 
