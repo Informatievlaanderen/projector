@@ -113,9 +113,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 return new ConnectedProjectionName(connectedProjectionType);
             }
 
-            public void SetToResume()
+            public void ShouldResume(bool shouldResume)
             {
-                _shouldResume = true;
+                _shouldResume = shouldResume;
             }
         }
 
