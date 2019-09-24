@@ -1,3 +1,31 @@
+## [3.3.2](https://github.com/informatievlaanderen/projector/compare/v3.3.1...v3.3.2) (2019-08-27)
+
+
+### Bug Fixes
+
+* make datadog tracing check more for nulls ([8e07d08](https://github.com/informatievlaanderen/projector/commit/8e07d08))
+
+## [3.3.1](https://github.com/informatievlaanderen/projector/compare/v3.3.0...v3.3.1) (2019-08-26)
+
+
+### Bug Fixes
+
+* use fixed datadog tracing ([abd74a4](https://github.com/informatievlaanderen/projector/commit/abd74a4))
+
+# [3.3.0](https://github.com/informatievlaanderen/projector/compare/v3.2.0...v3.3.0) (2019-08-22)
+
+
+### Features
+
+* bump to .net 2.2.6 ([5d61fb4](https://github.com/informatievlaanderen/projector/commit/5d61fb4))
+
+# [3.2.0](https://github.com/informatievlaanderen/projector/compare/v3.1.3...v3.2.0) (2019-08-22)
+
+
+### Features
+
+* return 400 when projection name is incorrect fixes [#20](https://github.com/informatievlaanderen/projector/issues/20) ([fd907d3](https://github.com/informatievlaanderen/projector/commit/fd907d3))
+
 ## [3.1.3](https://github.com/informatievlaanderen/projector/compare/v3.1.2...v3.1.3) (2019-04-30)
 
 ## [3.1.2](https://github.com/informatievlaanderen/projector/compare/v3.1.1...v3.1.2) (2019-04-26)

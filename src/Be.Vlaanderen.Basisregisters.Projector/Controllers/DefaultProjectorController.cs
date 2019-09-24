@@ -2,6 +2,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using System;
+    using System.Linq;
     using ConnectedProjections;
     using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +26,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("start/{projectionName}")]
         public async Task<IActionResult> Start(string projectionName, CancellationToken cancellationToken)
         {
+            if (!DoesNameExists(projectionName))
+                return BadRequest("Invalid projection name.");
+
             await ProjectionManager.Start(projectionName, cancellationToken);
+            
             return Ok();
         }
 
@@ -38,8 +44,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("stop/{projectionName}")]
         public async Task<IActionResult> Stop(string projectionName, CancellationToken cancellationToken)
         {
+            if (!DoesNameExists(projectionName))
+                return BadRequest("Invalid projection name.");
+
             await ProjectionManager.Stop(projectionName, cancellationToken);
+            
             return Ok();
+        }
+
+        private bool DoesNameExists(string projectionName)
+        {
+            var projections = ProjectionManager.GetRegisteredProjections();
+            return projections.Any(x => string.Equals(x.Name, projectionName, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }
