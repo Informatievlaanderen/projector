@@ -1,3 +1,25 @@
+# [4.0.0](https://github.com/informatievlaanderen/projector/compare/v3.3.2...v4.0.0) (2019-09-24)
+
+
+### Bug Fixes
+
+* make setup for should resume explicit ([7b3fc27](https://github.com/informatievlaanderen/projector/commit/7b3fc27))
+* register context so that it will not be a single instance ([fa647ac](https://github.com/informatievlaanderen/projector/commit/fa647ac))
+
+
+### Features
+
+* add ==/!= operator for ConnectedProjectionName ([43d8b1d](https://github.com/informatievlaanderen/projector/commit/43d8b1d))
+* add UserDesiredState class ([ef35af2](https://github.com/informatievlaanderen/projector/commit/ef35af2))
+* allow projections to be resumed ([abab01a](https://github.com/informatievlaanderen/projector/commit/abab01a))
+* update user desired state when starting/stopping projections ([5604d33](https://github.com/informatievlaanderen/projector/commit/5604d33))
+
+
+### BREAKING CHANGES
+
+* ConnectedProjectionsManager.Start/Stop made async, needs cancellation token.
+DefaultProjectorController made async.
+
 ## [3.3.2](https://github.com/informatievlaanderen/projector/compare/v3.3.1...v3.3.2) (2019-08-27)
 
 

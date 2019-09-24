@@ -1,6 +1,6 @@
 {
   "name": "projector",
-  "version": "3.3.2",
+  "version": "4.0.0",
   "description": "Generic projector runner infrastructure.",
   "author": "Basisregisters Vlaanderen",
   "license": "MIT",
