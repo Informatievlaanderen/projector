@@ -37,28 +37,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
         [Fact]
-        public void When_requesting_the_name_of_an_registered_projection_then_the_typed_name_is_returned()
+        public void When_checking_if_an_existing_projection_exists_returns_true()
         {
             var projectionName = _registeredProjections.ToArray()[1].Name;
 
-            _sut.GetName(projectionName.ToString())
+            _sut.Exists(projectionName)
                 .Should()
-                .Be(projectionName);
+                .Be(true);
         }
 
         [Fact]
-        public void When_requesting_the_name_of_a_unregistered_projection_then_the_typed_name_is_returned()
+        public void When_checking_if_a_non_existing_projection_exists_returns_false()
         {
-            _sut.GetName(_fixture.Create<string>())
+            _sut.Exists(new ConnectedProjectionName(_fixture.Create<string>()))
                 .Should()
-                .Be(null);
+                .Be(false);
         }
 
         [Fact]
         public void When_checking_if_a_projection_that_is_catching_up_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionName>();
-            _sut.IsCatchingUp = name => name.Equals(projection);
+            _sut.IsCatchingUp = name => name == projection;
 
             _sut.IsProjecting(projection)
                 .Should()
@@ -69,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_checking_if_a_projection_that_is_subscribed_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionName>();
-            _sut.IsSubscribed = name => name.Equals(projection);
+            _sut.IsSubscribed = name => name == projection;
 
             _sut.IsProjecting(projection)
                 .Should()
@@ -80,8 +80,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_checking_if_a_projection_that_is_not_catching_up_or_subscribed_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionName>();
-            _sut.IsCatchingUp = name => !name.Equals(projection);
-            _sut.IsSubscribed = name => !name.Equals(projection);
+            _sut.IsCatchingUp = name => name != projection;
+            _sut.IsSubscribed = name => name != projection;
 
             _sut.IsProjecting(projection)
                 .Should()

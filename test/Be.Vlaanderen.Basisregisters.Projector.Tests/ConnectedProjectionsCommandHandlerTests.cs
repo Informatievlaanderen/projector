@@ -116,7 +116,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             await _sut.Handle(command);
 
             _commandBusMock.Verify(
-                bus => bus.Queue(It.Is<Subscribe>(subscribe => subscribe.ProjectionName.Equals(command.ProjectionName))),
+                bus => bus.Queue(It.Is<Subscribe>(subscribe => subscribe.ProjectionName == command.ProjectionName)),
                 Times.Once);
         }        [Fact]
 
@@ -139,7 +139,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             await _sut.Handle(command);
 
             _commandBusMock.Verify(
-                bus => bus.Queue(It.Is<Unsubscribe>(unsubscribe => unsubscribe.ProjectionName.Equals(command.ProjectionName))),
+                bus => bus.Queue(It.Is<Unsubscribe>(unsubscribe => unsubscribe.ProjectionName == command.ProjectionName)),
                 Times.Once);
         }
 
@@ -151,7 +151,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             await _sut.Handle(command);
 
             _commandBusMock.Verify(
-                bus => bus.Queue(It.Is<StopCatchUp>(stop => stop.ProjectionName.Equals(command.ProjectionName))),
+                bus => bus.Queue(It.Is<StopCatchUp>(stop => stop.ProjectionName == command.ProjectionName)),
                 Times.Once);
         }
 

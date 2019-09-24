@@ -35,7 +35,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
         private ConnectedProjectionState GetStateFor(ConnectedProjectionName projection) => ProjectionManager
             .GetRegisteredProjections()
-            .Single(connectedProjection => connectedProjection.Name.Equals(projection))
+            .Single(connectedProjection => connectedProjection.Name == projection)
             .State;
 
         private void MessageWasHandled() => _projectionStarted?.Set();
@@ -55,7 +55,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         [Fact]
         public async Task Then_the_projection_is_subscribed()
         {
-            ProjectionManager.Start(_projection);
+            await ProjectionManager.Start(_projection, CancellationToken.None);
 
             await Task.Delay(1000);
 
@@ -67,7 +67,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         [Fact]
         public async Task Then_the_events_pushed_to_the_store_while_subscribed_are_handled()
         {
-            ProjectionManager.Start(_projection);
+            await ProjectionManager.Start(_projection, CancellationToken.None);
             // wait for projection to be in subscription
             while (GetStateFor(_projection) != ConnectedProjectionState.Subscribed)
                 await Task.Delay(25);

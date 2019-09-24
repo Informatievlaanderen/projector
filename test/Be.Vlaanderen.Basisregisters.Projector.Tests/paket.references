@@ -5,6 +5,7 @@ xunit
 xunit.runner.visualstudio
 xunit.categories
 AutoFixture
+AutoFixture.Idioms
 FluentAssertions
 Moq
 

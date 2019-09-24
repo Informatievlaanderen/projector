@@ -1,5 +1,7 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
+    using System.Threading;
+    using System.Threading.Tasks;
     using System;
     using System.Linq;
     using ConnectedProjections;
@@ -15,36 +17,38 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         public IActionResult Get() => Ok(ProjectionManager.GetRegisteredProjections());
 
         [HttpPost("start/all")]
-        public IActionResult Start()
+        public async Task<IActionResult> Start(CancellationToken cancellationToken)
         {
-            ProjectionManager.Start();
+            await ProjectionManager.Start(cancellationToken);
             return Ok();
         }
 
         [HttpPost("start/{projectionName}")]
-        public IActionResult Start(string projectionName)
+        public async Task<IActionResult> Start(string projectionName, CancellationToken cancellationToken)
         {
             if (!DoesNameExists(projectionName))
                 return BadRequest("Invalid projection name.");
 
-            ProjectionManager.Start(projectionName);
+            await ProjectionManager.Start(projectionName, cancellationToken);
+            
             return Ok();
         }
 
         [HttpPost("stop/all")]
-        public IActionResult Stop()
+        public async Task<IActionResult> Stop(CancellationToken cancellationToken)
         {
-            ProjectionManager.Stop();
+            await ProjectionManager.Stop(cancellationToken);
             return Ok();
         }
 
         [HttpPost("stop/{projectionName}")]
-        public IActionResult Stop(string projectionName)
+        public async Task<IActionResult> Stop(string projectionName, CancellationToken cancellationToken)
         {
             if (!DoesNameExists(projectionName))
                 return BadRequest("Invalid projection name.");
 
-            ProjectionManager.Stop(projectionName);
+            await ProjectionManager.Stop(projectionName, cancellationToken);
+            
             return Ok();
         }
 

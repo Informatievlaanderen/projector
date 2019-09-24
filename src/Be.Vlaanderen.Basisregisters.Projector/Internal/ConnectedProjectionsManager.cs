@@ -2,6 +2,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Commands;
     using ConnectedProjections;
 
@@ -36,22 +38,62 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections()
             => _registeredProjections.GetStates();
 
-        public void Start() => _commandBus.Queue<StartAll>();
-
-        public void Start(string name)
+        public async Task Start(CancellationToken cancellationToken)
         {
-            var projectionName = _registeredProjections.GetName(name);
-            if (projectionName != null)
-                _commandBus.Queue(new Start(projectionName));
+            foreach (var projection in _registeredProjections.Projections)
+            {
+                await projection.UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
+            }
+
+            _commandBus.Queue<StartAll>();
         }
 
-        public void Stop() => _commandBus.Queue<StopAll>();
-
-        public void Stop(string name)
+        public async Task Start(string name, CancellationToken cancellationToken)
         {
-            var projectionName = _registeredProjections.GetName(name);
-            if (projectionName != null)
-                _commandBus.Queue(new Stop(projectionName));
+            var projectionName = new ConnectedProjectionName(name);
+
+            if (!_registeredProjections.Exists(projectionName))
+                return;
+
+            await _registeredProjections
+                .GetProjection(projectionName)
+                .UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
+
+            _commandBus.Queue(new Start(projectionName));
+        }
+
+        public async Task Resume(CancellationToken cancellationToken)
+        {
+            foreach (var projection in _registeredProjections.Projections)
+            {
+                if (await projection.ShouldResume(cancellationToken))
+                {
+                    _commandBus.Queue(new Start(projection.Name));
+                }
+            }
+        }
+
+        public async Task Stop(CancellationToken cancellationToken)
+        {
+            foreach (var projection in _registeredProjections.Projections)
+            {
+                await projection.UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken);
+            }
+            _commandBus.Queue<StopAll>();
+        }
+
+        public async Task Stop(string name, CancellationToken cancellationToken)
+        {
+            var projectionName = new ConnectedProjectionName(name);
+
+            if (!_registeredProjections.Exists(projectionName))
+                return;
+
+            await _registeredProjections
+                .GetProjection(projectionName)
+                .UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken);
+
+            _commandBus.Queue(new Stop(projectionName));
         }
     }
 }

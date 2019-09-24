@@ -45,28 +45,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.Stopped);
         }
 
         [Fact]
-        public void Then_the_projection_is_catching_up()
+        public async Task Then_the_projection_is_catching_up()
         {
-            ProjectionManager.Start(_projection);
+            await ProjectionManager.Start(_projection, CancellationToken.None);
 
             _waitForProjection.WaitOne();
             ProjectionManager
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.CatchingUp);
         }
 
         [Fact]
         public async Task Then_the_projection_is_subscribed_once_caught_up()
         {
-            ProjectionManager.Start(_projection);
+            await ProjectionManager.Start(_projection, CancellationToken.None);
 
             _waitForProjection.WaitOne();
             _waitForProjection.Reset();
@@ -77,7 +77,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.Subscribed);
             var assertionContext = new ProjectionContext(CreateContextOptionsFor<ProjectionContext>());
             assertionContext.ProcessedEvents
@@ -91,7 +91,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         [Fact]
         public async Task Then_the_projection_processed_the_next_events_as_subscription()
         {
-            ProjectionManager.Start(_projection);
+            await ProjectionManager.Start(_projection, CancellationToken.None);
 
             _waitForProjection.WaitOne();
             _waitForProjection.Reset();
@@ -102,7 +102,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name.Equals(_projection)
+                    connectedProjection.Name == _projection
                     && connectedProjection.State == ConnectedProjectionState.Subscribed);
 
             await PushToStream(Fixture.CreateMany<SomethingHappened>(4));

@@ -9,6 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         private readonly string _name;
 
         internal ConnectedProjectionName(Type connectedProjectionType) => _name = connectedProjectionType?.FullName;
+        internal ConnectedProjectionName(string name) => _name = name;
 
         public override bool Equals(object obj)
         {
@@ -32,6 +33,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         public override int GetHashCode() => _name?.ToLowerInvariant().GetHashCode() ?? 0;
 
         public override string ToString() => _name;
+
+        public static bool operator ==(ConnectedProjectionName left, ConnectedProjectionName right) => Equals(left, right);
+
+        public static bool operator !=(ConnectedProjectionName left, ConnectedProjectionName right) => !Equals(left, right);
 
         public static implicit operator string(ConnectedProjectionName name) => name?.ToString();
     }

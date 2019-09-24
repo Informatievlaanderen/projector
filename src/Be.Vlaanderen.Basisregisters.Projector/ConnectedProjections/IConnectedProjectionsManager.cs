@@ -1,30 +1,43 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 {
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public interface IConnectedProjectionsManager
     {
         /// <summary>
         /// Starts all registered projections
         /// </summary>
-        void Start();
+        /// <param name="cancellationToken"></param>
+        Task Start(CancellationToken cancellationToken);
 
         /// <summary>
         /// Starts a specific projection
         /// </summary>
         /// <param name="name">Case insensitive name of the projection to start</param>
-        void Start(string name);
+        /// <param name="cancellationToken"></param>
+        Task Start(string name, CancellationToken cancellationToken);
 
         /// <summary>
         /// Stops all running projections
         /// </summary>
-        void Stop();
+        /// <param name="cancellationToken"></param>
+        Task Stop(CancellationToken cancellationToken);
 
         /// <summary>
         /// Stops a specific running projection
         /// </summary>
         /// <param name="name">Case insensitive name of the projection to stop</param>
-        void Stop(string name);
+        /// <param name="cancellationToken"></param>
+        Task Stop(string name, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Starts any projections that were previously running.
+        /// Does not start projections that have never been started, eg: new projections.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        Task Resume(CancellationToken cancellationToken);
 
         /// <summary>
         /// Lists all the registered projections

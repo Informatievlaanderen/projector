@@ -13,7 +13,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         Func<ConnectedProjectionName, bool> IsCatchingUp { set; }
         Func<ConnectedProjectionName, bool> IsSubscribed { set; }
         IEnumerable<ConnectedProjectionName> Names { get; }
-        ConnectedProjectionName GetName(string name);
+        IEnumerable<IConnectedProjection> Projections { get; }
+        bool Exists(ConnectedProjectionName name);
         IConnectedProjection GetProjection(ConnectedProjectionName projectionName);
         bool IsProjecting(ConnectedProjectionName projectionName);
         IEnumerable<RegisteredConnectedProjection> GetStates();
@@ -34,14 +35,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             _registeredProjections
                 .Select(projection => projection.Name);
 
-        public ConnectedProjectionName GetName(string name) =>
+        public IEnumerable<IConnectedProjection> Projections => _registeredProjections;
+
+        public bool Exists(ConnectedProjectionName name) =>
+            _registeredProjections != null &&
             _registeredProjections
-                ?.SingleOrDefault(projection => projection.Name.Equals(name))
-                ?.Name;
+                .Any(projection => projection.Name == name);
 
         public IConnectedProjection GetProjection(ConnectedProjectionName projectionName) =>
             _registeredProjections
-                ?.SingleOrDefault(projection => projection.Name.Equals(projectionName));
+                ?.SingleOrDefault(projection => projection.Name == projectionName);
 
         public bool IsProjecting(ConnectedProjectionName projectionName) =>
             GetState(projectionName) != ConnectedProjectionState.Stopped;

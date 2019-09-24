@@ -1,5 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using Autofac;
     using ConnectedProjections;
@@ -35,7 +36,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         [Fact]
         public async Task Then_all_projections_are_subscribed()
         {
-            ProjectionManager.Start();
+            await ProjectionManager.Start(CancellationToken.None);
 
             await Task.Delay(1000);
             ProjectionManager
