@@ -9,6 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         private readonly string _name;
 
         internal ConnectedProjectionName(Type connectedProjectionType) => _name = connectedProjectionType?.FullName;
+
         internal ConnectedProjectionName(string name) => _name = name;
 
         public override bool Equals(object obj)

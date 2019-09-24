@@ -2,60 +2,54 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using System;
-    using System.Linq;
     using ConnectedProjections;
     using Microsoft.AspNetCore.Mvc;
 
     public abstract class DefaultProjectorController : ControllerBase
     {
-        protected readonly IConnectedProjectionsManager ProjectionManager;
+        private readonly IConnectedProjectionsManager _projectionManager;
 
-        protected DefaultProjectorController(IConnectedProjectionsManager connectedProjectionsManager) => ProjectionManager = connectedProjectionsManager;
+        protected DefaultProjectorController(IConnectedProjectionsManager connectedProjectionsManager)
+            => _projectionManager = connectedProjectionsManager;
 
         [HttpGet]
-        public IActionResult Get() => Ok(ProjectionManager.GetRegisteredProjections());
+        public IActionResult Get()
+            => Ok(_projectionManager.GetRegisteredProjections());
 
         [HttpPost("start/all")]
         public async Task<IActionResult> Start(CancellationToken cancellationToken)
         {
-            await ProjectionManager.Start(cancellationToken);
-            return Ok();
+            await _projectionManager.Start(cancellationToken);
+            return Accepted();
         }
 
         [HttpPost("start/{projectionName}")]
         public async Task<IActionResult> Start(string projectionName, CancellationToken cancellationToken)
         {
-            if (!DoesNameExists(projectionName))
+            if (!_projectionManager.Exists(projectionName))
                 return BadRequest("Invalid projection name.");
 
-            await ProjectionManager.Start(projectionName, cancellationToken);
+            await _projectionManager.Start(projectionName, cancellationToken);
             
-            return Ok();
+            return Accepted();
         }
 
         [HttpPost("stop/all")]
         public async Task<IActionResult> Stop(CancellationToken cancellationToken)
         {
-            await ProjectionManager.Stop(cancellationToken);
-            return Ok();
+            await _projectionManager.Stop(cancellationToken);
+            return Accepted();
         }
 
         [HttpPost("stop/{projectionName}")]
         public async Task<IActionResult> Stop(string projectionName, CancellationToken cancellationToken)
         {
-            if (!DoesNameExists(projectionName))
+            if (!_projectionManager.Exists(projectionName))
                 return BadRequest("Invalid projection name.");
 
-            await ProjectionManager.Stop(projectionName, cancellationToken);
+            await _projectionManager.Stop(projectionName, cancellationToken);
             
-            return Ok();
-        }
-
-        private bool DoesNameExists(string projectionName)
-        {
-            var projections = ProjectionManager.GetRegisteredProjections();
-            return projections.Any(x => string.Equals(x.Name, projectionName, StringComparison.InvariantCultureIgnoreCase));
+            return Accepted();
         }
     }
 }

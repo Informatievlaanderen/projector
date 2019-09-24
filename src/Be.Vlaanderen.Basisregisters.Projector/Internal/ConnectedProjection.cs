@@ -10,6 +10,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using ProjectionHandling.Connector;
     using ProjectionHandling.Runner;
     using ProjectionHandling.SqlStreamStore;
+
     internal interface IConnectedProjection
     {
         ConnectedProjectionName Name { get; }

@@ -7,28 +7,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     public interface IConnectedProjectionsManager
     {
         /// <summary>
-        /// Starts all registered projections
+        /// Starts all registered projections.
         /// </summary>
         /// <param name="cancellationToken"></param>
         Task Start(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Starts a specific projection
+        /// Starts a specific projection.
         /// </summary>
-        /// <param name="name">Case insensitive name of the projection to start</param>
+        /// <param name="name">Case insensitive name of the projection to start.</param>
         /// <param name="cancellationToken"></param>
         Task Start(string name, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Stops all running projections
+        /// Stops all running projections.
         /// </summary>
         /// <param name="cancellationToken"></param>
         Task Stop(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Stops a specific running projection
+        /// Stops a specific running projection.
         /// </summary>
-        /// <param name="name">Case insensitive name of the projection to stop</param>
+        /// <param name="name">Case insensitive name of the projection to stop.</param>
         /// <param name="cancellationToken"></param>
         Task Stop(string name, CancellationToken cancellationToken);
 
@@ -40,8 +40,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         Task Resume(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Lists all the registered projections
+        /// Lists all the registered projections.
         /// </summary>
         IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections();
+
+        /// <summary>
+        /// Checks if a specific projection exists.
+        /// </summary>
+        /// <param name="name">Case insensitive name of the projection to check.</param>
+        bool Exists(string name);
     }
 }
