@@ -1,3 +1,10 @@
+# [4.1.0](https://github.com/informatievlaanderen/projector/compare/v4.0.0...v4.1.0) (2019-09-25)
+
+
+### Features
+
+* add db query endpoint ([54fd213](https://github.com/informatievlaanderen/projector/commit/54fd213))
+
 # [4.0.0](https://github.com/informatievlaanderen/projector/compare/v3.3.2...v4.0.0) (2019-09-24)
 
 
