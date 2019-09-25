@@ -1,3 +1,10 @@
+## [4.1.1](https://github.com/informatievlaanderen/projector/compare/v4.1.0...v4.1.1) (2019-09-25)
+
+
+### Bug Fixes
+
+* allow reserved column names ([6ace0bc](https://github.com/informatievlaanderen/projector/commit/6ace0bc))
+
 # [4.1.0](https://github.com/informatievlaanderen/projector/compare/v4.0.0...v4.1.0) (2019-09-25)
 
 
