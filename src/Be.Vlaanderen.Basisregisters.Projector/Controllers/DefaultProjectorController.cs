@@ -5,7 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     using ConnectedProjections;
     using Microsoft.AspNetCore.Mvc;
 
-    public abstract class DefaultProjectorController : ControllerBase
+    public abstract partial class DefaultProjectorController : ControllerBase
     {
         private readonly IConnectedProjectionsManager _projectionManager;
 
@@ -30,7 +30,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 return BadRequest("Invalid projection name.");
 
             await _projectionManager.Start(projectionName, cancellationToken);
-            
+
             return Accepted();
         }
 
@@ -48,7 +48,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 return BadRequest("Invalid projection name.");
 
             await _projectionManager.Stop(projectionName, cancellationToken);
-            
+
             return Accepted();
         }
     }

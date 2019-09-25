@@ -23,6 +23,7 @@ dependencies
     Microsoft.AspNetCore.Mvc.Core >= LOCKEDVERSION
     Autofac >= LOCKEDVERSION
     Autofac.Extensions.DependencyInjection >= LOCKEDVERSION
+    Dapper >= LOCKEDVERSION
     System.Threading.Tasks.Dataflow >= LOCKEDVERSION
 
 files

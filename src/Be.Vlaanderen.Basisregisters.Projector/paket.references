@@ -3,6 +3,7 @@ Microsoft.AspNetCore.Mvc.Core
 
 Autofac
 Autofac.Extensions.DependencyInjection
+Dapper
 
 System.Threading.Tasks.Dataflow
 
