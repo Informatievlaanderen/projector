@@ -1,3 +1,10 @@
+# [4.2.0](https://github.com/informatievlaanderen/projector/compare/v4.1.1...v4.2.0) (2019-09-25)
+
+
+### Features
+
+* add projection manager helpers ([4fac7ae](https://github.com/informatievlaanderen/projector/commit/4fac7ae))
+
 ## [4.1.1](https://github.com/informatievlaanderen/projector/compare/v4.1.0...v4.1.1) (2019-09-25)
 
 
