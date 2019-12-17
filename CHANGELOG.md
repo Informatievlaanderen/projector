@@ -1,3 +1,15 @@
+# [5.0.0](https://github.com/informatievlaanderen/projector/compare/v4.2.0...v5.0.0) (2019-12-17)
+
+
+### Code Refactoring
+
+* upgrade to netcoreapp31 ([f48b1ad](https://github.com/informatievlaanderen/projector/commit/f48b1ad))
+
+
+### BREAKING CHANGES
+
+* Upgrade to .NET Core 3.1
+
 # [4.2.0](https://github.com/informatievlaanderen/projector/compare/v4.1.1...v4.2.0) (2019-09-25)
 
 
