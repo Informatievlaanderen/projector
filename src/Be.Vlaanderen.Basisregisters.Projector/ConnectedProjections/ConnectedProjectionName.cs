@@ -12,19 +12,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         internal ConnectedProjectionName(string name) => _name = name;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            switch (obj)
+            return obj switch
             {
-                case ConnectedProjectionName name:
-                    return Equals(name);
-
-                case string nameString:
-                    return Equals(nameString);
-
-                default:
-                    return false;
-            }
+                ConnectedProjectionName name => Equals(name),
+                string nameString => Equals(nameString),
+                _ => false
+            };
         }
 
         public bool Equals(ConnectedProjectionName other) => other != null && Equals(other._name);

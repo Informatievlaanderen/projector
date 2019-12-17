@@ -15,14 +15,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             var bus = new Mock<IConnectedProjectionsCommandBus>().Object;
             var commandBusHandlerConfiguration = new Mock<IConnectedProjectionsCommandBusHandlerConfiguration>().Object;
             var commandHandler = new Mock<IConnectedProjectionsCommandHandler>().Object;
-            
+
             var manager = new ConnectedProjectionsManager(
                 migrationHelperMock.Object,
                 projections,
                 bus,
                 commandBusHandlerConfiguration,
                 commandHandler);
-            
+
             migrationHelperMock.Verify(helper => helper.RunMigrations(), Times.Once);
         }
 
@@ -41,7 +41,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 commandBus,
                 commandBusHandlerConfigurationMock.Object,
                 commandHandler);
-            
+
             commandBusHandlerConfigurationMock.Verify(bus => bus.Register(commandHandler), Times.Once);
         }
     }

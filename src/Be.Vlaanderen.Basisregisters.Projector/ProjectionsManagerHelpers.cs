@@ -4,8 +4,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector
     using System.Threading;
     using ConnectedProjections;
     using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
 
     public class ProjectionsManagerOptions
     {
@@ -14,7 +14,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector
         public class CommonOptions
         {
             public IServiceProvider ServiceProvider { get; set; }
-            public IApplicationLifetime ApplicationLifetime { get; set; }
+            public IHostApplicationLifetime ApplicationLifetime { get; set; }
         }
     }
 

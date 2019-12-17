@@ -53,7 +53,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public async Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken)
         {
-            using (var ctx = ContextFactory().Value)
+            await using (var ctx = ContextFactory().Value)
             {
                 await ctx.UpdateProjectionDesiredState(Name, userDesiredState, cancellationToken);
                 await ctx.SaveChangesAsync(cancellationToken);
@@ -62,7 +62,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public async Task<bool> ShouldResume(CancellationToken cancellationToken)
         {
-            using (var ctx = ContextFactory().Value)
+            await using (var ctx = ContextFactory().Value)
             {
                 var projectionStateItem = await ctx.ProjectionStates.SingleOrDefaultAsync(item => item.Name == Name, cancellationToken);
                 return projectionStateItem?.DesiredState == UserDesiredState.Started;

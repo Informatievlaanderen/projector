@@ -1,7 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 {
     using ConnectedProjections;
-    using Subscription;
 
     internal class Start : ConnectedProjectionCommand
     {

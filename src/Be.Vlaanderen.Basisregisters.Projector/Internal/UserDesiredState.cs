@@ -46,7 +46,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         }
 
         public bool Equals(UserDesiredState other) => other != null && other._value == _value;
-        public override bool Equals(object obj) => obj is UserDesiredState type && Equals(type);
+        public override bool Equals(object? obj) => obj is UserDesiredState type && Equals(type);
         public override int GetHashCode() => _value.GetHashCode();
         public override string ToString() => _value;
 

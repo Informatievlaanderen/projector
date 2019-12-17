@@ -3,7 +3,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     using System;
     using System.Collections.Generic;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Logging.Internal;
     using Moq;
 
     public class FakeLoggerFactory : ILoggerFactory
@@ -39,7 +38,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
 
         private FakeLogger ResolveLoggerMock(string name)
         {
-            if(false == _loggerMocks.ContainsKey(name))
+            if (false == _loggerMocks.ContainsKey(name))
                 _loggerMocks[name] = new FakeLogger();
 
             return _loggerMocks[name];
@@ -76,9 +75,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
                 logger => logger.Log(
                     logLevel,
                     It.IsAny<EventId>(),
-                    It.Is<FormattedLogValues>(o => o.ToString() == message),
+                    It.Is<It.IsAnyType>((o, type) => o.ToString() == message),
                     It.IsAny<Exception>(),
-                    It.IsAny<Func<object, Exception, string>>()),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 times);
         }
 
@@ -88,9 +87,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
                 logger => logger.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<FormattedLogValues>(o => o.ToString() == message),
+                    It.Is<It.IsAnyType>((o, type) => o.ToString() == message),
                     It.Is<Exception>(ex => ex == exception || ex.Message == exception.Message),
-                    It.IsAny<Func<object, Exception, string>>()),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 times);
         }
 

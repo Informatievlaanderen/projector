@@ -15,17 +15,16 @@ licenseUrl https://opensource.org/licenses/MIT
 description Generic projection runner infrastructure.
 
 dependencies
-  framework: netstandard20
-    Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector ~> 4.3
-    Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner ~> 4.3
+  framework: netcoreapp31
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner >= LOCKEDVERSION
 
-    Microsoft.AspNetCore.Mvc.Abstractions >= LOCKEDVERSION
-    Microsoft.AspNetCore.Mvc.Core >= LOCKEDVERSION
     Autofac >= LOCKEDVERSION
     Autofac.Extensions.DependencyInjection >= LOCKEDVERSION
     Dapper >= LOCKEDVERSION
+    Microsoft.Data.SqlClient >= LOCKEDVERSION
     System.Threading.Tasks.Dataflow >= LOCKEDVERSION
 
 files
-  bin\Release\netstandard2.0\Be.Vlaanderen.Basisregisters.Projector.dll => lib\netstandard2.0
-  bin\Release\netstandard2.0\Be.Vlaanderen.Basisregisters.Projector.pdb => lib\netstandard2.0
+  bin\Release\netcoreapp3.1\Be.Vlaanderen.Basisregisters.Projector.dll => lib\netcoreapp3.1
+  bin\Release\netcoreapp3.1\Be.Vlaanderen.Basisregisters.Projector.pdb => lib\netcoreapp3.1

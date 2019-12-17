@@ -56,7 +56,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             var headPosition = _fixture.Create<uint>();
             _streamStoreMock.SetHeadPosition(headPosition);
             await _sut.Start();
-            
+
             _streamStoreMock.VerifyStreamSubscribedAfterPosition(headPosition);
         }
 
@@ -66,7 +66,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             var headPosition = _fixture.Create<uint>();
             _streamStoreMock.SetHeadPosition(headPosition);
             await _sut.Start();
-            
+
             _loggerMock.Verify(LogLevel.Information, $"Started subscription stream after {headPosition}", Times.Once);
         }
 
@@ -80,7 +80,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Should()
                 .Be(headPosition);
         }
-        
+
         [Fact]
         public async Task When_the_subscription_is_started_with_the_head_position_before_zero_then_the_subscription_was_subscribed_without_a_start_position()
         {
@@ -89,7 +89,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 
             _streamStoreMock.VerifyStreamSubscribedAfterPosition(null);
         }
-        
+
         [Fact]
         public async Task When_a_running_subscription_is_dropped_then_the_subscription_is_running_returns_false()
         {
@@ -155,7 +155,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                     && command.CancellationToken == cancellationToken)),
                 Times.Once);
         }
-
 
         private void SubscriptionDroppedErrorLogged(
             string streamName,
@@ -231,7 +230,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             {
                 _subscriptionDropped(_allStreamSubscription, reason, exception);
             }
-
         }
     }
 }

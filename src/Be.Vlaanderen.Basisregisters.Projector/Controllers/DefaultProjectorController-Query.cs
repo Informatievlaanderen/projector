@@ -1,7 +1,7 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
     using System.Collections.Generic;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
@@ -48,7 +48,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             select.Append(";");
 
             IEnumerable<dynamic> result;
-            using (var connection = new SqlConnection(_connectionStringBySchema[schema.ToUpperInvariant()]))
+            await using (var connection = new SqlConnection(_connectionStringBySchema[schema.ToUpperInvariant()]))
             {
                 try
                 {

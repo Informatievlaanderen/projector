@@ -127,11 +127,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 _sut.Queue(command);
                 commandsQueued += 1;
             }
-            
+
             await Task.Delay(500); // wait for the fist couple of commands to be handled
+
             commandsHandled
                 .Should()
                 .BeGreaterThan(0);
+
             commandsQueued
                 .Should()
                 .Be(commands.Count)

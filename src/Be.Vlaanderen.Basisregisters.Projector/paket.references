@@ -1,9 +1,7 @@
-Microsoft.AspNetCore.Mvc.Abstractions
-Microsoft.AspNetCore.Mvc.Core
-
 Autofac
 Autofac.Extensions.DependencyInjection
 Dapper
+Microsoft.Data.SqlClient
 
 System.Threading.Tasks.Dataflow
 

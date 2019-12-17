@@ -14,7 +14,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 
         public override int GetHashCode() => Serialize().ToLowerInvariant().GetHashCode();
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return GetType() == obj?.GetType()
                    && obj is ConnectedProjectionCommand command

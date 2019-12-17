@@ -3,6 +3,7 @@
 .fake/
 .idea/
 .ionide/
+.paket/
 
 [Pp]ackages/
 [Pp]aket-files/

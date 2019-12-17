@@ -18,7 +18,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
             _mailbox = new ActionBlock<ConnectedProjectionCommand>(
                 async command =>
                 {
-                    if(_commandHandler == null)
+                    if (_commandHandler == null)
                         throw new Exception($"No command handler assigned, {command} was not handled");
 
                     await _commandHandler.Handle(command);

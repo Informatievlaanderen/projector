@@ -26,7 +26,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             _fixture = new Fixture()
                 .CustomizeConnectedProjectionNames()
                 .CustomizeConnectedProjectionCommands();
-            
+
             var fakeLoggerFactory = new FakeLoggerFactory();
             _handlerLoggerMock = fakeLoggerFactory.ResolveLoggerMock<ConnectedProjectionsCommandHandler>();
             _subscriptionRunnerMock = new Mock<IConnectedProjectionsSubscriptionRunner>();
