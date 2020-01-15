@@ -1,3 +1,10 @@
+# [5.1.0](https://github.com/informatievlaanderen/projector/compare/v5.0.0...v5.1.0) (2020-01-15)
+
+
+### Features
+
+* upgrade projection handling ([5780cfb](https://github.com/informatievlaanderen/projector/commit/5780cfb))
+
 # [5.0.0](https://github.com/informatievlaanderen/projector/compare/v4.2.0...v5.0.0) (2019-12-17)
 
 
