@@ -1,3 +1,10 @@
+# [5.2.0](https://github.com/informatievlaanderen/projector/compare/v5.1.0...v5.2.0) (2020-02-01)
+
+
+### Features
+
+* upgrade netcoreapp31 and dependencies ([fd45b14](https://github.com/informatievlaanderen/projector/commit/fd45b14))
+
 # [5.1.0](https://github.com/informatievlaanderen/projector/compare/v5.0.0...v5.1.0) (2020-01-15)
 
 
