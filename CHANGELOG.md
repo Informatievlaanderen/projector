@@ -1,3 +1,10 @@
+## [5.2.2](https://github.com/informatievlaanderen/projector/compare/v5.2.1...v5.2.2) (2020-05-13)
+
+
+### Bug Fixes
+
+* move to GH-actions ([5d0a1dc](https://github.com/informatievlaanderen/projector/commit/5d0a1dc))
+
 ## [5.2.1](https://github.com/informatievlaanderen/projector/compare/v5.2.0...v5.2.1) (2020-03-03)
 
 
