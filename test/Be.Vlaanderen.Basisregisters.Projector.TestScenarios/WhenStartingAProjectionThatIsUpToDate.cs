@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using AutoFixture;
     using ConnectedProjections;
     using FluentAssertions;
+    using Infrastructure;
     using Internal.Extensions;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
@@ -42,7 +43,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         {
             (await Resolve<IReadonlyStreamStore>().ReadHeadPosition())
                 .Should()
-                .BeGreaterThan(ExpectedVersion.NoStream);
+                .BeGreaterThan(HeadPosition.NoMessages);
 
             (await Resolve<ProjectionContext>().GetRunnerPositionAsync(_projection, CancellationToken.None))
                 .Should()
