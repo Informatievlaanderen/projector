@@ -1,4 +1,4 @@
-# Be.Vlaanderen.Basisregisters.Projector
+# Be.Vlaanderen.Basisregisters.Projector [![Build Status](https://github.com/Informatievlaanderen/projector/workflows/CI/badge.svg)](https://github.com/Informatievlaanderen/projector/actions)
 
 Generic projection runner infrastructure.
 

@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using Autofac;
     using ConnectedProjections;
     using FluentAssertions;
+    using Infrastructure;
     using Internal;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
@@ -38,7 +39,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         {
             (await Resolve<IReadonlyStreamStore>().ReadHeadPosition())
                 .Should()
-                .Be(ExpectedVersion.NoStream);
+                .Be(HeadPosition.NoMessages);
 
             (await _registeredProjections
                     .GetProjection(_projectionToResume)

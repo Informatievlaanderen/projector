@@ -39,7 +39,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         {
             (await Resolve<IReadonlyStreamStore>().ReadHeadPosition())
                 .Should()
-                .BeGreaterThan(ExpectedVersion.NoStream);
+                .BeGreaterThan(HeadPosition.NoMessages);
 
             ProjectionManager
                 .GetRegisteredProjections()
