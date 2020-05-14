@@ -1,3 +1,10 @@
+## [5.2.3](https://github.com/informatievlaanderen/projector/compare/v5.2.2...v5.2.3) (2020-05-14)
+
+
+### Bug Fixes
+
+* remove dotnet 3.1.4 package references ([29b86a2](https://github.com/informatievlaanderen/projector/commit/29b86a2))
+
 ## [5.2.2](https://github.com/informatievlaanderen/projector/compare/v5.2.1...v5.2.2) (2020-05-13)
 
 
