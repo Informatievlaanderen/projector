@@ -16,12 +16,12 @@ nuget Microsoft.Data.SqlClient 1.1.2
 // BASE REGISTRIES STUFF
 nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 4.0.6
 
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 6.0.2
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 6.0.2
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 6.0.2
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 6.0.2
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 6.0.3
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 6.0.3
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 6.0.3
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 6.0.3
 
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 5.0.3
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 5.0.4
 
 nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 2.2.2
 
