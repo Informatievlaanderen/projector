@@ -4,6 +4,7 @@ Dapper
 Microsoft.Data.SqlClient
 
 System.Threading.Tasks.Dataflow
+Polly
 
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner

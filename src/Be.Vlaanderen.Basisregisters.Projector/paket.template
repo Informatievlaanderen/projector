@@ -24,6 +24,7 @@ dependencies
     Dapper >= LOCKEDVERSION
     Microsoft.Data.SqlClient >= LOCKEDVERSION
     System.Threading.Tasks.Dataflow >= LOCKEDVERSION
+    Polly >= LOCKEDVERSION
 
 files
   bin\Release\netcoreapp3.1\Be.Vlaanderen.Basisregisters.Projector.dll => lib\netcoreapp3.1
