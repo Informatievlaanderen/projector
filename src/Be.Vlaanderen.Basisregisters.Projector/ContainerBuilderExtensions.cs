@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector
     using Autofac;
     using Autofac.Builder;
     using Autofac.Features.OwnedInstances;
+    using ConnectedProjections;
     using Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -31,6 +32,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector
                     new ConnectedProjection<TConnectedProjection, TContext>(
                         container.Resolve<Func<Owned<TContext>>>(),
                         projectionFactory(container),
+                        MessageHandlingRetryPolicy.NoRetries,
                         container.Resolve<EnvelopeFactory>(),
                         container.Resolve<ILoggerFactory>()))
                 .As<IConnectedProjection>()

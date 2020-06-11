@@ -5,6 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Threading.Tasks;
     using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
+    using Extensions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Connector;
@@ -38,6 +39,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public ConnectedProjection(
             Func<Owned<TContext>> contextFactory,
             TConnectedProjection connectedProjection,
+            MessageHandlingRetryPolicy retryPolicy,
             EnvelopeFactory envelopeFactory,
             ILoggerFactory loggerFactory)
         {
@@ -48,7 +50,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 connectedProjection?.Handlers ?? throw new ArgumentNullException(nameof(connectedProjection)),
                 ContextFactory,
                 envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory)),
-                loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory)));
+                loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory))
+            ).WithPolicy(retryPolicy);
         }
 
         public async Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken)
