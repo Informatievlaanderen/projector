@@ -17,7 +17,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal class ConnectedProjectionCatchUp<TContext> where TContext : RunnerDbContext<TContext>
     {
-        private readonly ConnectedProjectionMessageHandler<TContext> _messageHandler;
+        private readonly IConnectedProjectionMessageHandler _messageHandler;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly ConnectedProjectionName _runnerName;
         private readonly ILogger _logger;
@@ -30,7 +30,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ConnectedProjectionName name,
             IReadonlyStreamStore streamStore,
             Func<Owned<TContext>> contextFactory,
-            ConnectedProjectionMessageHandler<TContext> messageHandler,
+            IConnectedProjectionMessageHandler messageHandler,
             IConnectedProjectionsCommandBus commandBus,
             ILogger logger)
         {

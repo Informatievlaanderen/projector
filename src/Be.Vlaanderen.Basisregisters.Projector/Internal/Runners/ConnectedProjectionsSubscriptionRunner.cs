@@ -168,7 +168,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
                 _handlers.Add(
                     projection.Name,
-                    async (message, token) => await projection.ConnectedProjectionMessageHandler.HandleAsync(message, token));
+                    async (message, token) => await projection.ConnectedProjectionMessageHandler.HandleAsync(new []{ message }, token));
             }
             else
                 _commandBus.Queue(new StartCatchUp(projection.Name));

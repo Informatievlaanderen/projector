@@ -24,7 +24,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     {
         ConnectedProjectionName Name { get; }
         Func<Owned<TContext>> ContextFactory { get; }
-        ConnectedProjectionMessageHandler<TContext> ConnectedProjectionMessageHandler { get; }
+        IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
     }
 
     internal class ConnectedProjection<TConnectedProjection, TContext> : IConnectedProjection<TContext>, IConnectedProjection
@@ -33,7 +33,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     {
         public ConnectedProjectionName Name => new ConnectedProjectionName(typeof(TConnectedProjection));
         public Func<Owned<TContext>> ContextFactory { get; }
-        public ConnectedProjectionMessageHandler<TContext> ConnectedProjectionMessageHandler { get; }
+        public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
         public ConnectedProjection(
             Func<Owned<TContext>> contextFactory,

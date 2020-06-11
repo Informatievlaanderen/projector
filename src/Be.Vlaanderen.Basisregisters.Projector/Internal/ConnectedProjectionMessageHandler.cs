@@ -14,7 +14,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using ProjectionHandling.SqlStreamStore;
     using SqlStreamStore.Streams;
 
-    internal class ConnectedProjectionMessageHandler<TContext> where TContext : RunnerDbContext<TContext>
+    internal interface IConnectedProjectionMessageHandler
+    {
+        Task HandleAsync(
+            IEnumerable<StreamMessage> messages,
+            CancellationToken cancellationToken);
+    }
+
+    internal class ConnectedProjectionMessageHandler<TContext> : IConnectedProjectionMessageHandler
+        where TContext : RunnerDbContext<TContext>
     {
         private readonly ConnectedProjectionName _runnerName;
         private readonly Func<Owned<TContext>> _contextFactory;
@@ -96,11 +104,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 }
             }
         }
-
-        public async Task HandleAsync(
-            StreamMessage message,
-            CancellationToken cancellationToken)
-            => await HandleAsync(new[] { message }, cancellationToken);
 
         // This is not very precise since we could have differing clocks, and should be seen as merely informational
         private static TimeSpan CalculateNotVeryPreciseLatency(StreamMessage message) => DateTime.UtcNow - message.CreatedUtc;
