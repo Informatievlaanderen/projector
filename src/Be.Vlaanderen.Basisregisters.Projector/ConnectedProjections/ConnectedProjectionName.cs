@@ -34,7 +34,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         public static bool operator !=(ConnectedProjectionName left, ConnectedProjectionName right) => !Equals(left, right);
 
-        public static implicit operator string(ConnectedProjectionName name) => name?.ToString();
+        public static implicit operator string(ConnectedProjectionName name) => name?.ToString() ?? string.Empty;
     }
 
     public class ConnectedProjectionNameJsonConverter : JsonConverter<ConnectedProjectionName>
