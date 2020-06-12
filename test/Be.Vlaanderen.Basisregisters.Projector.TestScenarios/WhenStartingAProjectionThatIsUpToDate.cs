@@ -21,7 +21,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
         protected override void ContainerSetup(ContainerBuilder builder)
         {
-            builder.RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(() => new TrackHandledEventsProjection(MessageWasHandled));
+            builder.RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(
+                () => new TrackHandledEventsProjection(MessageWasHandled),
+                RetryPolicy.NoRetries
+            );
         }
 
         protected override async Task Setup()
