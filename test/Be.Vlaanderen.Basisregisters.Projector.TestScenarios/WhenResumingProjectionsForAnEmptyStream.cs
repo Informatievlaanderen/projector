@@ -9,7 +9,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using Infrastructure;
     using Internal;
     using SqlStreamStore;
-    using SqlStreamStore.Streams;
     using TestProjections.Projections;
     using Xunit;
 
@@ -21,8 +20,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         protected override void ContainerSetup(ContainerBuilder builder)
         {
             builder
-                .RegisterProjections<SlowProjections, ProjectionContext>()
-                .RegisterProjections<FastProjections, ProjectionContext>();
+                .RegisterProjections<SlowProjections, ProjectionContext>(RetryPolicy.NoRetries)
+                .RegisterProjections<FastProjections, ProjectionContext>(RetryPolicy.NoRetries);
         }
 
         protected override async Task Setup()

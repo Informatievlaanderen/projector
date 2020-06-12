@@ -5,18 +5,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using System.Threading;
     using System.Threading.Tasks;
     using Internal;
-    using Internal.RetryPolicies;
     using Microsoft.Extensions.Logging;
     using SqlStreamStore.Streams;
 
     public abstract class MessageHandlingRetryPolicy
     {
-        public static MessageHandlingRetryPolicy NoRetries => new NoRetries();
-
-        public static MessageHandlingRetryPolicy LinearBackOff<TException>(int numberOfRetries, TimeSpan wait)
-            where TException : Exception
-            => new LinearBackOff<TException>(numberOfRetries, wait);
-
         internal abstract IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler);
 
         private protected class RetryMessageHandler : IConnectedProjectionMessageHandler

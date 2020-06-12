@@ -7,10 +7,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using AutoFixture;
     using ConnectedProjections;
     using FluentAssertions;
-    using FluentAssertions.Execution;
     using Infrastructure;
     using SqlStreamStore;
-    using SqlStreamStore.Streams;
     using TestProjections.Messages;
     using TestProjections.Projections;
     using Xunit;
@@ -23,8 +21,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         protected override void ContainerSetup(ContainerBuilder builder)
         {
             builder
-                .RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(() => new TrackHandledEventsProjection(MessageWasHandled))
-                .RegisterProjections<SlowProjections, ProjectionContext>();
+                .RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(
+                    () => new TrackHandledEventsProjection(MessageWasHandled),
+                    RetryPolicy.NoRetries
+                )
+                .RegisterProjections<SlowProjections, ProjectionContext>(RetryPolicy.NoRetries);
         }
 
         protected override Task Setup()
