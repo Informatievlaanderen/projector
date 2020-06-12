@@ -19,16 +19,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         Task HandleAsync(
             IEnumerable<StreamMessage> messages,
             CancellationToken cancellationToken);
+
+        ConnectedProjectionName RunnerName { get; }
+        ILogger Logger { get; }
     }
 
     internal class ConnectedProjectionMessageHandler<TContext> : IConnectedProjectionMessageHandler
         where TContext : RunnerDbContext<TContext>
     {
-        private readonly ConnectedProjectionName _runnerName;
         private readonly Func<Owned<TContext>> _contextFactory;
         private readonly ConnectedProjector<TContext> _projector;
         private readonly EnvelopeFactory _envelopeFactory;
-        private readonly ILogger _logger;
+
+        public ConnectedProjectionName RunnerName { get; }
+
+        public ILogger Logger { get; }
 
         public ConnectedProjectionMessageHandler(
             ConnectedProjectionName runnerName,
@@ -37,11 +42,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             EnvelopeFactory envelopeFactory,
             ILoggerFactory loggerFactory)
         {
-            _runnerName = runnerName;
+            RunnerName = runnerName;
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _projector = new ConnectedProjector<TContext>(Resolve.WhenEqualToHandlerMessageType(handlers));
             _envelopeFactory = envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory));
-            _logger = loggerFactory?.CreateLogger<ConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+            Logger = loggerFactory?.CreateLogger<ConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public async Task HandleAsync(
@@ -54,7 +59,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 try
                 {
                     var completeMessageInProcess = CancellationToken.None;
-                    var runnerPosition = await context.Value.GetRunnerPositionAsync(_runnerName, completeMessageInProcess);
+                    var runnerPosition = await context.Value.GetRunnerPositionAsync(RunnerName, completeMessageInProcess);
                     foreach (var message in messages)
                     {
                         if (cancellationToken.IsCancellationRequested)
@@ -70,15 +75,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                             for (var position = expectedPositionToProcess; position < message.Position; position++)
                                 positions.Add(position);
 
-                            _logger.LogWarning(
+                            Logger.LogWarning(
                                 "Expected messages at positions [{unprocessedPositions}] were not processed for {RunnerName}.",
                                 string.Join(", ", positions),
-                                _runnerName);
+                                RunnerName);
                         }
 
-                        _logger.LogTrace(
+                        Logger.LogTrace(
                             "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
-                            _runnerName,
+                            RunnerName,
                             message.StreamId,
                             message.Position,
                             message.Type,
@@ -91,7 +96,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                     if (lastProcessedMessagePosition.HasValue)
                         await context.Value.UpdateProjectionStateAsync(
-                            _runnerName,
+                            RunnerName,
                             lastProcessedMessagePosition.Value,
                             completeMessageInProcess);
 
@@ -100,7 +105,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 catch (TaskCanceledException) { }
                 catch (Exception exception)
                 {
-                    throw new ConnectedProjectionMessageHandlingException(exception, _runnerName, lastProcessedMessagePosition);
+                    throw new ConnectedProjectionMessageHandlingException(exception, RunnerName, lastProcessedMessagePosition);
                 }
             }
         }
