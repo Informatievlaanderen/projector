@@ -13,6 +13,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     {
         public static MessageHandlingRetryPolicy NoRetries => new NoRetries();
 
+        public static MessageHandlingRetryPolicy LinearBackOff<TException>(int numberOfRetries, TimeSpan wait)
+            where TException : Exception
+            => new LinearBackOff<TException>(numberOfRetries, wait);
+
         internal abstract IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler);
 
         private protected class RetryMessageHandler : IConnectedProjectionMessageHandler
