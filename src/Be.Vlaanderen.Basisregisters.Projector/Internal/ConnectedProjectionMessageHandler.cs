@@ -14,6 +14,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using ProjectionHandling.SqlStreamStore;
     using SqlStreamStore.Streams;
 
+    internal interface IConnectedProjectionMessageHandler
+    {
+        Task HandleAsync(
+            IEnumerable<StreamMessage> messages,
+            CancellationToken cancellationToken);
+    }
+
     internal class ConnectedProjectionMessageHandler<TContext> : IConnectedProjectionMessageHandler
         where TContext : RunnerDbContext<TContext>
     {

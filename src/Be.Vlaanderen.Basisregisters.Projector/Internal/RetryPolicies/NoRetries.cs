@@ -5,7 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
 
     internal class NoRetries : MessageHandlingRetryPolicy
     {
-        public override IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler)
+        internal override IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler)
             => messageHandler;
     }
 }
