@@ -35,8 +35,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
         }
 
         private TimeSpan CalculateWaitTime(int attempt)
-        {
-            return TimeSpan.FromMilliseconds(attempt ^ _wait.Milliseconds);
-        }
+            => TimeSpan.FromMilliseconds(attempt * _wait.Milliseconds);
     }
 }

@@ -16,7 +16,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             => new ExponentialBackOff<TException>(numberOfRetries, wait);
 
         public static MessageHandlingRetryPolicy Custom(MessageHandlingRetryPolicy policy) => policy;
-        
+
         public abstract IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler);
 
         protected IConnectedProjectionMessageHandler CreateMessageHandlerFor(Func<IEnumerable<StreamMessage>, CancellationToken, Task> messageHandling)
