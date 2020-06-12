@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Internal;
     using Internal.RetryPolicies;
     using SqlStreamStore.Streams;
 
@@ -11,18 +12,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     {
         public static MessageHandlingRetryPolicy NoRetries => new NoRetries();
 
-        public static MessageHandlingRetryPolicy ExponentialBackOff<TException>(int numberOfRetries, TimeSpan wait)
-            where TException : Exception
-            => new ExponentialBackOff<TException>(numberOfRetries, wait);
+        internal abstract IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler);
 
-        public static MessageHandlingRetryPolicy Custom(MessageHandlingRetryPolicy policy) => policy;
-
-        public abstract IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler);
-
-        protected IConnectedProjectionMessageHandler CreateMessageHandlerFor(Func<IEnumerable<StreamMessage>, CancellationToken, Task> messageHandling)
-            => new MessageHandler(messageHandling);
-
-        private class MessageHandler : IConnectedProjectionMessageHandler
+        private protected class RetryMessageHandler : IConnectedProjectionMessageHandler
         {
             private readonly Func<IEnumerable<StreamMessage>, CancellationToken, Task> _messageHandling;
 
