@@ -9,12 +9,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
     using Polly;
     using SqlStreamStore.Streams;
 
-    internal class LinearBackOff<TException> : MessageHandlingRetryPolicy where TException : Exception
+    internal class LinearBackoff<TException> : MessageHandlingRetryPolicy where TException : Exception
     {
         private readonly int _numberOfRetries;
         private readonly TimeSpan _initialWait;
 
-        public LinearBackOff(int numberOfRetries, TimeSpan initialWait)
+        public LinearBackoff(int numberOfRetries, TimeSpan initialWait)
         {
             if (numberOfRetries < 1)
                 throw new ArgumentException($"{nameof(numberOfRetries)} needs to be at least 1");
