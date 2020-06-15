@@ -16,5 +16,22 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
             var many = new Random(fixture.Create<int>()).Next(minimum, maximum);
             return fixture.CreateMany<T>(many);
         }
+
+        public static T CreatePositive<T>(this IFixture fixture)
+        {
+            object GetAbsoluteValue()
+            {
+                var value = fixture.Create<T>();
+                return value switch
+                {
+                    int i => (object)Math.Abs(i),
+                    double d => Math.Abs(d),
+                    decimal d => Math.Abs(d),
+                    _ => throw new NotImplementedException($"Type {typeof(T)} is not supported for CreatePositive")
+                };
+            }
+
+            return (T)GetAbsoluteValue();
+        }
     }
 }

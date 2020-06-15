@@ -1,7 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
 {
     using System;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using Messages;
     using ProjectionHandling.Connector;
