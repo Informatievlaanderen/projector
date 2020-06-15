@@ -9,7 +9,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using Infrastructure;
     using Internal.Extensions;
     using SqlStreamStore;
-    using SqlStreamStore.Streams;
     using TestProjections.Messages;
     using TestProjections.Projections;
     using Xunit;

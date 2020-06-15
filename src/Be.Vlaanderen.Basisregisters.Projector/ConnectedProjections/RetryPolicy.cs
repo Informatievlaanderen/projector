@@ -9,6 +9,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         public static MessageHandlingRetryPolicy LinearBackoff<TException>(int numberOfRetries, TimeSpan initialWait)
             where TException : Exception
-            => new LinearBackoff<TException>(numberOfRetries, initialWait);
+            => new LinearBackOff<TException>(numberOfRetries, initialWait);
     }
 }
