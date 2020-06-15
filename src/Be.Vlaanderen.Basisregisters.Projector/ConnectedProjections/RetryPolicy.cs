@@ -7,7 +7,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         public static MessageHandlingRetryPolicy NoRetries => new NoRetries();
 
-        public static MessageHandlingRetryPolicy LinearBackOff<TException>(int numberOfRetries, TimeSpan initialWait)
+        public static MessageHandlingRetryPolicy LinearBackoff<TException>(int numberOfRetries, TimeSpan initialWait)
             where TException : Exception
             => new LinearBackOff<TException>(numberOfRetries, initialWait);
     }

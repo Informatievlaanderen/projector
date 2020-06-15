@@ -44,8 +44,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
                     .WaitAndRetryAsync(
                         _numberOfRetries,
                         attempt => _initialWait.Multiply(attempt),
-                        LogRetryAttempt
-                    )
+                        LogRetryAttempt)
                     .ExecuteAsync(async ct => await messageHandler.HandleAsync(messages, ct), token);
             }
 

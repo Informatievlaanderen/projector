@@ -16,6 +16,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         {
             private readonly Func<IEnumerable<StreamMessage>, CancellationToken, Task> _messageHandling;
 
+            public ConnectedProjectionName RunnerName { get; }
+            public ILogger Logger { get; }
+
             public RetryMessageHandler(
                 Func<IEnumerable<StreamMessage>, CancellationToken, Task> messageHandling,
                 ConnectedProjectionName projectionName,
@@ -28,9 +31,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
             public async Task HandleAsync(IEnumerable<StreamMessage> messages, CancellationToken cancellationToken)
                 => await _messageHandling(messages, cancellationToken);
-
-            public ConnectedProjectionName RunnerName { get; }
-            public ILogger Logger { get; }
         }
     }
 }
