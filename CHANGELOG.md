@@ -1,3 +1,19 @@
+# [5.3.0](https://github.com/informatievlaanderen/projector/compare/v5.2.4...v5.3.0) (2020-06-16)
+
+
+### Bug Fixes
+
+* add linear backoff policy GRAR-1257 ([2260c77](https://github.com/informatievlaanderen/projector/commit/2260c7723d75585ba6b7bdcb3b45a68fab52d17e))
+* add retry infrastructure GRAR-1257 ([9d5caad](https://github.com/informatievlaanderen/projector/commit/9d5caad3df0445b87f4a8fefc47a59d54e302d67))
+* expose projection name and logger in message handler GRAR-1257 ([4775dd6](https://github.com/informatievlaanderen/projector/commit/4775dd670515211bcdea3c0ddff1d73f7579de28))
+* make handler interface internal again GRAR-1257 ([cee934e](https://github.com/informatievlaanderen/projector/commit/cee934e382974de3e0ead6f21515109a578f4bf1))
+* simplify backoff wait time calculation GRAR-1257 ([1e8680e](https://github.com/informatievlaanderen/projector/commit/1e8680e26d2d06d610b23a7fbdd5f638fc4b3e6b))
+
+
+### Features
+
+* enable retry policies GRAR-1257 ([2c4a810](https://github.com/informatievlaanderen/projector/commit/2c4a8102a4a4b66b54deea8678a9a3fa8ae495fa))
+
 ## [5.2.4](https://github.com/informatievlaanderen/projector/compare/v5.2.3...v5.2.4) (2020-05-18)
 
 
