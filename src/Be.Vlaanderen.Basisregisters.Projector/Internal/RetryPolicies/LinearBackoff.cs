@@ -12,15 +12,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
     internal class LinearBackOff<TException> : MessageHandlingRetryPolicy where TException : Exception
     {
         private readonly int _numberOfRetries;
-        private readonly TimeSpan _initialWait;
+        private readonly TimeSpan _delay;
 
-        public LinearBackOff(int numberOfRetries, TimeSpan initialWait)
+        public LinearBackOff(int numberOfRetries, TimeSpan delay)
         {
             if (numberOfRetries < 1)
                 throw new ArgumentException($"{nameof(numberOfRetries)} needs to be at least 1");
 
+            if (delay.CompareTo(TimeSpan.Zero) < 0)
+                throw new ArgumentException($"{nameof(delay)} cannot be negative");
+
             _numberOfRetries = numberOfRetries;
-            _initialWait = initialWait;
+            _delay = delay;
         }
 
         internal override IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler)
@@ -43,7 +46,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
                     .Handle<TException>()
                     .WaitAndRetryAsync(
                         _numberOfRetries,
-                        attempt => _initialWait.Multiply(attempt),
+                        attempt => _delay.Multiply(attempt),
                         LogRetryAttempt)
                     .ExecuteAsync(async ct => await messageHandler.HandleAsync(messages, ct), token);
             }
