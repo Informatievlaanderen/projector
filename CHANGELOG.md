@@ -1,3 +1,16 @@
+# [5.4.0](https://github.com/informatievlaanderen/projector/compare/v5.3.0...v5.4.0) (2020-06-16)
+
+
+### Bug Fixes
+
+* check if delay is not negative GRAR-1284 ([043d757](https://github.com/informatievlaanderen/projector/commit/043d7576f6822e0d3acb5d1c8abe32fc5d8d9846))
+* make configuration LinearBackoff specific GRAR-1284 ([dfd45a5](https://github.com/informatievlaanderen/projector/commit/dfd45a55e1b86951c95a1c04cf949b6393c1f0f6))
+
+
+### Features
+
+* add configuration for retry policy GRAR-1284 ([8770855](https://github.com/informatievlaanderen/projector/commit/8770855be484ce1c9fc074210d2639f3d16f994a))
+
 # [5.3.0](https://github.com/informatievlaanderen/projector/compare/v5.2.4...v5.3.0) (2020-06-16)
 
 
