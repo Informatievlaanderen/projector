@@ -10,6 +10,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Extensions
         public static MessageHandlingRetryPolicy Configure(
             this IConfiguration configuration,
             Func<int, TimeSpan, MessageHandlingRetryPolicy> policyFactory,
+            Func<IConfigurationSection, int> getInt,
+            Func<IConfigurationSection, TimeSpan> getTimeSpan,
             string policyName)
         {
             if (configuration == null)
@@ -23,9 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Extensions
                     .GetSection("RetryPolicies")
                     .GetSection(policyName);
 
-                var retries = policyConfig.GetValue<int>("NumberOfRetries");
-                var delay = TimeSpan.FromSeconds(policyConfig.GetValue<int>("DelayInSeconds"));
-                return policyFactory(retries, delay) ?? throw new RetryPolicyConfigurationException(policyName);
+                return policyFactory(getInt(policyConfig), getTimeSpan(policyConfig)) ?? throw new RetryPolicyConfigurationException(policyName);
             }
             catch (RetryPolicyConfigurationException)
             {
@@ -33,7 +33,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Extensions
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
                 throw new RetryPolicyConfigurationException(policyName, exception);
             }
         }
