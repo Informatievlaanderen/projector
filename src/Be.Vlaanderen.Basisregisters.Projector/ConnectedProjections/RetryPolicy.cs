@@ -9,14 +9,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         public static MessageHandlingRetryPolicy NoRetries => new NoRetries();
 
-        public static MessageHandlingRetryPolicy LinearBackoff<TException>(int numberOfRetries, TimeSpan initialWait)
+        public static MessageHandlingRetryPolicy LinearBackoff<TException>(
+            int numberOfRetries,
+            TimeSpan initialWait)
             where TException : Exception
             => new LinearBackOff<TException>(numberOfRetries, initialWait);
 
-        public static MessageHandlingRetryPolicy Configure(
-            Func<int, TimeSpan, MessageHandlingRetryPolicy> policyFactory,
+        public static MessageHandlingRetryPolicy ConfigureLinearBackoff<TException>(
             IConfiguration configuration,
             string policyName)
-            => configuration.Configure(policyFactory, policyName);
+            where TException : Exception
+            => configuration.Configure(
+                LinearBackoff<TException>,
+                config => config.GetValue<int>("NumberOfRetries"),
+                config => TimeSpan.FromSeconds(config.GetValue<int>("DelayInSeconds")),
+                policyName);
     }
 }
