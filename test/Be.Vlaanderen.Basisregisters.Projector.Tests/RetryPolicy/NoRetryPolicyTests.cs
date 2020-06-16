@@ -9,19 +9,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     public class WhenApplyingNoRetriesPolicyOnAHandler
     {
         private readonly IConnectedProjectionMessageHandler _handlerWithoutPolicy;
-        private IConnectedProjectionMessageHandler SUT { get; }
+        private readonly IConnectedProjectionMessageHandler _sut;
 
         public WhenApplyingNoRetriesPolicyOnAHandler()
         {
             _handlerWithoutPolicy = new Mock<IConnectedProjectionMessageHandler>().Object;
 
-            SUT = new NoRetries().ApplyOn(_handlerWithoutPolicy);
+            _sut = new NoRetries().ApplyOn(_handlerWithoutPolicy);
         }
 
         [Fact]  
         public void ThenTheHandlerIsUnChanged()
         {
-            SUT.Should().BeSameAs(_handlerWithoutPolicy);
+            _sut.Should().BeSameAs(_handlerWithoutPolicy);
         }
     }
 }
