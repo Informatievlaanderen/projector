@@ -20,7 +20,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     {
         private readonly MessageHandlerWithExecutionTracking _handlerWithoutPolicy;
         private readonly IFixture _fixture;
-        private IConnectedProjectionMessageHandler SUT { get; }
+        private readonly IConnectedProjectionMessageHandler _sut;
+        private readonly Times _numberOfExpectedAttempts;
 
         public WhenApplyingALinearBackoffPolicyOnAHandler()
         {
@@ -32,16 +33,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
                 new Mock<ILogger>().Object);
 
             var numberOfRetries = _fixture.CreatePositive<int>() + 1;
+            _numberOfExpectedAttempts = Times.Once();
             var initialWait = TimeSpan.FromMilliseconds(_fixture.CreatePositive<int>());
             var linearBackoffPolicy = new LinearBackOff<RetryException>(numberOfRetries, initialWait);
 
-            SUT = linearBackoffPolicy.ApplyOn(_handlerWithoutPolicy);
+            _sut = linearBackoffPolicy.ApplyOn(_handlerWithoutPolicy);
         }
 
         [Fact]
         public void ThenTheHandlerLoggerIsUnchanged()
         {
-            SUT.Logger
+            _sut.Logger
                 .Should()
                 .BeSameAs(_handlerWithoutPolicy.Logger);
         }
@@ -49,7 +51,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         [Fact]
         public void ThenProjectionRunnerNameIsTheSameAsTheOriginal()
         {
-            SUT.RunnerName
+            _sut.RunnerName
                 .Should()
                 .BeSameAs(_handlerWithoutPolicy.RunnerName);
         }
@@ -60,15 +62,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             var messages = _fixture.CreateMany<StreamMessage>().ToList();
             var token = new CancellationToken();
 
-            await SUT.HandleAsync(messages, token);
-            _handlerWithoutPolicy.VerifyExecuted(messages, Times.Once());
+            await _sut.HandleAsync(messages, token);
+            _handlerWithoutPolicy.VerifyExecuted(messages, _numberOfExpectedAttempts);
         }
     }
 
     public class WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetry
     {
         private readonly MessageHandlerWithExecutionTracking _handlerWithoutPolicy;
-        private readonly IConnectedProjectionMessageHandler _SUT;
+        private readonly IConnectedProjectionMessageHandler _sut;
         private readonly IReadOnlyCollection<StreamMessage> _messages;
 
         public WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetry()
@@ -85,11 +87,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             var initialWait = TimeSpan.FromMilliseconds(fixture.CreatePositive<int>());
             _messages = fixture.CreateMany<StreamMessage>().ToList();
 
-            _SUT = new LinearBackOff<RetryException>(numberOfRetries, initialWait)
+            _sut = new LinearBackOff<RetryException>(numberOfRetries, initialWait)
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
-        private async Task Act() => await _SUT.HandleAsync(_messages, CancellationToken.None);
+        private async Task Act() => await _sut.HandleAsync(_messages, CancellationToken.None);
 
         [Fact]
         public void ThenTheExceptionIsNotCaught()
@@ -116,12 +118,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     public class WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetryAfterRetrying
     {
         private readonly MessageHandlerWithExecutionTracking _handlerWithoutPolicy;
-        private readonly IConnectedProjectionMessageHandler _SUT;
+        private readonly IConnectedProjectionMessageHandler _sut;
         private readonly IReadOnlyCollection<StreamMessage> _messages;
         private readonly FakeLogger _loggerMock;
         private readonly ConnectedProjectionName _projectionName;
         private readonly TimeSpan _initialWait;
-        private readonly int _numberOfExpectedAttempts;
+        private readonly Times _numberOfExpectedAttempts;
         private readonly Exception[] _exceptionSequence;
 
         public WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetryAfterRetrying()
@@ -138,15 +140,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
                _loggerMock.AsLogger(),
                _exceptionSequence);
 
-            var numberOfRetries = fixture.CreatePositive<int>() + 1;
+            var numberOfRetries = _exceptionSequence.Count(exception => exception is RetryException);
+            _numberOfExpectedAttempts = Times.Exactly(1 + numberOfRetries);
             _initialWait = TimeSpan.FromMilliseconds(fixture.CreatePositive<int>());
             _messages = fixture.CreateMany<StreamMessage>().ToList();
 
-            _SUT = new LinearBackOff<RetryException>(numberOfRetries, _initialWait)
+            _sut = new LinearBackOff<RetryException>(numberOfRetries, _initialWait)
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
-        private async Task Act() => await _SUT.HandleAsync(_messages, CancellationToken.None);
+        private async Task Act() => await _sut.HandleAsync(_messages, CancellationToken.None);
 
         [Fact]
         public void ThenTheExceptionIsNotCaught()
@@ -166,7 +169,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             catch (DoNotRetryException)
             { }
 
-            _handlerWithoutPolicy.VerifyExecuted(_messages, Times.Exactly(_exceptionSequence.Length));
+            _handlerWithoutPolicy.VerifyExecuted(_messages, _numberOfExpectedAttempts);
         }
         
         [Fact]
@@ -195,20 +198,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     public class WhenMessageHandlerThrowsTheExceptionDefinedInThePolicyMoreThanTheNumberOfRetries
     {
         private readonly MessageHandlerWithExecutionTracking _handlerWithoutPolicy;
-        private readonly IConnectedProjectionMessageHandler _SUT;
+        private readonly IConnectedProjectionMessageHandler _sut;
         private readonly IReadOnlyCollection<StreamMessage> _messages;
-        private readonly Exception[] _exceptionSequence;
         private readonly int _numberOfRetries;
         private readonly FakeLogger _loggerMock;
         private readonly ConnectedProjectionName _projectionName;
         private readonly TimeSpan _initialWait;
+        private readonly Times _numberOfExpectedAttempts;
 
         public WhenMessageHandlerThrowsTheExceptionDefinedInThePolicyMoreThanTheNumberOfRetries()
         {
             var fixture = new Fixture()
                 .CustomizeConnectedProjectionNames();
 
-            _exceptionSequence = fixture
+            var exceptionSequence = fixture
                 .CreateMany<RetryException>(2, 10)
                 .ToArray<Exception>();
 
@@ -217,17 +220,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             _handlerWithoutPolicy = new MessageHandlerWithExecutionTracking(
                _projectionName,
                _loggerMock.AsLogger(),
-               _exceptionSequence);
+               exceptionSequence);
 
-            _numberOfRetries = _exceptionSequence.Length - 1;
+            _numberOfRetries = exceptionSequence.Length - 1;
+            _numberOfExpectedAttempts = Times.Exactly(1 + _numberOfRetries);
             _initialWait = TimeSpan.FromMilliseconds(fixture.CreatePositive<int>());
             _messages = fixture.CreateMany<StreamMessage>().ToList();
 
-            _SUT = new LinearBackOff<RetryException>(_numberOfRetries, _initialWait)
+            _sut = new LinearBackOff<RetryException>(_numberOfRetries, _initialWait)
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
-        private async Task Act() => await _SUT.HandleAsync(_messages, CancellationToken.None);
+        private async Task Act() => await _sut.HandleAsync(_messages, CancellationToken.None);
 
         [Fact]
         public void ThenTheExceptionToRetryIsNotCaught()
@@ -247,7 +251,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             catch (RetryException)
             { }
 
-            _handlerWithoutPolicy.VerifyExecuted(_messages, Times.Exactly(_numberOfRetries + 1));
+            _handlerWithoutPolicy.VerifyExecuted(_messages, _numberOfExpectedAttempts);
         }
 
         [Fact]
@@ -278,6 +282,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private readonly FakeLogger _loggerMock;
         private readonly ConnectedProjectionName _projectionName;
         private readonly TimeSpan _initialWait;
+        private readonly Times _numberOfExpectedAttempts;
 
         public WhenMessageHandlerThrowsExceptionsDefinedByRetryPolicy()
         {
@@ -296,6 +301,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
                exceptionSequence);
 
             _numberOfRetries = exceptionSequence.Length;
+            _numberOfExpectedAttempts = Times.Exactly(1 + _numberOfRetries);
             _initialWait = TimeSpan.FromMilliseconds(fixture.CreatePositive<int>());
             _messages = fixture.CreateMany<StreamMessage>().ToList();
 
@@ -309,7 +315,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         [Fact]
         public void ThenHandleActionCallsTheHandlerWithoutAPolicyForTheNumberOfRetriesPlusTheInitialAttempt()
         {
-            _handlerWithoutPolicy.VerifyExecuted(_messages, Times.Exactly(_numberOfRetries + 1));
+            _handlerWithoutPolicy.VerifyExecuted(_messages, _numberOfExpectedAttempts);
         }
 
         [Fact]
