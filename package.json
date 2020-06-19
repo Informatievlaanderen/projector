@@ -1,6 +1,6 @@
 {
   "name": "projector",
-  "version": "5.4.0",
+  "version": "5.4.1",
   "description": "Generic projector runner infrastructure.",
   "author": "Basisregisters Vlaanderen",
   "license": "MIT",
@@ -48,7 +48,10 @@
     ]
   },
   "release": {
-    "branches": [ "master", "main" ],
+    "branches": [
+      "master",
+      "main"
+    ],
     "verifyConditions": [
       "@semantic-release/changelog",
       "@semantic-release/git",

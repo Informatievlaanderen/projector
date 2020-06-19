@@ -1,3 +1,10 @@
+## [5.4.1](https://github.com/informatievlaanderen/projector/compare/v5.4.0...v5.4.1) (2020-06-19)
+
+
+### Bug Fixes
+
+* move to 3.1.5 ([e9e2f56](https://github.com/informatievlaanderen/projector/commit/e9e2f568a686d3f90bc4369789bc3d2faa6a7104))
+
 # [5.4.0](https://github.com/informatievlaanderen/projector/compare/v5.3.0...v5.4.0) (2020-06-16)
 
 
