@@ -1,3 +1,10 @@
+## [5.4.2](https://github.com/informatievlaanderen/projector/compare/v5.4.1...v5.4.2) (2020-07-02)
+
+
+### Bug Fixes
+
+* update streamstore ([2ba50a0](https://github.com/informatievlaanderen/projector/commit/2ba50a0099ee8d78f494ec2f2ae72704fc12a31f))
+
 ## [5.4.1](https://github.com/informatievlaanderen/projector/compare/v5.4.0...v5.4.1) (2020-06-19)
 
 
