@@ -1,3 +1,10 @@
+## [5.4.3](https://github.com/informatievlaanderen/projector/compare/v5.4.2...v5.4.3) (2020-07-03)
+
+
+### Bug Fixes
+
+* set correct policy name in obsolete message ([e33d98e](https://github.com/informatievlaanderen/projector/commit/e33d98eee252e6624d161a25dd9149a8c81f9c5d))
+
 ## [5.4.2](https://github.com/informatievlaanderen/projector/compare/v5.4.1...v5.4.2) (2020-07-02)
 
 
