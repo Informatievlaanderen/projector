@@ -14,13 +14,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector
     public static class ContainerBuilderExtensions
     {
         #region Deprecated Projection Registrations (No RetryPolicy specified)
-        [Obsolete("Use overload with MessageHandlingRetryPolicy. Default policy: MessageHandlingRetryPolicy.NoRetries", false)]
+        [Obsolete("Use overload with MessageHandlingRetryPolicy. Default policy: RetryPolicy.NoRetries", false)]
         public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder)
             where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>, new()
             where TContext : RunnerDbContext<TContext>
             => builder.RegisterProjections<TConnectedProjection, TContext>(container => new TConnectedProjection(), RetryPolicy.NoRetries);
 
-        [Obsolete("Use overload with MessageHandlingRetryPolicy. Default policy: MessageHandlingRetryPolicy.NoRetries", false)]
+        [Obsolete("Use overload with MessageHandlingRetryPolicy. Default policy: RetryPolicy.NoRetries", false)]
         public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
             this ContainerBuilder builder,
             Func<TConnectedProjection> projectionFactory)
@@ -28,7 +28,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector
             where TContext : RunnerDbContext<TContext>
             => builder.RegisterProjections<TConnectedProjection, TContext>(container => projectionFactory(), RetryPolicy.NoRetries);
 
-        [Obsolete("Use overload with MessageHandlingRetryPolicy. Default policy: MessageHandlingRetryPolicy.NoRetries", false)]
+        [Obsolete("Use overload with MessageHandlingRetryPolicy. Default policy: RetryPolicy.NoRetries", false)]
         public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
             this ContainerBuilder builder,
             Func<IComponentContext, TConnectedProjection> projectionFactory)
