@@ -112,10 +112,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             _projectionCatchUps.Add(projection.Name, new CancellationTokenSource());
 
             var projectionCatchUp = new ConnectedProjectionCatchUp<TContext>(
-                projection.Name,
+                projection,
                 _streamStore,
-                projection.ContextFactory,
-                projection.ConnectedProjectionMessageHandler,
                 _commandBus,
                 _logger);
 

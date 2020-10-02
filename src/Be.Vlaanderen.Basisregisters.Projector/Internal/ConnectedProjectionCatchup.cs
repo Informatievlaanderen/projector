@@ -3,11 +3,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Autofac.Features.OwnedInstances;
     using Commands;
     using Commands.CatchUp;
     using Commands.Subscription;
-    using ConnectedProjections;
     using Exceptions;
     using Extensions;
     using Microsoft.Extensions.Logging;
@@ -17,27 +15,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal class ConnectedProjectionCatchUp<TContext> where TContext : RunnerDbContext<TContext>
     {
-        private readonly IConnectedProjectionMessageHandler _messageHandler;
+        private readonly IConnectedProjection<TContext> _projection;
         private readonly IConnectedProjectionsCommandBus _commandBus;
-        private readonly ConnectedProjectionName _runnerName;
         private readonly ILogger _logger;
         private readonly IReadonlyStreamStore _streamStore;
-        private readonly Func<Owned<TContext>> _contextFactory;
 
         public int CatchupPageSize { get; set; } = 1000;
 
         public ConnectedProjectionCatchUp(
-            ConnectedProjectionName name,
+            IConnectedProjection<TContext> projection,
             IReadonlyStreamStore streamStore,
-            Func<Owned<TContext>> contextFactory,
-            IConnectedProjectionMessageHandler messageHandler,
             IConnectedProjectionsCommandBus commandBus,
             ILogger logger)
         {
-            _runnerName = name ?? throw new ArgumentNullException(nameof(name));
+            _projection = projection ?? throw new ArgumentNullException(nameof(projection));
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
-            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
-            _messageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -56,15 +48,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     CatchupPageSize);
 
                 long? position;
-                using (var context = _contextFactory())
-                    position = await context.Value.GetRunnerPositionAsync(_runnerName, cancellationToken);
+                using (var context = _projection.ContextFactory())
+                    position = await context.Value.GetRunnerPositionAsync(_projection.Name, cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
                     return;
 
                 _logger.LogInformation(
                     "Start catch up {RunnerName} at {Position}",
-                    _runnerName,
+                    _projection.Name,
                     position);
 
                 var page = await ReadPages(_streamStore, position, cancellationToken);
@@ -77,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         page.Messages.Length,
                         page.FromPosition);
 
-                    await _messageHandler.HandleAsync(page.Messages, cancellationToken);
+                    await _projection.ConnectedProjectionMessageHandler.HandleAsync(page.Messages, cancellationToken);
 
                     if (cancellationToken.IsCancellationRequested)
                         return;
@@ -105,7 +97,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 _logger.LogError(
                     exception,
                     "{RunnerName} catching up failed because an exception was thrown",
-                    _runnerName);
+                    _projection.Name);
                 CatchUpStopped(CatchUpStopReason.Error);
             }
         }
@@ -114,13 +106,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             var message = "Stopping catch up {RunnerName}: {Reason}";
             if (reason == CatchUpStopReason.Error)
-                _logger.LogWarning(message, _runnerName, reason);
+                _logger.LogWarning(message, _projection.Name, reason);
             else
-                _logger.LogInformation(message, _runnerName, reason);
+                _logger.LogInformation(message, _projection.Name, reason);
 
-            _commandBus.Queue(new RemoveStoppedCatchUp(_runnerName));
+            _commandBus.Queue(new RemoveStoppedCatchUp(_projection.Name));
             if (CatchUpStopReason.Finished == reason)
-                _commandBus.Queue(new Subscribe(_runnerName));
+                _commandBus.Queue(new Subscribe(_projection.Name));
         }
 
         private async Task<ReadAllPage> ReadPages(
