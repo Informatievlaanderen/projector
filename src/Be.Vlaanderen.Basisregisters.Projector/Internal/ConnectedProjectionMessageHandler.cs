@@ -60,39 +60,54 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 {
                     var completeMessageInProcess = CancellationToken.None;
                     processedState = new ProcessedStreamState(await context.Value.GetRunnerPositionAsync(RunnerName, completeMessageInProcess));
+
+                    async Task ProcessMessage(StreamMessage message)
+                    {
+                        Logger.LogTrace(
+                            "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
+                            RunnerName,
+                            message.StreamId,
+                            message.Position,
+                            message.Type,
+                            CalculateNotVeryPreciseLatency(message));
+
+                        var envelope = _envelopeFactory.Create(message);
+                        await _projector.ProjectAsync(context.Value, envelope, completeMessageInProcess);
+                        processedState?.UpdateWithProcessed(message);
+                    }
+
+                    async Task HandleGap(StreamMessage streamMessage)
+                    {
+                        var positions = new List<long>();
+                        for (var position = processedState.ExpectedNextPosition; position < streamMessage.Position; position++)
+                            positions.Add(position);
+
+                        Logger.LogWarning(
+                            "Expected messages at positions [{unprocessedPositions}] were not processed for {RunnerName}.",
+                            string.Join(", ", positions),
+                            RunnerName);
+
+                        await ProcessMessage(streamMessage);
+                    }
+
                     foreach (var message in messages)
                     {
                         if (cancellationToken.IsCancellationRequested)
                             break;
 
-                        if (message.Position <= processedState.Position)
-                            continue;
-
-                        if (message.Position > processedState.ExpectedNextPosition)
+                        var processAction = DetermineProcessMessageAction(message, processedState);
+                        switch (processAction)
                         {
-                            var positions = new List<long>();
-                            for (var position = processedState.ExpectedNextPosition; position < message.Position; position++)
-                                positions.Add(position);
-
-                            Logger.LogWarning(
-                                "Expected messages at positions [{unprocessedPositions}] were not processed for {RunnerName}.",
-                                string.Join(", ", positions),
-                                RunnerName);
-                        }
-
-                        if (message.Position == processedState.ExpectedNextPosition)
-                        {
-                            Logger.LogTrace(
-                                "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
-                                RunnerName,
-                                message.StreamId,
-                                message.Position,
-                                message.Type,
-                                CalculateNotVeryPreciseLatency(message));
-
-                            var envelope = _envelopeFactory.Create(message);
-                            await _projector.ProjectAsync(context.Value, envelope, completeMessageInProcess);
-                            processedState.UpdateWithProcessed(message);
+                            case ProcessMessageAction.Skip:
+                                continue;
+                            case ProcessMessageAction.HandleGap:
+                                await HandleGap(message);
+                                break;
+                            case ProcessMessageAction.Process:
+                                await ProcessMessage(message);
+                                break;
+                            default:
+                                throw new NotImplementedException($"No handle defined for {processAction}");
                         }
                     }
 
@@ -110,6 +125,30 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     throw new ConnectedProjectionMessageHandlingException(exception, RunnerName, processedState);
                 }
             }
+        }
+
+        private ProcessMessageAction DetermineProcessMessageAction(
+            StreamMessage message,
+            ProcessedStreamState lastProcessedPosition)
+        {
+            if (message.Position <= lastProcessedPosition.Position)
+                return ProcessMessageAction.Skip;
+
+            if (message.Position == lastProcessedPosition.ExpectedNextPosition)
+                return ProcessMessageAction.Process;
+
+            if (message.Position > lastProcessedPosition.ExpectedNextPosition)
+                return ProcessMessageAction.HandleGap;
+
+            return ProcessMessageAction.Unknown;
+        }
+
+        private enum ProcessMessageAction
+        {
+            Unknown = 0,
+            Skip = 10,
+            HandleGap = 20,
+            Process = 30,
         }
 
         // This is not very precise since we could have differing clocks, and should be seen as merely informational
