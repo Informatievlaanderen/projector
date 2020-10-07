@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Commands;
     using Commands.CatchUp;
     using Commands.Subscription;
+    using ConnectedProjections;
     using Exceptions;
     using Extensions;
     using Microsoft.Extensions.Logging;
@@ -20,7 +21,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private readonly ILogger _logger;
         private readonly IReadonlyStreamStore _streamStore;
 
-        public int CatchupPageSize { get; set; } = 1000;
+        public int CatchUpPageSize { get; set; } = 1000;
 
         public ConnectedProjectionCatchUp(
             IConnectedProjection<TContext> projection,
@@ -44,8 +45,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     return;
 
                 _logger.LogDebug(
-                    "Started catch up with paging (CatchupPageSize: {CatchupPageSize})",
-                    CatchupPageSize);
+                    "Started catch up with paging (CatchUpPageSize: {CatchUpPageSize})",
+                    CatchUpPageSize);
 
                 long? position;
                 using (var context = _projection.ContextFactory())
@@ -122,7 +123,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             return await streamStore.ReadAllForwards(
                 position + 1 ?? Position.Start,
-                CatchupPageSize,
+                CatchUpPageSize,
                 prefetchJsonData: true,
                 cancellationToken);
         }
