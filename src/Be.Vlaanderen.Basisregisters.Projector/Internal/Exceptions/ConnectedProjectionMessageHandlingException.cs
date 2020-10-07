@@ -8,11 +8,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Exceptions
         public ConnectedProjectionName RunnerName { get; }
         public long RunnerPosition { get; }
 
-        public ConnectedProjectionMessageHandlingException(Exception exception, ConnectedProjectionName runnerName, long? runnerPosition)
-            : base($"Error occured handling message at position: {runnerPosition}", exception)
+        public ConnectedProjectionMessageHandlingException(Exception exception, ConnectedProjectionName runnerName, ProcessedStreamState? processedState)
+            : base($"Error occured handling message at position: {processedState?.LastProcessedMessagePosition}", exception)
         {
             RunnerName = runnerName;
-            RunnerPosition = runnerPosition ?? -1L;
+            RunnerPosition = processedState?.LastProcessedMessagePosition ?? -1L;
         }
     }
 }

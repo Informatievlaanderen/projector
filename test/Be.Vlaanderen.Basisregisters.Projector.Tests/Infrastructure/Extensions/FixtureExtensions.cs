@@ -1,8 +1,9 @@
-namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
+namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure.Extensions
 {
     using System;
     using System.Collections.Generic;
     using AutoFixture;
+    using static System.Math;
 
     public static class FixtureExtensions
     {
@@ -24,10 +25,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
                 var value = fixture.Create<T>();
                 return value switch
                 {
-                    int i => (object)Math.Abs(i),
-                    double d => Math.Abs(d),
-                    decimal d => Math.Abs(d),
+                    int i => Abs(i),
+                    long l => Abs(l),
+                    double d => Abs(d),
+                    decimal d => Abs(d),
                     _ => throw new NotImplementedException($"Type {typeof(T)} is not supported for CreatePositive")
+                };
+            }
+
+            return (T)GetAbsoluteValue();
+        }
+        public static T CreateNegative<T>(this IFixture fixture)
+        {
+            object GetAbsoluteValue()
+            {
+                var value = fixture.Create<T>();
+                return value switch
+                {
+                    int i => - Abs(i),
+                    long l => - Abs(l),
+                    double d => - Abs(d),
+                    decimal d => - Abs(d),
+                    _ => throw new NotImplementedException($"Type {typeof(T)} is not supported for CreateNegative")
                 };
             }
 

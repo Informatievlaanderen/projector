@@ -9,6 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     using ConnectedProjections;
     using FluentAssertions;
     using Infrastructure;
+    using Infrastructure.Extensions;
     using Internal;
     using Internal.RetryPolicies;
     using Microsoft.Extensions.Logging;
