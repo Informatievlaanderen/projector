@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
     using AutoFixture;
     using FluentAssertions;
     using Infrastructure;
+    using Infrastructure.Extensions;
     using Internal.Commands;
     using Internal.Extensions;
     using Moq;

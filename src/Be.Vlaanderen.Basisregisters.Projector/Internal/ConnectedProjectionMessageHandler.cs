@@ -53,26 +53,25 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             IEnumerable<StreamMessage> messages,
             CancellationToken cancellationToken)
         {
-            long? lastProcessedMessagePosition = null;
+            ProcessedStreamState? processedState = null;
             using (var context = _contextFactory())
             {
                 try
                 {
                     var completeMessageInProcess = CancellationToken.None;
-                    var runnerPosition = await context.Value.GetRunnerPositionAsync(RunnerName, completeMessageInProcess);
+                    processedState = new ProcessedStreamState(await context.Value.GetRunnerPositionAsync(RunnerName, completeMessageInProcess));
                     foreach (var message in messages)
                     {
                         if (cancellationToken.IsCancellationRequested)
                             break;
 
-                        if (runnerPosition.HasValue && message.Position <= runnerPosition)
+                        if (message.Position <= processedState.Position)
                             continue;
 
-                        var expectedPositionToProcess = (lastProcessedMessagePosition ?? runnerPosition ?? -1L) + 1;
-                        if (expectedPositionToProcess < message.Position)
+                        if (message.Position > processedState.ExpectedNextPosition)
                         {
                             var positions = new List<long>();
-                            for (var position = expectedPositionToProcess; position < message.Position; position++)
+                            for (var position = processedState.ExpectedNextPosition; position < message.Position; position++)
                                 positions.Add(position);
 
                             Logger.LogWarning(
@@ -81,23 +80,26 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                                 RunnerName);
                         }
 
-                        Logger.LogTrace(
-                            "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
-                            RunnerName,
-                            message.StreamId,
-                            message.Position,
-                            message.Type,
-                            CalculateNotVeryPreciseLatency(message));
+                        if (message.Position == processedState.ExpectedNextPosition)
+                        {
+                            Logger.LogTrace(
+                                "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
+                                RunnerName,
+                                message.StreamId,
+                                message.Position,
+                                message.Type,
+                                CalculateNotVeryPreciseLatency(message));
 
-                        var envelope = _envelopeFactory.Create(message);
-                        await _projector.ProjectAsync(context.Value, envelope, completeMessageInProcess);
-                        lastProcessedMessagePosition = message.Position;
+                            var envelope = _envelopeFactory.Create(message);
+                            await _projector.ProjectAsync(context.Value, envelope, completeMessageInProcess);
+                            processedState.UpdateWithProcessed(message);
+                        }
                     }
 
-                    if (lastProcessedMessagePosition.HasValue)
+                    if (processedState.HasChanged)
                         await context.Value.UpdateProjectionStateAsync(
                             RunnerName,
-                            lastProcessedMessagePosition.Value,
+                            processedState.Position,
                             completeMessageInProcess);
 
                     await context.Value.SaveChangesAsync(completeMessageInProcess);
@@ -105,7 +107,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 catch (TaskCanceledException) { }
                 catch (Exception exception)
                 {
-                    throw new ConnectedProjectionMessageHandlingException(exception, RunnerName, lastProcessedMessagePosition);
+                    throw new ConnectedProjectionMessageHandlingException(exception, RunnerName, processedState);
                 }
             }
         }
