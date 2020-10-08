@@ -13,6 +13,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
     using SqlStreamStore.Streams;
+    using StreamGapStrategies;
 
     internal interface IConnectedProjectionsSubscriptionRunner
     {
@@ -26,6 +27,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private readonly IRegisteredProjections _registeredProjections;
         private readonly IConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
         private readonly IConnectedProjectionsCommandBus _commandBus;
+        private readonly IStreamGapStrategy _subscriptionStreamGapStrategy;
         private readonly ILogger _logger;
 
         private long? _lastProcessedMessagePosition;
@@ -34,6 +36,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             IRegisteredProjections registeredProjections,
             IConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
             IConnectedProjectionsCommandBus commandBus,
+            IStreamGapStrategy subscriptionStreamGapStrategy,
             ILoggerFactory loggerFactory)
         {
             _handlers = new Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>>();
@@ -43,6 +46,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
             _streamsStoreSubscription = streamsStoreSubscription ?? throw new ArgumentNullException(nameof(streamsStoreSubscription));
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
+            _subscriptionStreamGapStrategy = subscriptionStreamGapStrategy ?? throw new ArgumentNullException(nameof(subscriptionStreamGapStrategy));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
@@ -168,7 +172,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
                 _handlers.Add(
                     projection.Name,
-                    async (message, token) => await projection.ConnectedProjectionMessageHandler.HandleAsync(new []{ message }, token));
+                    async (message, token) => await projection
+                        .ConnectedProjectionMessageHandler
+                        .HandleAsync(
+                            new []{ message },
+                            _subscriptionStreamGapStrategy,
+                            token));
             }
             else
                 _commandBus.Queue(new StartCatchUp(projection.Name));

@@ -9,12 +9,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
     using SqlStreamStore.Streams;
     using Xunit;
 
-    public class When_initializing_processed_stream_state_with_no_runner_position
+    public class When_initializing_an_active_processed_stream_state_with_no_runner_position
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
 
-        public When_initializing_processed_stream_state_with_no_runner_position()
-            => _sut = new ProcessedStreamState(null);
+        public When_initializing_an_active_processed_stream_state_with_no_runner_position()
+            => _sut = new ActiveProcessedStreamState(null);
 
         [Fact]
         public void Then_the_position_should_be_minus_one()
@@ -33,14 +33,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             => _sut.HasChanged.Should().BeFalse();
     }
 
-    public class When_initializing_processed_stream_state_with_a_negative_runner_position
+    public class When_initializing_an_active_processed_stream_state_with_a_negative_runner_position
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
 
-        public When_initializing_processed_stream_state_with_a_negative_runner_position()
+        public When_initializing_an_active_processed_stream_state_with_a_negative_runner_position()
         {
             var position = new Fixture().CreateNegative<long>();
-            _sut = new ProcessedStreamState(position);
+            _sut = new ActiveProcessedStreamState(position);
         }
 
         [Fact]
@@ -60,15 +60,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             => _sut.HasChanged.Should().BeFalse();
     }
 
-    public class When_updating_the_processed_state_with_a_message
+    public class When_updating_an_active_processed_stream_state_with_a_message
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
 
-        public When_updating_the_processed_state_with_a_message()
+        public When_updating_an_active_processed_stream_state_with_a_message()
         {
             var fixture = new Fixture();
             var position = fixture.Create<long>();
-            _sut = new ProcessedStreamState(position);
+            _sut = new ActiveProcessedStreamState(position);
 
             _sut.UpdateWithProcessed(fixture.Create<StreamMessage>());
         }
@@ -78,12 +78,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             => _sut.LastProcessedMessagePosition.Should().NotBeNull();
     }
 
-    public class When_updating_the_processed_state_with_a_message_with_the_same_position_as_the_runner
+    public class When_updating_an_active_processed_stream_state_with_a_message_with_the_same_position_as_the_runner
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
         private readonly long _runnerPosition;
 
-        public When_updating_the_processed_state_with_a_message_with_the_same_position_as_the_runner()
+        public When_updating_an_active_processed_stream_state_with_a_message_with_the_same_position_as_the_runner()
         {
             var fixture = new Fixture();
             _runnerPosition = fixture.CreatePositive<long>();
@@ -91,7 +91,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Create<ConfigurableStreamMessage>()
                 .WithPosition(_runnerPosition);
 
-            _sut = new ProcessedStreamState(_runnerPosition);
+            _sut = new ActiveProcessedStreamState(_runnerPosition);
             _sut.UpdateWithProcessed(message);
         }
 
@@ -112,13 +112,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             => _sut.HasChanged.Should().BeFalse();
     }
 
-    public class When_updating_the_processed_state_with_a_message_with_position_before_the_runner_position
+    public class When_updating_an_active_processed_stream_state_with_a_message_with_position_before_the_runner_position
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
         private readonly long _runnerPosition;
         private readonly StreamMessage _message;
 
-        public When_updating_the_processed_state_with_a_message_with_position_before_the_runner_position()
+        public When_updating_an_active_processed_stream_state_with_a_message_with_position_before_the_runner_position()
         {
             var fixture = new Fixture();
             _runnerPosition = fixture
@@ -131,7 +131,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                     .CreateRandomLowerValue()
                     .WithMinimumValueOf(0));
 
-            _sut = new ProcessedStreamState(_runnerPosition);
+            _sut = new ActiveProcessedStreamState(_runnerPosition);
             _sut.UpdateWithProcessed(_message);
         }
 
@@ -152,13 +152,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             => _sut.HasChanged.Should().BeFalse();
     }
 
-    public class When_updating_the_processed_state_with_the_expected_next_message
+    public class When_updating_an_active_processed_stream_state_with_the_expected_next_message
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
         private readonly long _runnerPosition;
         private readonly StreamMessage _message;
 
-        public When_updating_the_processed_state_with_the_expected_next_message()
+        public When_updating_an_active_processed_stream_state_with_the_expected_next_message()
         {
             var fixture = new Fixture();
             _runnerPosition = fixture
@@ -169,7 +169,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Create<ConfigurableStreamMessage>()
                 .WithPosition(_runnerPosition + 1);
 
-            _sut = new ProcessedStreamState(_runnerPosition);
+            _sut = new ActiveProcessedStreamState(_runnerPosition);
             _sut.UpdateWithProcessed(_message);
         }
 
@@ -190,24 +190,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             => _sut.HasChanged.Should().BeTrue();
     }
 
-    public class When_updating_the_processed_state_with_a_message_skipping_some_positions
+    public class When_updating_an_active_processed_stream_state_with_a_message_skipping_some_positions
     {
-        private readonly ProcessedStreamState _sut;
-        private readonly long _runnerPosition;
+        private readonly ActiveProcessedStreamState _sut;
         private readonly StreamMessage _message;
 
-        public When_updating_the_processed_state_with_a_message_skipping_some_positions()
+        public When_updating_an_active_processed_stream_state_with_a_message_skipping_some_positions()
         {
             var fixture = new Fixture();
-            _runnerPosition =  fixture
+            var runnerPosition = fixture
                 .CreatePositive<long>()
                 .WithMaximumValueOf(long.MaxValue -2);
 
             _message = fixture
                 .Create<ConfigurableStreamMessage>()
-                .WithPosition(_runnerPosition.CreateRandomHigherValue());
+                .WithPosition(runnerPosition.CreateRandomHigherValue());
 
-            _sut = new ProcessedStreamState(_runnerPosition);
+            _sut = new ActiveProcessedStreamState(runnerPosition);
             _sut.UpdateWithProcessed(_message);
         }
 
@@ -228,19 +227,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             => _sut.HasChanged.Should().BeTrue();
     }
 
-    public class When_determining_the_gap_positions_for_a_state_with_a_message_with_position_before_the_runner_position
+    public class When_determining_the_gap_positions_for_an_active_processed_stream_state_with_a_message_with_position_before_the_runner_position
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
         private readonly Fixture _fixture;
 
-        public When_determining_the_gap_positions_for_a_state_with_a_message_with_position_before_the_runner_position()
+        public When_determining_the_gap_positions_for_an_active_processed_stream_state_with_a_message_with_position_before_the_runner_position()
         {
             _fixture = new Fixture();
             var runnerPosition = _fixture
                 .CreatePositive<long>()
                 .WithMinimumValueOf(5);
             
-            _sut = new ProcessedStreamState(runnerPosition);
+            _sut = new ActiveProcessedStreamState(runnerPosition);
         }
 
         [Fact]
@@ -258,19 +257,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
     }
 
-    public class When_determining_the_gap_positions_for_a_state_with_the_next_expected_message
+    public class When_determining_the_gap_positions_for_an_active_processed_stream_state_with_the_next_expected_message
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
         private readonly Fixture _fixture;
 
-        public When_determining_the_gap_positions_for_a_state_with_the_next_expected_message()
+        public When_determining_the_gap_positions_for_an_active_processed_stream_state_with_the_next_expected_message()
         {
             _fixture = new Fixture();
             var runnerPosition = _fixture
                 .CreatePositive<long>()
                 .WithMaximumValueOf(long.MaxValue - 1);
 
-            _sut = new ProcessedStreamState(runnerPosition);
+            _sut = new ActiveProcessedStreamState(runnerPosition);
         }
 
         [Fact]
@@ -284,19 +283,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
     }
 
-    public class When_determining_the_gap_positions_for_a_state_with_a_message_skipping_some_positions
+    public class When_determining_the_gap_positions_for_an_active_processed_stream_state_with_a_message_skipping_some_positions
     {
-        private readonly ProcessedStreamState _sut;
+        private readonly ActiveProcessedStreamState _sut;
         private readonly Fixture _fixture;
 
-        public When_determining_the_gap_positions_for_a_state_with_a_message_skipping_some_positions()
+        public When_determining_the_gap_positions_for_an_active_processed_stream_state_with_a_message_skipping_some_positions()
         {
             _fixture = new Fixture();
             var runnerPosition = _fixture
                 .CreatePositive<long>()
                 .WithMaximumValueOf(long.MaxValue - 2);
 
-            _sut = new ProcessedStreamState(runnerPosition);
+            _sut = new ActiveProcessedStreamState(runnerPosition);
         }
 
         [Fact]

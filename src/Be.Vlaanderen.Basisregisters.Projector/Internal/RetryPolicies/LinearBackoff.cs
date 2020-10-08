@@ -8,6 +8,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
     using Microsoft.Extensions.Logging;
     using Polly;
     using SqlStreamStore.Streams;
+    using StreamGapStrategies;
 
     internal class LinearBackOff<TException> : MessageHandlingRetryPolicy where TException : Exception
     {
@@ -40,7 +41,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
                     attempt,
                     waitTime.TotalSeconds);
 
-            async Task ExecuteWithRetryPolicy(IEnumerable<StreamMessage> messages, CancellationToken token)
+            async Task ExecuteWithRetryPolicy(IEnumerable<StreamMessage> messages, IStreamGapStrategy streamGapStrategy, CancellationToken token)
             {
                 await Policy
                     .Handle<TException>()
@@ -48,7 +49,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
                         _numberOfRetries,
                         attempt => _delay.Multiply(attempt),
                         LogRetryAttempt)
-                    .ExecuteAsync(async ct => await messageHandler.HandleAsync(messages, ct), token);
+                    .ExecuteAsync(async ct => await messageHandler.HandleAsync(messages, streamGapStrategy, ct), token);
             }
 
             return new RetryMessageHandler(ExecuteWithRetryPolicy, projectionName, messageHandlerLogger);
