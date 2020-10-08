@@ -12,6 +12,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     using Infrastructure.Extensions;
     using Internal;
     using Internal.RetryPolicies;
+    using Internal.StreamGapStrategies;
     using Microsoft.Extensions.Logging;
     using Moq;
     using SqlStreamStore.Streams;
@@ -63,7 +64,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             var messages = _fixture.CreateMany<StreamMessage>().ToList();
             var token = new CancellationToken();
 
-            await _sut.HandleAsync(messages, token);
+            await _sut.HandleAsync(messages, Mock.Of<IStreamGapStrategy>(), token);
             _handlerWithoutPolicy.VerifyExecuted(messages, _numberOfExpectedAttempts);
         }
     }
@@ -92,7 +93,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
-        private async Task Act() => await _sut.HandleAsync(_messages, CancellationToken.None);
+        private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
         public void ThenTheExceptionIsNotCaught()
@@ -150,7 +151,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
-        private async Task Act() => await _sut.HandleAsync(_messages, CancellationToken.None);
+        private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
         public void ThenTheExceptionIsNotCaught()
@@ -232,7 +233,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
-        private async Task Act() => await _sut.HandleAsync(_messages, CancellationToken.None);
+        private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
         public void ThenTheExceptionToRetryIsNotCaught()
@@ -308,7 +309,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
 
             new LinearBackOff<RetryException>(_numberOfRetries, _initialWait)
                 .ApplyOn(_handlerWithoutPolicy)
-                .HandleAsync(_messages, CancellationToken.None)
+                .HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None)
                 .GetAwaiter()
                 .GetResult();
         }

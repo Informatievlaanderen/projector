@@ -13,11 +13,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using ProjectionHandling.Runner;
     using ProjectionHandling.SqlStreamStore;
     using SqlStreamStore.Streams;
+    using StreamGapStrategies;
 
     internal interface IConnectedProjectionMessageHandler
     {
         Task HandleAsync(
             IEnumerable<StreamMessage> messages,
+            IStreamGapStrategy streamGapStrategy,
             CancellationToken cancellationToken);
 
         ConnectedProjectionName RunnerName { get; }
@@ -51,17 +53,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public async Task HandleAsync(
             IEnumerable<StreamMessage> messages,
+            IStreamGapStrategy streamGapStrategy,
             CancellationToken cancellationToken)
         {
-            ProcessedStreamState? processedState = null;
+            ActiveProcessedStreamState? processedState = null;
             using (var context = _contextFactory())
             {
                 try
                 {
                     var completeMessageInProcess = CancellationToken.None;
-                    processedState = new ProcessedStreamState(await context.Value.GetRunnerPositionAsync(RunnerName, completeMessageInProcess));
+                    processedState = new ActiveProcessedStreamState(await context.Value.GetRunnerPositionAsync(RunnerName, completeMessageInProcess));
 
-                    async Task ProcessMessage(StreamMessage message)
+                    async Task ProcessMessage(StreamMessage message, CancellationToken ct)
                     {
                         Logger.LogTrace(
                             "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
@@ -72,22 +75,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                             CalculateNotVeryPreciseLatency(message));
 
                         var envelope = _envelopeFactory.Create(message);
-                        await _projector.ProjectAsync(context.Value, envelope, completeMessageInProcess);
+                        await _projector.ProjectAsync(context.Value, envelope, ct);
                         processedState?.UpdateWithProcessed(message);
-                    }
-
-                    async Task HandleGap(StreamMessage streamMessage)
-                    {
-                        var positions = new List<long>();
-                        for (var position = processedState.ExpectedNextPosition; position < streamMessage.Position; position++)
-                            positions.Add(position);
-
-                        Logger.LogWarning(
-                            "Expected messages at positions [{unprocessedPositions}] were not processed for {RunnerName}.",
-                            string.Join(", ", positions),
-                            RunnerName);
-
-                        await ProcessMessage(streamMessage);
                     }
 
                     foreach (var message in messages)
@@ -101,10 +90,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                             case ProcessMessageAction.Skip:
                                 continue;
                             case ProcessMessageAction.HandleGap:
-                                await HandleGap(message);
+                                await streamGapStrategy.HandleMessage(
+                                    message,
+                                    processedState,
+                                    ProcessMessage,
+                                    RunnerName,
+                                    completeMessageInProcess);
                                 break;
                             case ProcessMessageAction.Process:
-                                await ProcessMessage(message);
+                                await ProcessMessage(message, completeMessageInProcess);
                                 break;
                             default:
                                 throw new NotImplementedException($"No handle defined for {processAction}");
@@ -129,7 +123,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         private ProcessMessageAction DetermineProcessMessageAction(
             StreamMessage message,
-            ProcessedStreamState lastProcessedPosition)
+            IProcessedStreamState lastProcessedPosition)
         {
             if (message.Position <= lastProcessedPosition.Position)
                 return ProcessMessageAction.Skip;

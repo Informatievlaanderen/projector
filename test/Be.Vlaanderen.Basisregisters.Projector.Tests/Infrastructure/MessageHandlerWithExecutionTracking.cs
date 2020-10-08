@@ -8,11 +8,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     using Assertions;
     using ConnectedProjections;
     using Internal;
+    using Internal.StreamGapStrategies;
     using Microsoft.Extensions.Logging;
     using Moq;
     using SqlStreamStore.Streams;
 
-    public class MessageHandlerWithExecutionTracking : IConnectedProjectionMessageHandler
+    internal class MessageHandlerWithExecutionTracking : IConnectedProjectionMessageHandler
     {
         private readonly Stack<Exception> _exceptionSequence;
         
@@ -29,7 +30,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
             _exceptionSequence = new Stack<Exception>(exceptionSequence.Reverse());
         }
 
-        public Task HandleAsync(IEnumerable<StreamMessage> messages, CancellationToken cancellationToken)
+        public Task HandleAsync(
+            IEnumerable<StreamMessage> messages,
+            IStreamGapStrategy streamGapStrategy,
+            CancellationToken cancellationToken)
         {
             _executions.Add(CreateExecutionId(messages));
 

@@ -5,6 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using System.Threading;
     using System.Threading.Tasks;
     using Internal;
+    using Internal.StreamGapStrategies;
     using Microsoft.Extensions.Logging;
     using SqlStreamStore.Streams;
 
@@ -14,13 +15,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         private protected class RetryMessageHandler : IConnectedProjectionMessageHandler
         {
-            private readonly Func<IEnumerable<StreamMessage>, CancellationToken, Task> _messageHandling;
+            private readonly Func<IEnumerable<StreamMessage>, IStreamGapStrategy, CancellationToken, Task> _messageHandling;
 
             public ConnectedProjectionName RunnerName { get; }
             public ILogger Logger { get; }
 
             public RetryMessageHandler(
-                Func<IEnumerable<StreamMessage>, CancellationToken, Task> messageHandling,
+                Func<IEnumerable<StreamMessage>, IStreamGapStrategy, CancellationToken, Task> messageHandling,
                 ConnectedProjectionName projectionName,
                 ILogger messageHandlerLogger)
             {
@@ -29,8 +30,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
                 Logger = messageHandlerLogger ?? throw new ArgumentNullException(nameof(messageHandlerLogger));
             }
 
-            public async Task HandleAsync(IEnumerable<StreamMessage> messages, CancellationToken cancellationToken)
-                => await _messageHandling(messages, cancellationToken);
+            public async Task HandleAsync(IEnumerable<StreamMessage> messages, IStreamGapStrategy streamGapStrategy, CancellationToken cancellationToken)
+                => await _messageHandling(messages, streamGapStrategy, cancellationToken);
         }
     }
 }

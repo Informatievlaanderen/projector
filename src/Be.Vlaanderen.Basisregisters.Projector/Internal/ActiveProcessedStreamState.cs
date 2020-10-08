@@ -4,7 +4,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Collections.Generic;
     using SqlStreamStore.Streams;
 
-    internal class ProcessedStreamState
+    internal interface IProcessedStreamState
+    {
+        public long? LastProcessedMessagePosition { get; }
+        public long Position { get; }
+        public long ExpectedNextPosition { get; }
+        IEnumerable<long> DetermineGapPositions(StreamMessage message);
+    }
+
+    internal interface IUpdateProcessedStreamState
+    {
+        void UpdateWithProcessed(StreamMessage message);
+    }
+
+    internal class ActiveProcessedStreamState: IProcessedStreamState, IUpdateProcessedStreamState
     {
         private const long NoPosition = -1L;
 
@@ -13,7 +26,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public long Position => Math.Max(_lastRunnerPosition, LastProcessedMessagePosition ?? NoPosition);
         public long ExpectedNextPosition => Position + 1;
 
-        public ProcessedStreamState(long? runnerPosition)
+        public ActiveProcessedStreamState(long? runnerPosition)
             => _lastRunnerPosition = runnerPosition ?? NoPosition;
 
         public void UpdateWithProcessed(StreamMessage message)

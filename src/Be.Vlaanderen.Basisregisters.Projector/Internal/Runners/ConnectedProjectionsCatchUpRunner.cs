@@ -10,6 +10,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
     using SqlStreamStore;
+    using StreamGapStrategies;
 
     internal interface IConnectedProjectionsCatchUpRunner
     {
@@ -23,12 +24,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private readonly IRegisteredProjections _registeredProjections;
         private readonly IReadonlyStreamStore _streamStore;
         private readonly IConnectedProjectionsCommandBus _commandBus;
+        private readonly IStreamGapStrategy _catchUpStreamGapStrategy;
         private readonly ILogger _logger;
 
         public ConnectedProjectionsCatchUpRunner(
             IRegisteredProjections registeredProjections,
             IReadonlyStreamStore streamStore,
             IConnectedProjectionsCommandBus commandBus,
+            IStreamGapStrategy catchUpStreamGapStrategy,
             ILoggerFactory loggerFactory)
         {
             _projectionCatchUps = new Dictionary<ConnectedProjectionName, CancellationTokenSource>();
@@ -38,6 +41,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
+            _catchUpStreamGapStrategy = catchUpStreamGapStrategy ?? throw new ArgumentNullException(nameof(catchUpStreamGapStrategy));
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCatchUpRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
@@ -115,6 +119,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 projection,
                 _streamStore,
                 _commandBus,
+                _catchUpStreamGapStrategy,
                 _logger);
 
             TaskRunner.Dispatch(async () => await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Name].Token));

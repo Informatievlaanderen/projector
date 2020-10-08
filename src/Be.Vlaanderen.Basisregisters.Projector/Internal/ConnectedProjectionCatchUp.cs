@@ -13,11 +13,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using ProjectionHandling.Runner;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
+    using StreamGapStrategies;
 
     internal class ConnectedProjectionCatchUp<TContext> where TContext : RunnerDbContext<TContext>
     {
         private readonly IConnectedProjection<TContext> _projection;
         private readonly IConnectedProjectionsCommandBus _commandBus;
+        private readonly IStreamGapStrategy _catchUpStreamGapStrategy;
         private readonly ILogger _logger;
         private readonly IReadonlyStreamStore _streamStore;
 
@@ -27,11 +29,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             IConnectedProjection<TContext> projection,
             IReadonlyStreamStore streamStore,
             IConnectedProjectionsCommandBus commandBus,
+            IStreamGapStrategy catchUpStreamGapStrategy,
             ILogger logger)
         {
             _projection = projection ?? throw new ArgumentNullException(nameof(projection));
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
+            _catchUpStreamGapStrategy = catchUpStreamGapStrategy ?? throw new ArgumentNullException(nameof(catchUpStreamGapStrategy));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -70,7 +74,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         page.Messages.Length,
                         page.FromPosition);
 
-                    await _projection.ConnectedProjectionMessageHandler.HandleAsync(page.Messages, cancellationToken);
+                    await _projection
+                        .ConnectedProjectionMessageHandler
+                        .HandleAsync(
+                            page.Messages,
+                            _catchUpStreamGapStrategy,
+                            cancellationToken);
 
                     if (cancellationToken.IsCancellationRequested)
                         return;
