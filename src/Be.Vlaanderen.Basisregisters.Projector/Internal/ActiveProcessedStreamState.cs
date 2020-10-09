@@ -12,12 +12,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         IEnumerable<long> DetermineGapPositions(StreamMessage message);
     }
 
-    internal interface IUpdateProcessedStreamState
-    {
-        void UpdateWithProcessed(StreamMessage message);
-    }
-
-    internal class ActiveProcessedStreamState: IProcessedStreamState, IUpdateProcessedStreamState
+    internal class ActiveProcessedStreamState: IProcessedStreamState
     {
         private const long NoPosition = -1L;
 

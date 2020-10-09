@@ -3,6 +3,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure.Extensions
     using System;
     using System.Collections.Generic;
     using AutoFixture;
+    using AutoFixture.Dsl;
     using static System.Math;
 
     public static class FixtureExtensions
@@ -52,5 +53,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure.Extensions
 
             return (T)GetAbsoluteValue();
         }
+
+        public static IPostprocessComposer<ConfigurableStreamMessage> WithPosition(
+            this ICustomizationComposer<ConfigurableStreamMessage> customization, long position)
+            => customization
+                .With(
+                    message => message.Position,
+                    position);
     }
 }

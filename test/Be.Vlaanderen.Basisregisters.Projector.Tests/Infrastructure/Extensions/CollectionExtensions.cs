@@ -1,4 +1,4 @@
-namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
+namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure.Extensions
 {
     using System;
     using System.Collections.Generic;

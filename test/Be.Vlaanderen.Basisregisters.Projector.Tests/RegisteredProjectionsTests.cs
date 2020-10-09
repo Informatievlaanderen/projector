@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
     using ConnectedProjections;
     using FluentAssertions;
     using Infrastructure;
+    using Infrastructure.Extensions;
     using Internal;
     using Internal.Extensions;
     using Xunit;
