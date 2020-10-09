@@ -88,8 +88,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             var fixture = new Fixture();
             _runnerPosition = fixture.CreatePositive<long>();
             StreamMessage message = fixture
-                .Create<ConfigurableStreamMessage>()
-                .WithPosition(_runnerPosition);
+                .Build<ConfigurableStreamMessage>()
+                .WithPosition(_runnerPosition)
+                .Create();
 
             _sut = new ActiveProcessedStreamState(_runnerPosition);
             _sut.UpdateWithProcessed(message);
@@ -126,10 +127,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .WithMinimumValueOf(3);
 
             _message = fixture
-                .Create<ConfigurableStreamMessage>()
+                .Build<ConfigurableStreamMessage>()
                 .WithPosition(_runnerPosition
                     .CreateRandomLowerValue()
-                    .WithMinimumValueOf(0));
+                    .WithMinimumValueOf(0))
+                .Create();
 
             _sut = new ActiveProcessedStreamState(_runnerPosition);
             _sut.UpdateWithProcessed(_message);
@@ -166,8 +168,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .WithMaximumValueOf(long.MaxValue - 1);
 
             _message = fixture
-                .Create<ConfigurableStreamMessage>()
-                .WithPosition(_runnerPosition + 1);
+                .Build<ConfigurableStreamMessage>()
+                .WithPosition(_runnerPosition + 1)
+                .Create();
 
             _sut = new ActiveProcessedStreamState(_runnerPosition);
             _sut.UpdateWithProcessed(_message);
@@ -203,8 +206,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .WithMaximumValueOf(long.MaxValue -2);
 
             _message = fixture
-                .Create<ConfigurableStreamMessage>()
-                .WithPosition(runnerPosition.CreateRandomHigherValue());
+                .Build<ConfigurableStreamMessage>()
+                .WithPosition(runnerPosition.CreateRandomHigherValue())
+                .Create();
 
             _sut = new ActiveProcessedStreamState(runnerPosition);
             _sut.UpdateWithProcessed(_message);
@@ -250,8 +254,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .CreateRandomLowerValue();
 
             var message = _fixture
-                .Create<ConfigurableStreamMessage>()
-                .WithPosition(position);
+                .Build<ConfigurableStreamMessage>()
+                .WithPosition(position)
+                .Create();
 
             _sut.DetermineGapPositions(message).Should().BeEmpty();
         }
@@ -276,8 +281,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void Then_the_gap_positions_should_be_empty()
         {
             var message = _fixture
-                .Create<ConfigurableStreamMessage>()
-                .WithPosition(_sut.ExpectedNextPosition);
+                .Build<ConfigurableStreamMessage>()
+                .WithPosition(_sut.ExpectedNextPosition)
+                .Create();
 
             _sut.DetermineGapPositions(message).Should().BeEmpty();
         }
@@ -302,8 +308,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void Then_the_gap_positions_should_from_expected_to_current_message_minus_one()
         {
             StreamMessage message = _fixture
-                .Create<ConfigurableStreamMessage>()
-                .WithPosition(_sut.ExpectedNextPosition.CreateRandomHigherValue());
+                .Build<ConfigurableStreamMessage>()
+                .WithPosition(_sut
+                    .ExpectedNextPosition
+                    .CreateRandomHigherValue())
+                .Create();
 
             var expectedGapPositions = new List<long>();
             for (var i = _sut.ExpectedNextPosition; i < message.Position; i++)
