@@ -6,11 +6,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
     using Extensions;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Connector;
     using ProjectionHandling.Runner;
-    using ProjectionHandling.SqlStreamStore;
 
     internal interface IConnectedProjection
     {
@@ -24,7 +22,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         where TContext : RunnerDbContext<TContext>
     {
         ConnectedProjectionName Name { get; }
-        Func<Owned<TContext>> ContextFactory { get; }
+        Func<Owned<IConnectedProjectionContext<TContext>>> ContextFactory { get; }
         IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
     }
 
@@ -33,14 +31,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         where TContext : RunnerDbContext<TContext>
     {
         public ConnectedProjectionName Name => new ConnectedProjectionName(typeof(TConnectedProjection));
-        public Func<Owned<TContext>> ContextFactory { get; }
+        public Func<Owned<IConnectedProjectionContext<TContext>>> ContextFactory { get; }
         public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
         public ConnectedProjection(
-            Func<Owned<TContext>> contextFactory,
+            Func<Owned<IConnectedProjectionContext<TContext>>> contextFactory,
             TConnectedProjection connectedProjection,
             MessageHandlingRetryPolicy retryPolicy,
-            EnvelopeFactory envelopeFactory,
             ILoggerFactory loggerFactory)
         {
             ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
@@ -49,7 +46,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 Name,
                 connectedProjection?.Handlers ?? throw new ArgumentNullException(nameof(connectedProjection)),
                 ContextFactory,
-                envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory)),
                 loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory))
             ).WithPolicy(retryPolicy);
         }
@@ -67,8 +63,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             await using (var ctx = ContextFactory().Value)
             {
-                var projectionStateItem = await ctx.ProjectionStates.SingleOrDefaultAsync(item => item.Name == Name, cancellationToken);
-                return projectionStateItem?.DesiredState == UserDesiredState.Started;
+                var state = await ctx.GetProjectionDesiredState(Name, cancellationToken);
+                return state is { } && state == UserDesiredState.Started;
             }
         }
 

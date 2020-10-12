@@ -160,7 +160,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
             long? projectionPosition;
             using (var context = projection.ContextFactory())
-                projectionPosition = await context.Value.GetRunnerPositionAsync(projection.Name, CancellationToken.None);
+                projectionPosition = await context.Value.GetProjectionPosition(projection.Name, CancellationToken.None);
 
             if ((projectionPosition ?? -1) >= (_lastProcessedMessagePosition ?? -1))
             {

@@ -7,7 +7,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using ConnectedProjections;
     using FluentAssertions;
     using Infrastructure;
-    using Internal.Extensions;
+    using Internal;
     using SqlStreamStore;
     using TestProjections.Messages;
     using TestProjections.Projections;
@@ -47,7 +47,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .Should()
                 .BeGreaterThan(HeadPosition.NoMessages);
 
-            (await Resolve<ProjectionContext>().GetRunnerPositionAsync(_projection, CancellationToken.None))
+            (await Resolve<IConnectedProjectionContext<ProjectionContext>>().GetProjectionPosition(_projection, CancellationToken.None))
                 .Should()
                 .Be(0);
 
