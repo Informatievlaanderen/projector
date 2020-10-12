@@ -9,7 +9,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
-    using ProjectionHandling.SqlStreamStore;
 
     public static class ContainerBuilderExtensions
     {
@@ -62,10 +61,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector
             builder
                 .Register(container =>
                     new ConnectedProjection<TConnectedProjection, TContext>(
-                        container.Resolve<Func<Owned<TContext>>>(),
+                        container.Resolve<Func<Owned<IConnectedProjectionContext<TContext>>>>(),
                         projectionFactory(container),
                         retryPolicy,
-                        container.Resolve<EnvelopeFactory>(),
                         container.Resolve<ILoggerFactory>()))
                 .As<IConnectedProjection>()
                 .IfConcreteTypeIsNotRegistered();

@@ -7,11 +7,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
     using Exceptions;
-    using Extensions;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Connector;
     using ProjectionHandling.Runner;
-    using ProjectionHandling.SqlStreamStore;
     using SqlStreamStore.Streams;
     using StreamGapStrategies;
 
@@ -29,9 +27,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     internal class ConnectedProjectionMessageHandler<TContext> : IConnectedProjectionMessageHandler
         where TContext : RunnerDbContext<TContext>
     {
-        private readonly Func<Owned<TContext>> _contextFactory;
+        private readonly Func<Owned<IConnectedProjectionContext<TContext>>> _contextFactory;
         private readonly ConnectedProjector<TContext> _projector;
-        private readonly EnvelopeFactory _envelopeFactory;
 
         public ConnectedProjectionName RunnerName { get; }
 
@@ -40,14 +37,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public ConnectedProjectionMessageHandler(
             ConnectedProjectionName runnerName,
             ConnectedProjectionHandler<TContext>[] handlers,
-            Func<Owned<TContext>> contextFactory,
-            EnvelopeFactory envelopeFactory,
+            Func<Owned<IConnectedProjectionContext<TContext>>> contextFactory,
             ILoggerFactory loggerFactory)
         {
             RunnerName = runnerName;
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _projector = new ConnectedProjector<TContext>(Resolve.WhenEqualToHandlerMessageType(handlers));
-            _envelopeFactory = envelopeFactory ?? throw new ArgumentNullException(nameof(envelopeFactory));
             Logger = loggerFactory?.CreateLogger<ConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
@@ -57,12 +52,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             CancellationToken cancellationToken)
         {
             ActiveProcessedStreamState? processedState = null;
-            using (var context = _contextFactory())
+            using (var context = _contextFactory().Value)
             {
                 try
                 {
                     var completeMessageInProcess = CancellationToken.None;
-                    processedState = new ActiveProcessedStreamState(await context.Value.GetRunnerPositionAsync(RunnerName, completeMessageInProcess));
+                    processedState = new ActiveProcessedStreamState(await context.GetProjectionPosition(RunnerName, completeMessageInProcess));
 
                     async Task ProcessMessage(StreamMessage message, CancellationToken ct)
                     {
@@ -74,8 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                             message.Type,
                             CalculateNotVeryPreciseLatency(message));
 
-                        var envelope = _envelopeFactory.Create(message);
-                        await _projector.ProjectAsync(context.Value, envelope, ct);
+                        await context.ApplyProjections(_projector, message, ct);
                         processedState?.UpdateWithProcessed(message);
                     }
 
@@ -106,12 +100,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     }
 
                     if (processedState.HasChanged)
-                        await context.Value.UpdateProjectionStateAsync(
+                        await context.UpdateProjectionPosition(
                             RunnerName,
                             processedState.Position,
                             completeMessageInProcess);
 
-                    await context.Value.SaveChangesAsync(completeMessageInProcess);
+                    await context.SaveChangesAsync(completeMessageInProcess);
                 }
                 catch (TaskCanceledException) { }
                 catch (Exception exception)

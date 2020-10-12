@@ -6,9 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Commands;
     using Commands.CatchUp;
     using Commands.Subscription;
-    using ConnectedProjections;
     using Exceptions;
-    using Extensions;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
     using SqlStreamStore;
@@ -54,7 +52,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                 long? position;
                 using (var context = _projection.ContextFactory())
-                    position = await context.Value.GetRunnerPositionAsync(_projection.Name, cancellationToken);
+                    position = await context.Value.GetProjectionPosition(_projection.Name, cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
                     return;
