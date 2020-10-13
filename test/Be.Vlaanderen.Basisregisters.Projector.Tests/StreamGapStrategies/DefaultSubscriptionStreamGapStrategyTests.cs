@@ -1,0 +1,86 @@
+namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using AutoFixture;
+    using ConnectedProjections;
+    using FluentAssertions;
+    using Infrastructure;
+    using Infrastructure.Extensions;
+    using Internal;
+    using Internal.Exceptions;
+    using Internal.StreamGapStrategies;
+    using Moq;
+    using SqlStreamStore.Streams;
+    using Xunit;
+
+    public class When_handling_a_message_using_the_default_subscription_stream_gap_strategy
+    {
+        private readonly Func<Task> _handlingMessage;
+        private readonly ConnectedProjectionName _projectionName;
+        private readonly IEnumerable<long> _missingPositions;
+        private string _processMessageFunctionStatus;
+
+
+        public When_handling_a_message_using_the_default_subscription_stream_gap_strategy()
+        {
+            var fixture = new Fixture()
+                .CustomizeConnectedProjectionNames();
+
+            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _missingPositions = fixture.CreateMany<long>(1, 10);
+            var message = fixture.Create<StreamMessage>();
+
+            var stateMock = new Mock<IProcessedStreamState>();
+            stateMock
+                .Setup(state => state.DetermineGapPositions(message))
+                .Returns(_missingPositions);
+
+            _processMessageFunctionStatus = "NotExecuted";
+
+            _handlingMessage = async () => await new DefaultSubscriptionStreamGapStrategy()
+                .HandleMessage(
+                    message,
+                    stateMock.Object,
+                    (_, token) =>
+                    {
+                        _processMessageFunctionStatus = "Executed";
+                        return Task.CompletedTask;
+                    },
+                    _projectionName,
+                    fixture.Create<CancellationToken>());
+        }
+
+        [Fact]
+        public void Then_a_missing_stream_messages_exception_is_thrown()
+        {
+            _handlingMessage
+                .Should()
+                .Throw<MissingStreamMessagesException>()
+                .And.Message
+                    .Should()
+                    .Contain(_projectionName.ToString())
+                    .And
+                    .Contain($"[{string.Join(',', _missingPositions)}]");
+        }
+
+
+        [Fact]
+        public async Task Then_process_message_should_not_be_executed()
+        {
+            try
+            {
+                await _handlingMessage();
+            }
+            catch { }
+            finally
+            {
+                _processMessageFunctionStatus
+                    .Should()
+                    .Be("NotExecuted");
+            }
+        }
+    }
+}
