@@ -55,10 +55,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure.Extensions
         }
 
         public static IPostprocessComposer<ConfigurableStreamMessage> WithPosition(
-            this ICustomizationComposer<ConfigurableStreamMessage> customization, long position)
+            this IPostprocessComposer<ConfigurableStreamMessage> customization,
+            long position)
             => customization
                 .With(
                     message => message.Position,
                     position);
+
+        public static IPostprocessComposer<ConfigurableStreamMessage> WithCreatedUtc(
+            this IPostprocessComposer<ConfigurableStreamMessage> customization,
+            DateTime timestamp)
+            => customization
+                .With(
+                    message => message.CreatedUtc,
+                    timestamp.ToUniversalTime);
     }
 }

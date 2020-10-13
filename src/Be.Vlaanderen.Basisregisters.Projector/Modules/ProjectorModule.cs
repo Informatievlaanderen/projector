@@ -5,14 +5,25 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
     using ConnectedProjections;
     using Internal;
     using Internal.Commands;
+    using Internal.Configuration;
     using Internal.Runners;
     using Internal.StreamGapStrategies;
+    using Microsoft.Extensions.Configuration;
+    using NodaTime;
     using Module = Autofac.Module;
 
     public class ProjectorModule : Module
     {
+        private readonly IConfigurationRoot _configuration;
+
+        public ProjectorModule(IConfigurationRoot configuration)
+            => _configuration = configuration;
+
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterInstance(SystemClock.Instance)
+                .As<IClock>();
+
             builder.RegisterType<ConnectedProjectionsCommandBus>()
                 .As<IConnectedProjectionsCommandBusHandlerConfiguration>()
                 .As<IConnectedProjectionsCommandBus>()
@@ -33,17 +44,22 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .As<IConnectedProjectionsStreamStoreSubscription>()
                 .SingleInstance();
 
+            var streamGapStrategySettings = new StreamGapStrategyConfigurationSettings();
+            _configuration.Bind("streamGapStrategy", streamGapStrategySettings);
+            builder.RegisterInstance(streamGapStrategySettings)
+                .As<IStreamGapStrategyConfigurationSettings>();
+
             builder.RegisterAssemblyTypes(typeof(IStreamGapStrategy).Assembly)
                 .Where(type => type.IsAssignableTo<IStreamGapStrategy>())
                 .AsSelf();
 
             builder.RegisterType<ConnectedProjectionsSubscriptionRunner>()
-                .WithParameter(SetStrategy<DefaultSubscriptionStreamGapStrategy>())
+                .WithParameter(ResolveStrategy<DefaultSubscriptionStreamGapStrategy>())
                 .As<IConnectedProjectionsSubscriptionRunner>()
                 .SingleInstance();
 
             builder.RegisterType<ConnectedProjectionsCatchUpRunner>()
-                .WithParameter(SetStrategy<DefaultCatchUpStreamGapStrategy>())
+                .WithParameter(ResolveStrategy<DefaultCatchUpStreamGapStrategy>())
                 .As<IConnectedProjectionsCatchUpRunner>()
                 .SingleInstance();
 
@@ -56,7 +72,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .SingleInstance();
         }
 
-        private static ResolvedParameter SetStrategy<TGapStrategy>()
+        private static ResolvedParameter ResolveStrategy<TGapStrategy>()
             where TGapStrategy : IStreamGapStrategy
             => new ResolvedParameter(
                 (info, _) => info.ParameterType == typeof(IStreamGapStrategy),

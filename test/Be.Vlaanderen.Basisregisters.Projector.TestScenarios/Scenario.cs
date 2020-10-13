@@ -23,6 +23,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using TestProjections.Projections;
     using System.Collections.Generic;
     using Internal.Extensions;
+    using Microsoft.Extensions.Configuration;
 
     public abstract class Scenario : IDisposable
     {
@@ -54,7 +55,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterModule<ProjectorModule>();
+            var projectorConfiguration = new ConfigurationRoot(new List<IConfigurationProvider>());
+            builder.RegisterModule(new ProjectorModule(projectorConfiguration));
             builder.RegisterModule(new SqlStreamStoreModule(string.Empty, Schemas.Messages));
             builder
                 .RegisterType<LoggerFactory>()
