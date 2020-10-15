@@ -15,6 +15,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             Func<StreamMessage, CancellationToken, Task> processMessage,
             ConnectedProjectionName runnerName,
             CancellationToken cancellationToken)
-            => throw new MissingStreamMessagesException(state.DetermineGapPositions(message), runnerName);
+            => throw new StreamGapDetectedException(state.DetermineGapPositions(message), runnerName);
     }
 }

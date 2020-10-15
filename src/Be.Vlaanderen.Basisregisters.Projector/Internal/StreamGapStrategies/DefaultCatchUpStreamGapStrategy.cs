@@ -38,7 +38,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             CancellationToken cancellationToken)
         {
             if (await IsCloseToStreamEnd(message, cancellationToken))
-                throw new MissingStreamMessagesException(state.DetermineGapPositions(message), runnerName);
+                throw new StreamGapDetectedException(state.DetermineGapPositions(message), runnerName);
 
             _logger.LogWarning(
                 "Expected messages at positions [{unprocessedPositions}] were not processed for {RunnerName}.",

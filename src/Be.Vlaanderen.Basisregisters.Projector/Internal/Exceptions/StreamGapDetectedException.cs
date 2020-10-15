@@ -4,9 +4,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Exceptions
     using System.Collections.Generic;
     using ConnectedProjections;
 
-    internal class MissingStreamMessagesException : Exception
+    internal class StreamGapDetectedException : Exception
     {
-        public MissingStreamMessagesException(IEnumerable<long> missingPositions, ConnectedProjectionName projectionName)
+        public StreamGapDetectedException(IEnumerable<long> missingPositions, ConnectedProjectionName projectionName)
             : base($"Stream does not contain messages at positions [{string.Join(',', missingPositions)}] for projection {projectionName}")
         { }
     }
