@@ -3,6 +3,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
     using System;
     using System.Threading.Tasks;
     using AutoFixture;
+    using ConnectedProjections;
     using Infrastructure;
     using Internal.Commands;
     using Internal.Commands.CatchUp;
@@ -176,6 +177,28 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 
             _commandBusMock.Verify(
                 bus => bus.Queue(It.IsAny<StopAllCatchUps>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task When_handling_a_restart_command_then_a_start_command_is_dispatched_after_the_delay()
+        {
+            var command = new Restart(
+                _fixture.Create<ConnectedProjectionName>(),
+                TimeSpan.FromMilliseconds(new Random(_fixture.Create<int>()).Next(10, 2000)));
+
+            // don't await Handle
+            _sut.Handle(command);
+
+            _commandBusMock.Verify(
+                bus => bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals(command.ProjectionName))),
+                Times.Never,
+                $"Start command was sent before the delay({command.After.TotalMilliseconds}ms) completed");
+
+            await Task.Delay(command.After.Add(TimeSpan.FromMilliseconds(1)));
+
+            _commandBusMock.Verify(
+                bus => bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals(command.ProjectionName))),
                 Times.Once);
         }
     }
