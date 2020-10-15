@@ -91,6 +91,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 CatchUpStopped(CatchUpStopReason.Finished);
             }
             catch (TaskCanceledException) { }
+            catch (ConnectedProjectionMessageHandlingException e)
+                when(e.InnerException is StreamGapDetectedException)
+            {
+                var projectionName = e.RunnerName;
+                var delayInSeconds = _catchUpStreamGapStrategy.Settings.RetryDelayInSeconds;
+
+                _logger.LogWarning(
+                    "Detected gap in the message stream for catching up projection. Aborted projection {_projectionName} and queued restart in {_gapStrategySettings.RetryDelayInSeconds} seconds.",
+                    projectionName,
+                    delayInSeconds);
+                CatchUpStopped(CatchUpStopReason.Aborted);
+
+                _commandBus.Queue(
+                    new Restart(
+                        projectionName,
+                        TimeSpan.FromSeconds(delayInSeconds)));
+            }
             catch (ConnectedProjectionMessageHandlingException exception)
             {
                 _logger.LogError(
@@ -113,10 +130,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private void CatchUpStopped(CatchUpStopReason reason)
         {
             var message = "Stopping catch up {RunnerName}: {Reason}";
-            if (reason == CatchUpStopReason.Error)
-                _logger.LogWarning(message, _projection.Name, reason);
-            else
-                _logger.LogInformation(message, _projection.Name, reason);
+            switch (reason)
+            {
+                case CatchUpStopReason.Error:
+                    _logger.LogError(message, _projection.Name, reason);
+                    break;
+                case CatchUpStopReason.Aborted:
+                    _logger.LogWarning(message, _projection.Name, reason);
+                    break;
+                default:
+                    _logger.LogInformation(message, _projection.Name, reason);
+                    break;
+            }
 
             _commandBus.Queue(new RemoveStoppedCatchUp(_projection.Name));
             if (CatchUpStopReason.Finished == reason)

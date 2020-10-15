@@ -1,4 +1,4 @@
-namespace Be.Vlaanderen.Basisregisters.Projector.Tests
+namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
 {
     using System;
     using System.Collections.Generic;
@@ -20,11 +20,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
     using Microsoft.Extensions.Logging;
     using Moq;
     using SqlStreamStore.Streams;
-    using TestProjections.OtherProjections;
-    using TestProjections.Projections;
     using Xunit;
 
-    public class When_processing_a_stream_event_throws_a_detected_stream_gap_exception
+    public class When_the_subscription_runner_processing_a_stream_event_throws_a_detected_stream_gap_exception
     {
         private const string MissingMessageProjectionIdentifier = "throws-missing-messages";
         private readonly ConnectedProjectionsSubscriptionRunner _sut;
@@ -33,7 +31,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         private readonly FakeLogger _loggerMock;
         private readonly StreamGapStrategyConfigurationSettings _gapStrategySettings;
 
-        public When_processing_a_stream_event_throws_a_detected_stream_gap_exception()
+        public When_the_subscription_runner_processing_a_stream_event_throws_a_detected_stream_gap_exception()
         {
             var fixture = new Fixture();
 
