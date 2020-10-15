@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Threading.Tasks;
     using Commands;
     using ConnectedProjections;
+    using Extensions;
 
     internal class ConnectedProjectionsManager : IConnectedProjectionsManager
     {

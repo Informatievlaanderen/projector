@@ -3,6 +3,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
     using System;
     using System.Threading.Tasks;
     using CatchUp;
+    using Extensions;
     using Microsoft.Extensions.Logging;
     using Runners;
     using Subscription;

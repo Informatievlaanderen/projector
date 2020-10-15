@@ -61,7 +61,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             await _sut.Start(CancellationToken.None);
 
-            _commandBusMock.Verify(bus => bus.Queue<StartAll>(), Times.Once);
+            _commandBusMock.Verify(bus => bus.Queue(It.IsAny<StartAll>()), Times.Once);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             await _sut.Stop(CancellationToken.None);
 
-            _commandBusMock.Verify(bus => bus.Queue<StopAll>(), Times.Once);
+            _commandBusMock.Verify(bus => bus.Queue(It.IsAny<StopAll>()), Times.Once);
         }
 
         [Fact]
