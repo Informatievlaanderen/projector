@@ -177,11 +177,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         }
 
         [Fact]
-        public void Then_a_missing_stream_messages_exception_is_thrown()
+        public void Then_a_detected_stream_gap_exception_is_thrown()
         {
             _handlingMessage
                 .Should()
-                .Throw<MissingStreamMessagesException>()
+                .Throw<StreamGapDetectedException>()
                 .And.Message
                 .Should()
                 .Contain(_projectionName.ToString())
