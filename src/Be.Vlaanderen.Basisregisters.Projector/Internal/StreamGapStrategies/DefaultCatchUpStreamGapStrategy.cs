@@ -13,10 +13,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
 
     internal class DefaultCatchUpStreamGapStrategy : IStreamGapStrategy
     {
-        private readonly IStreamGapStrategyConfigurationSettings _settings;
         private readonly IReadonlyStreamStore _streamStore;
         private readonly ILogger _logger;
         private readonly IClock _clock;
+
+        public IStreamGapStrategyConfigurationSettings Settings { get; }
 
         public DefaultCatchUpStreamGapStrategy(
             ILoggerFactory loggerFactory,
@@ -24,7 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             IReadonlyStreamStore streamStore,
             IClock clock)
         {
-            _settings = settings?? throw new ArgumentNullException(nameof(settings));
+            Settings = settings?? throw new ArgumentNullException(nameof(settings));
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _logger = loggerFactory?.CreateLogger<DefaultCatchUpStreamGapStrategy>() ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -55,8 +56,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
                 .GetCurrentInstant()
                 .ToDateTimeUtc();
             return
-                message.CreatedUtc.AddSeconds(_settings.StreamBufferInSeconds) > now &&
-                message.Position + _settings.PositionBufferSize > headPosition;
+                message.CreatedUtc.AddSeconds(Settings.StreamBufferInSeconds) > now &&
+                message.Position + Settings.PositionBufferSize > headPosition;
         }
     }
 }

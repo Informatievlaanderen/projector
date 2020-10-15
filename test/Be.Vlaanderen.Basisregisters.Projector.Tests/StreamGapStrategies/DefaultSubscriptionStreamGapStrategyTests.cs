@@ -10,6 +10,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
     using Infrastructure;
     using Infrastructure.Extensions;
     using Internal;
+    using Internal.Configuration;
     using Internal.Exceptions;
     using Internal.StreamGapStrategies;
     using Moq;
@@ -40,7 +41,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
 
             _processMessageFunctionStatus = "NotExecuted";
 
-            _handlingMessage = async () => await new DefaultSubscriptionStreamGapStrategy()
+            _handlingMessage = async () => await new DefaultSubscriptionStreamGapStrategy(Mock.Of<IStreamGapStrategyConfigurationSettings>())
                 .HandleMessage(
                     message,
                     stateMock.Object,
