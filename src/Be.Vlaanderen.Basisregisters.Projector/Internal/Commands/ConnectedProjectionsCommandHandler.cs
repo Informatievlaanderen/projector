@@ -66,6 +66,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
                     _commandBus.Queue<UnsubscribeAll>();
                     break;
 
+                case Restart restart:
+                    await Task.Delay(restart.After);
+                    _commandBus.Queue(new Start(restart.ProjectionName));
+                    break;
+
                 default:
                     _logger.LogError("No handler defined for {Command}", command);
                     break;
