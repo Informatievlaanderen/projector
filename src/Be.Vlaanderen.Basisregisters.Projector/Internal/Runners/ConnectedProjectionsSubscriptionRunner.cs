@@ -50,7 +50,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        private bool HasSubscription(ConnectedProjectionName projectionName)
+        internal bool HasSubscription(ConnectedProjectionName projectionName)
             => projectionName != null && _handlers.ContainsKey(projectionName);
 
         public async Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand command)
@@ -111,7 +111,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     .GetProjection(subscribe?.ProjectionName)
                     ?.Instance;
 
-                Subscribe(projection);
+                await Subscribe(projection);
             }
             else
             {
@@ -201,6 +201,22 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 try
                 {
                     await _handlers[projectionName](processStreamEvent.Message, processStreamEvent.CancellationToken);
+                }
+                catch (ConnectedProjectionMessageHandlingException e)
+                    when (e.InnerException is StreamGapDetectedException)
+                {
+                    var projectionInError = e.RunnerName;
+                    _logger.LogWarning(
+                        "Detected gap in the message stream for subscribed projection. Unsubscribed projection {RunnerName} and queued restart in {restartDelay} seconds.",
+                        projectionInError,
+                        _subscriptionStreamGapStrategy.Settings.RetryDelayInSeconds);
+
+                    _handlers.Remove(projectionInError);
+
+                    _commandBus.Queue(
+                        new Restart(
+                            projectionInError,
+                            TimeSpan.FromSeconds(_subscriptionStreamGapStrategy.Settings.RetryDelayInSeconds)));
                 }
                 catch (ConnectedProjectionMessageHandlingException messageHandlingException)
                 {
