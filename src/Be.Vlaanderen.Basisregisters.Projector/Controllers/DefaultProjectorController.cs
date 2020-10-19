@@ -1,5 +1,7 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using ConnectedProjections;
@@ -13,8 +15,26 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             => _projectionManager = connectedProjectionsManager;
 
         [HttpGet]
-        public IActionResult Get()
-            => Ok(_projectionManager.GetRegisteredProjections());
+        public async Task<IActionResult> Get(CancellationToken cancellationToken)
+        {
+            var registeredConnectedProjections = _projectionManager
+                .GetRegisteredProjections()
+                .Select(x => new ProjectionResponse(x));
+
+            await UpdatePositions(cancellationToken, registeredConnectedProjections);
+
+            return Ok(registeredConnectedProjections);
+        }
+
+        private async Task UpdatePositions(CancellationToken cancellationToken, IEnumerable<ProjectionResponse> registeredConnectedProjections)
+        {
+            var positions = await _projectionManager.GetLastSavedPositionsByName(cancellationToken);
+            foreach (var position in positions)
+            {
+                var projection = registeredConnectedProjections.Single(x => x.ProjectionName == position.Key);
+                projection.CurrentPosition = position.Value;
+            }
+        }
 
         [HttpPost("start/all")]
         public async Task<IActionResult> Start(CancellationToken cancellationToken)

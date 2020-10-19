@@ -95,5 +95,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
             _commandBus.Queue(new Stop(projectionName));
         }
+
+        public async Task<Dictionary<ConnectedProjectionName, long>> GetLastSavedPositionsByName(CancellationToken cancellationToken)
+        {
+            var positionsByName = new Dictionary<ConnectedProjectionName, long>();
+            foreach (var registeredProjectionsProjection in _registeredProjections.Projections)
+            {
+                var currentPosition = await registeredProjectionsProjection.GetCurrentPosition(cancellationToken);
+                positionsByName.Add(registeredProjectionsProjection.Name, currentPosition);
+            }
+
+            return positionsByName;
+        }
     }
 }

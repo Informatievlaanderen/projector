@@ -49,5 +49,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         /// </summary>
         /// <param name="name">Case insensitive name of the projection to check.</param>
         bool Exists(string name);
+
+        /// <summary>
+        /// Get the last saved position of the projections
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<Dictionary<ConnectedProjectionName, long>> GetLastSavedPositionsByName(CancellationToken cancellationToken);
     }
 }
