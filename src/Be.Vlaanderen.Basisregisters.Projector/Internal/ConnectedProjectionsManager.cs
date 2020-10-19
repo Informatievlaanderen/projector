@@ -101,7 +101,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             var positionsByName = new Dictionary<ConnectedProjectionName, long>();
             foreach (var registeredProjectionsProjection in _registeredProjections.Projections)
             {
-                var currentPosition = await registeredProjectionsProjection.GetCurrentPosition(cancellationToken);
+                var currentPosition = await registeredProjectionsProjection.GetLastSavedPosition(cancellationToken);
                 positionsByName.Add(registeredProjectionsProjection.Name, currentPosition);
             }
 

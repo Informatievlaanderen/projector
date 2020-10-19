@@ -5,28 +5,62 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using ConnectedProjections;
+    using Dapper;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Data.SqlClient;
+    using Microsoft.Extensions.Configuration;
 
     public abstract partial class DefaultProjectorController : ControllerBase
     {
         private readonly IConnectedProjectionsManager _projectionManager;
+        private readonly string _eventsSchema;
+        private readonly string _eventsConnectionString;
 
-        protected DefaultProjectorController(IConnectedProjectionsManager connectedProjectionsManager)
-            => _projectionManager = connectedProjectionsManager;
+        protected DefaultProjectorController(
+            IConnectedProjectionsManager connectedProjectionsManager,
+            string eventsSchema,
+            string eventsConnectionString)
+        {
+            _projectionManager = connectedProjectionsManager;
+            _eventsSchema = eventsSchema;
+            _eventsConnectionString = eventsConnectionString;
+        }
 
         [HttpGet]
-        public async Task<IActionResult> Get(CancellationToken cancellationToken)
+        public async Task<IActionResult> Get(
+            [FromServices] IConfiguration configuration,
+            CancellationToken cancellationToken)
         {
             var registeredConnectedProjections = _projectionManager
                 .GetRegisteredProjections()
-                .Select(x => new ProjectionResponse(x));
+                .Select(x => new ProjectionResponse(x))
+                .ToList();
 
-            await UpdatePositions(cancellationToken, registeredConnectedProjections);
+            await UpdatePositions(registeredConnectedProjections, cancellationToken);
+            var streamPosition = await GetStreamPosition(cancellationToken);
 
-            return Ok(registeredConnectedProjections);
+            var projectionsList = new ProjectionResponseList(registeredConnectedProjections)
+            {
+                StreamPosition = streamPosition
+            };
+
+            return Ok(projectionsList);
         }
 
-        private async Task UpdatePositions(CancellationToken cancellationToken, IEnumerable<ProjectionResponse> registeredConnectedProjections)
+        private async Task<long> GetStreamPosition(CancellationToken cancellationToken)
+        {
+            var streamPosition = -1L;
+
+            using (var connection = new SqlConnection(_eventsConnectionString))
+            {
+                streamPosition =
+                    await connection.ExecuteScalarAsync<long>($"SELECT MAX([Position]) FROM [{_eventsSchema}].[Messages]", cancellationToken);
+            }
+
+            return streamPosition;
+        }
+
+        private async Task UpdatePositions(List<ProjectionResponse> registeredConnectedProjections, CancellationToken cancellationToken)
         {
             var positions = await _projectionManager.GetLastSavedPositionsByName(cancellationToken);
             foreach (var position in positions)
