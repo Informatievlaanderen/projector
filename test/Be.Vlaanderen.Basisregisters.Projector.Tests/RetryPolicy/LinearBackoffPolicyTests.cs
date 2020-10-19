@@ -173,7 +173,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
 
             _handlerWithoutPolicy.VerifyExecuted(_messages, _numberOfExpectedAttempts);
         }
-        
+
         [Fact]
         public async Task ThenAWarningIsLoggedForEachRetry()
         {

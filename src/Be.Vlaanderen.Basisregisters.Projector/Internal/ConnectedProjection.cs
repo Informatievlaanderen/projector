@@ -16,6 +16,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         dynamic Instance { get; }
         Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken);
         Task<bool> ShouldResume(CancellationToken cancellationToken);
+        Task<long> GetLastSavedPosition(CancellationToken cancellationToken);
     }
 
     internal interface IConnectedProjection<TContext>
@@ -65,6 +66,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             {
                 var state = await ctx.GetProjectionDesiredState(Name, cancellationToken);
                 return state is { } && state == UserDesiredState.Started;
+            }
+        }
+
+        public async Task<long> GetLastSavedPosition(CancellationToken cancellationToken)
+        {
+            await using (var ctx = ContextFactory().Value)
+            {
+                return (await ctx.ProjectionStates.SingleOrDefaultAsync(x => x.Name == Name, cancellationToken))?.Position ?? -1L;
             }
         }
 
