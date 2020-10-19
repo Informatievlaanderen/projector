@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     public class ProjectionResponseList
     {
         public IEnumerable<ProjectionResponse> Projections { get; set; }
+        public long StreamPosition { get; set; }
 
         public ProjectionResponseList(IEnumerable<ProjectionResponse> projections)
         {
