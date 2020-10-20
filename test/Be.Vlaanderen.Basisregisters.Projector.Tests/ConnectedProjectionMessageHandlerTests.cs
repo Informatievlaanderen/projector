@@ -36,7 +36,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Setup(context => context.GetProjectionPosition(_runnerName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_runnerPosition);
                 
-            
             var sut = new ConnectedProjectionMessageHandler<ProjectionContext>(
                 _runnerName,
                 new ConnectedProjectionHandler<ProjectionContext>[0],
@@ -230,10 +229,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             var runnerPosition = fixture
                 .CreatePositive<long>()
                 .WithMaximumValueOf(long.MaxValue - 100);
+            
             contextMock
                 .Setup(context => context.GetProjectionPosition(_runnerName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(runnerPosition);
-
 
             var sut = new ConnectedProjectionMessageHandler<ProjectionContext>(
                 _runnerName,
