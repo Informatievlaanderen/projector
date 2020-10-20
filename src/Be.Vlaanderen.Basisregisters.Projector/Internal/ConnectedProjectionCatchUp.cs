@@ -101,6 +101,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     "Detected gap in the message stream for catching up projection. Aborted projection {_projectionName} and queued restart in {_gapStrategySettings.RetryDelayInSeconds} seconds.",
                     projectionName,
                     delayInSeconds);
+                    
                 CatchUpStopped(CatchUpStopReason.Aborted);
 
                 _commandBus.Queue(
@@ -115,6 +116,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     "{RunnerName} catching up failed because an exception was thrown when handling the message at {Position}.",
                     exception.RunnerName,
                     exception.RunnerPosition);
+                    
                 CatchUpStopped(CatchUpStopReason.Error);
             }
             catch (Exception exception)
@@ -123,6 +125,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     exception,
                     "{RunnerName} catching up failed because an exception was thrown",
                     _projection.Name);
+                    
                 CatchUpStopped(CatchUpStopReason.Error);
             }
         }
@@ -130,20 +133,24 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private void CatchUpStopped(CatchUpStopReason reason)
         {
             var message = "Stopping catch up {RunnerName}: {Reason}";
+            
             switch (reason)
             {
                 case CatchUpStopReason.Error:
                     _logger.LogError(message, _projection.Name, reason);
                     break;
+                    
                 case CatchUpStopReason.Aborted:
                     _logger.LogWarning(message, _projection.Name, reason);
                     break;
+                    
                 default:
                     _logger.LogInformation(message, _projection.Name, reason);
                     break;
             }
 
             _commandBus.Queue(new RemoveStoppedCatchUp(_projection.Name));
+            
             if (CatchUpStopReason.Finished == reason)
                 _commandBus.Queue(new Subscribe(_projection.Name));
         }
