@@ -12,13 +12,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         IEnumerable<long> DetermineGapPositions(StreamMessage message);
     }
 
-    internal class ActiveProcessedStreamState: IProcessedStreamState
+    internal class ActiveProcessedStreamState : IProcessedStreamState
     {
         private const long NoPosition = -1L;
 
         private readonly long _lastRunnerPosition;
+        
         public long? LastProcessedMessagePosition { get; private set; }
+        
         public long Position => Math.Max(_lastRunnerPosition, LastProcessedMessagePosition ?? NoPosition);
+        
         public long ExpectedNextPosition => Position + 1;
 
         public ActiveProcessedStreamState(long? runnerPosition)
