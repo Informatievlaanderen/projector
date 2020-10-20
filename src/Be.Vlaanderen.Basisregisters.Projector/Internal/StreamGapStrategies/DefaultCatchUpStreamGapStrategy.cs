@@ -55,6 +55,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             var now = _clock
                 .GetCurrentInstant()
                 .ToDateTimeUtc();
+                
             return
                 message.CreatedUtc.AddSeconds(Settings.StreamBufferInSeconds) > now &&
                 message.Position + Settings.PositionBufferSize > headPosition;
