@@ -1,3 +1,24 @@
+# [6.0.0](https://github.com/informatievlaanderen/projector/compare/v5.4.5...v6.0.0) (2020-10-20)
+
+
+### Bug Fixes
+
+* add test for messagehandler executing gapstrategy GRAR-1355 ([050174e](https://github.com/informatievlaanderen/projector/commit/050174ea0f5541985230ef31d421d89e3591fee7))
+* implement the correct gap strategies GRAR-1355 ([2d31403](https://github.com/informatievlaanderen/projector/commit/2d314032bee20e49b741b91f640ed22f263f6381))
+* remove convenience Queue overload from interface GRAR-1355 ([5a44e08](https://github.com/informatievlaanderen/projector/commit/5a44e088dfe1c4371a505997dfdbf73661d5d6f9))
+
+
+### Features
+
+* add restart command GRAR-1355 ([9ab0435](https://github.com/informatievlaanderen/projector/commit/9ab04352f16a2dd5ac5e54ec5c190732b944c7e9))
+* handle stream gap exceptions in catch up GRAR-1355 ([7f8cebc](https://github.com/informatievlaanderen/projector/commit/7f8cebc0efc61307105e2dc92edcffe0dc5a5ec8))
+* handle stream gap exceptions in subscription GRAR-1355 ([5332468](https://github.com/informatievlaanderen/projector/commit/53324685fbb728e7bc5ca2762cbf26728ba6991c))
+
+
+### BREAKING CHANGES
+
+* CHANGES
+
 ## [5.4.5](https://github.com/informatievlaanderen/projector/compare/v5.4.4...v5.4.5) (2020-09-21)
 
 
