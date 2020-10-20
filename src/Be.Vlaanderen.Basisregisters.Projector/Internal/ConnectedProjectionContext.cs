@@ -62,17 +62,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             return state?.Position;
         }
 
-        private async Task<ProjectionStateItem?> GetState(
-            ConnectedProjectionName projectionName,
-            CancellationToken cancellationToken)
-        {
-            return await _context
-                .ProjectionStates
-                .SingleOrDefaultAsync(
-                    item => item.Name == projectionName.ToString(),
-                    cancellationToken);
-        }
-
         public async Task UpdateProjectionPosition(
             ConnectedProjectionName projectionName,
             long position,
@@ -119,5 +108,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public ValueTask DisposeAsync()
             => _context.DisposeAsync();
+            
+        private async Task<ProjectionStateItem?> GetState(
+            ConnectedProjectionName projectionName,
+            CancellationToken cancellationToken)
+        {
+            return await _context
+                .ProjectionStates
+                .AsNoTracking()
+                .SingleOrDefaultAsync(
+                    item => item.Name == projectionName.ToString(),
+                    cancellationToken);
+        }
     }
 }
