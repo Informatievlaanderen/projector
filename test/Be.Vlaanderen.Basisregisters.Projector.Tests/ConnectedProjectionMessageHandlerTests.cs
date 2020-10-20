@@ -26,6 +26,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             var fixture = new Fixture()
                 .CustomizeConnectedProjectionNames();
+            
             _runnerName = fixture.Create<ConnectedProjectionName>();
             _runnerPosition = fixture
                 .CreatePositive<long>()
@@ -90,6 +91,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             var fixture = new Fixture()
                 .CustomizeConnectedProjectionNames();
+            
             _runnerName = fixture.Create<ConnectedProjectionName>();
             _runnerPosition = fixture
                 .CreatePositive<long>()
@@ -99,7 +101,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             contextMock
                 .Setup(context => context.GetProjectionPosition(_runnerName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_runnerPosition);
-
 
             var sut = new ConnectedProjectionMessageHandler<ProjectionContext>(
                 _runnerName,
@@ -154,6 +155,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             var fixture = new Fixture()
                 .CustomizeConnectedProjectionNames();
+            
             _runnerName = fixture.Create<ConnectedProjectionName>();
 
             var contextMock = new Mock<IConnectedProjectionContext<ProjectionContext>>();
@@ -163,7 +165,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             contextMock
                 .Setup(context => context.GetProjectionPosition(_runnerName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(runnerPosition);
-
 
             var sut = new ConnectedProjectionMessageHandler<ProjectionContext>(
                 _runnerName,
@@ -223,6 +224,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             var fixture = new Fixture()
                 .CustomizeConnectedProjectionNames();
+            
             _runnerName = fixture.Create<ConnectedProjectionName>();
 
             var contextMock = new Mock<IConnectedProjectionContext<ProjectionContext>>();
