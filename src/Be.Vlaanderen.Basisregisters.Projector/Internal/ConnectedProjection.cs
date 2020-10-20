@@ -73,7 +73,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             await using (var ctx = ContextFactory().Value)
             {
-                return (await ctx.ProjectionStates.SingleOrDefaultAsync(x => x.Name == Name, cancellationToken))?.Position ?? -1L;
+                return await ctx.GetLastSavedPosition(Name, cancellationToken);
             }
         }
 

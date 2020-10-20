@@ -37,6 +37,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             StreamMessage message,
             CancellationToken ct);
 
+        Task<long> GetLastSavedPosition(
+            ConnectedProjectionName projectionName,
+            CancellationToken ct);
+
         Task SaveChangesAsync(CancellationToken cancellationToken);
     }
 
@@ -100,6 +104,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 _envelopeFactory.Create(message),
                 cancellationToken);
 
+        public async Task<long> GetLastSavedPosition(
+            ConnectedProjectionName projectionName,
+            CancellationToken cancellationToken)
+        {
+            return (await _context.ProjectionStates.SingleOrDefaultAsync(x => x.Name == projectionName, cancellationToken))?.Position ?? -1L;
+        }
+
         public async Task SaveChangesAsync(CancellationToken cancellationToken)
             => await _context.SaveChangesAsync(cancellationToken);
 
@@ -108,7 +119,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public ValueTask DisposeAsync()
             => _context.DisposeAsync();
-            
+
         private async Task<ProjectionStateItem?> GetState(
             ConnectedProjectionName projectionName,
             CancellationToken cancellationToken)
