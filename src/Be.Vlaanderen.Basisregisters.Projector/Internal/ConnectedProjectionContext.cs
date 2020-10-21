@@ -37,7 +37,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             StreamMessage message,
             CancellationToken ct);
 
-        Task<long> GetLastSavedPosition(
+        Task<ProjectionStateItem?> GetProjectionState(
             ConnectedProjectionName projectionName,
             CancellationToken ct);
 
@@ -71,7 +71,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ConnectedProjectionName projectionName,
             CancellationToken cancellationToken)
         {
-            var state = await GetState(projectionName, cancellationToken);
+            var state = await GetProjectionState(projectionName, cancellationToken);
             return state?.Position;
         }
 
@@ -89,7 +89,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ConnectedProjectionName projectionName,
             CancellationToken cancellationToken)
         {
-            var projectionState = await GetState(projectionName, cancellationToken);
+            var projectionState = await GetProjectionState(projectionName, cancellationToken);
             return UserDesiredState.TryParse(projectionState?.DesiredState ?? string.Empty, out var state)
                 ? state
                 : null;
@@ -112,11 +112,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 _context,
                 _envelopeFactory.Create(message),
                 cancellationToken);
-
-        public async Task<long> GetLastSavedPosition(
-            ConnectedProjectionName projectionName,
-            CancellationToken cancellationToken)
-            => (await _context.ProjectionStates.SingleOrDefaultAsync(x => x.Name == projectionName, cancellationToken))?.Position ?? -1L;
 
         public async Task SetErrorMessage(
             ConnectedProjectionName projectionName,
@@ -141,7 +136,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public ValueTask DisposeAsync()
             => _context.DisposeAsync();
 
-        private async Task<ProjectionStateItem?> GetState(
+        public async Task<ProjectionStateItem?> GetProjectionState(
             ConnectedProjectionName projectionName,
             CancellationToken cancellationToken)
         {

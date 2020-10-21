@@ -10,6 +10,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     using Internal.StreamGapStrategies;
     using Moq;
     using ProjectionHandling.Runner;
+    using ProjectionHandling.Runner.ProjectionStates;
     using SqlStreamStore.Streams;
 
     internal class FakeProjection : IConnectedProjection<FakeProjectionContext>, IConnectedProjection
@@ -44,8 +45,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
         public Task<bool> ShouldResume(CancellationToken cancellationToken)
             => throw new NotImplementedException($"{nameof(FakeProjection)}.{nameof(ShouldResume)}");
 
-        public Task<long> GetLastSavedPosition(CancellationToken cancellationToken)
-            => throw new NotImplementedException($"{nameof(FakeProjection)}.{nameof(GetLastSavedPosition)}");
+        public Task<ProjectionStateItem?> GetProjectionState(CancellationToken cancellationToken)
+            => throw new NotImplementedException($"{nameof(FakeProjection)}.{nameof(GetProjectionState)}");
 
         public Task SetErrorMessage(Exception exception, CancellationToken cancellationToken)
             => throw new NotImplementedException($"{nameof(FakeProjection)}.{nameof(SetErrorMessage)}");

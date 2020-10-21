@@ -7,6 +7,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Commands;
     using ConnectedProjections;
     using Extensions;
+    using ProjectionHandling.Runner.ProjectionStates;
 
     internal class ConnectedProjectionsManager : IConnectedProjectionsManager
     {
@@ -103,16 +104,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             _commandBus.Queue(new Stop(projectionName));
         }
 
-        public async Task<Dictionary<ConnectedProjectionName, long>> GetLastSavedPositionsByName(CancellationToken cancellationToken)
+        public async Task<IEnumerable<ProjectionStateItem>> GetProjectionStates(CancellationToken cancellationToken)
         {
-            var positionsByName = new Dictionary<ConnectedProjectionName, long>();
+            var list = new List<ProjectionStateItem>();
             foreach (var registeredProjectionsProjection in _registeredProjections.Projections)
             {
-                var currentPosition = await registeredProjectionsProjection.GetLastSavedPosition(cancellationToken);
-                positionsByName.Add(registeredProjectionsProjection.Name, currentPosition);
+                var projectionState = await registeredProjectionsProjection.GetProjectionState(cancellationToken);
+                if (projectionState != null)
+                    list.Add(projectionState);
             }
 
-            return positionsByName;
+            return list;
         }
     }
 }

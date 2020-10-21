@@ -3,6 +3,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using ProjectionHandling.Runner.ProjectionStates;
 
     public interface IConnectedProjectionsManager
     {
@@ -51,10 +52,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         bool Exists(string name);
 
         /// <summary>
-        /// Get the last saved position of the projections
+        /// Get the projection state.
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Dictionary<ConnectedProjectionName, long>> GetLastSavedPositionsByName(CancellationToken cancellationToken);
+        Task<IEnumerable<ProjectionStateItem>> GetProjectionStates(CancellationToken cancellationToken);
     }
 }
