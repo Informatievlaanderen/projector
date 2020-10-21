@@ -25,6 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         {
             ProjectionName = projection.Name;
             ProjectionState = projection.State;
+            CurrentPosition = -1;
         }
     }
 }
