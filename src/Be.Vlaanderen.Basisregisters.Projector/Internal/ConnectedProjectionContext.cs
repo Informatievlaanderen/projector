@@ -118,8 +118,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             Exception exception,
             CancellationToken cancellationToken)
         {
-            var message = exception.Message + "Stacktrace: " + exception.StackTrace;
-            await _context.SetErrorMessage(projectionName, message, cancellationToken);
+            //exception.ToString() => https://stackoverflow.com/a/2176722/412692
+            await _context.SetErrorMessage(projectionName, exception.ToString(), cancellationToken);
         }
 
         public async Task ClearErrorMessage(
