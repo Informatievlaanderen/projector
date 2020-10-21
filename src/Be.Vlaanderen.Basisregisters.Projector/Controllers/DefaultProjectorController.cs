@@ -14,15 +14,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         private readonly IConnectedProjectionsManager _projectionManager;
         private readonly string _eventsSchema;
         private readonly string _eventsConnectionString;
+        private readonly string _baseUri;
 
         protected DefaultProjectorController(
             IConnectedProjectionsManager connectedProjectionsManager,
             string eventsSchema,
-            string eventsConnectionString)
+            string eventsConnectionString,
+            string baseUri)
         {
             _projectionManager = connectedProjectionsManager;
             _eventsSchema = eventsSchema;
             _eventsConnectionString = eventsConnectionString;
+            _baseUri = baseUri;
         }
 
         [HttpGet]
@@ -36,7 +39,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             var responses = await CreateProjectionResponses(registeredConnectedProjections, cancellationToken);
             var streamPosition = await GetStreamPosition(cancellationToken);
 
-            return Ok(new ProjectionResponseList(responses)
+            return Ok(new ProjectionResponseList(responses, _baseUri)
             {
                 StreamPosition = streamPosition
             });
@@ -63,7 +66,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             foreach (var connectedProjection in registeredConnectedProjections)
             {
                 var projectionState = projectionStates.SingleOrDefault(x => x.Name == connectedProjection.Name);
-                projectionResponses.Add(new ProjectionResponse(connectedProjection, projectionState));
+                projectionResponses.Add(new ProjectionResponse(connectedProjection, projectionState, _baseUri));
             }
 
             return projectionResponses;
