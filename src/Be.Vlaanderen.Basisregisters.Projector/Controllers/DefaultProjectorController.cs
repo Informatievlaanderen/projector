@@ -39,7 +39,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             });
         }
 
-        private async Task<IEnumerable<ProjectionResponse>> CreateProjectionResponses(IEnumerable<RegisteredConnectedProjection> registeredConnectedProjections, CancellationToken cancellationToken)
+        private async Task<IEnumerable<ProjectionResponse>> CreateProjectionResponses(
+            IEnumerable<RegisteredConnectedProjection> registeredConnectedProjections,
+            CancellationToken cancellationToken)
         {
             var projectionResponses = new List<ProjectionResponse>();
 

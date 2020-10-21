@@ -52,7 +52,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         bool Exists(string name);
 
         /// <summary>
-        /// Get the projection state.
+        /// Get the projection states.
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>

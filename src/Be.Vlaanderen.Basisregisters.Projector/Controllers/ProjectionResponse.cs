@@ -3,6 +3,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     using System;
     using System.Collections.Generic;
     using ConnectedProjections;
+    using Microsoft.AspNetCore.Http;
     using ProjectionHandling.Runner.ProjectionStates;
 
     public class ProjectionResponseList
@@ -18,9 +19,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             Projections = projections;
             Links = new List<HateoasLink>
             {
-                new HateoasLink(new Uri($"{baseUri}/projections"), "self", "GET"),
-                new HateoasLink(new Uri($"{baseUri}/projections/start/all"), "projections", "POST"),
-                new HateoasLink(new Uri($"{baseUri}/projections/stop/all"), "projections", "POST")
+                new HateoasLink(new Uri($"{baseUri}/projections"), "self", HttpMethods.Get),
+                new HateoasLink(new Uri($"{baseUri}/projections/start/all"), "projections", HttpMethods.Post),
+                new HateoasLink(new Uri($"{baseUri}/projections/stop/all"), "projections", HttpMethods.Post)
             };
         }
     }
@@ -45,8 +46,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 
             Links = new List<HateoasLink>
             {
-                new HateoasLink(new Uri($"{baseUri}/projections/start/{ProjectionName}"), "projections", "POST"),
-                new HateoasLink(new Uri($"{baseUri}/projections/stop/{ProjectionName}"), "projections", "POST"),
+                new HateoasLink(new Uri($"{baseUri}/projections/start/{ProjectionName}"), "projections", HttpMethods.Post),
+                new HateoasLink(new Uri($"{baseUri}/projections/stop/{ProjectionName}"), "projections", HttpMethods.Post),
             };
         }
 
