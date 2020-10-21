@@ -1,5 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
+    using System;
     using System.Collections.Generic;
     using ConnectedProjections;
     using ProjectionHandling.Runner.ProjectionStates;
@@ -8,10 +9,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     {
         public IEnumerable<ProjectionResponse> Projections { get; set; }
         public long StreamPosition { get; set; }
+        public List<HateoasLink> Links { get; set; }
 
-        public ProjectionResponseList(IEnumerable<ProjectionResponse> projections)
+        public ProjectionResponseList(
+            IEnumerable<ProjectionResponse> projections,
+            string baseUri)
         {
             Projections = projections;
+            Links = new List<HateoasLink>
+            {
+                new HateoasLink(new Uri($"{baseUri}/projections"), "self", "GET"),
+                new HateoasLink(new Uri($"{baseUri}/projections/start/all"), "projections", "POST"),
+                new HateoasLink(new Uri($"{baseUri}/projections/stop/all"), "projections", "POST")
+            };
         }
     }
 
@@ -21,13 +31,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         public ProjectionState ProjectionState { get; set; }
         public long CurrentPosition { get; set; }
         public string ErrorMessage { get; set; }
+        public List<HateoasLink> Links { get; set; }
 
-        public ProjectionResponse(RegisteredConnectedProjection projection, ProjectionStateItem? projectionState)
+        public ProjectionResponse(
+            RegisteredConnectedProjection projection,
+            ProjectionStateItem? projectionState,
+            string baseUri)
         {
             ProjectionName = projection.Name;
             ProjectionState = MapProjectionState(projection.State, !string.IsNullOrEmpty(projectionState?.ErrorMessage));
             CurrentPosition = projectionState?.Position ?? -1;
             ErrorMessage = projectionState?.ErrorMessage ?? string.Empty;
+
+            Links = new List<HateoasLink>
+            {
+                new HateoasLink(new Uri($"{baseUri}/projections/start/{ProjectionName}"), "projections", "POST"),
+                new HateoasLink(new Uri($"{baseUri}/projections/stop/{ProjectionName}"), "projections", "POST"),
+            };
         }
 
         private ProjectionState MapProjectionState(ConnectedProjectionState projectionState, bool hasErrorMessage)
