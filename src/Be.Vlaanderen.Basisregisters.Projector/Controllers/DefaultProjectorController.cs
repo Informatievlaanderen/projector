@@ -5,31 +5,25 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using ConnectedProjections;
-    using Dapper;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Data.SqlClient;
+    using SqlStreamStore;
 
     public abstract partial class DefaultProjectorController : ControllerBase
     {
         private readonly IConnectedProjectionsManager _projectionManager;
-        private readonly string _eventsSchema;
-        private readonly string _eventsConnectionString;
         private readonly string _baseUri;
 
         protected DefaultProjectorController(
             IConnectedProjectionsManager connectedProjectionsManager,
-            string eventsSchema,
-            string eventsConnectionString,
             string baseUri)
         {
             _projectionManager = connectedProjectionsManager;
-            _eventsSchema = eventsSchema;
-            _eventsConnectionString = eventsConnectionString;
             _baseUri = baseUri;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(
+            [FromServices] IStreamStore streamStore,
             CancellationToken cancellationToken)
         {
             var registeredConnectedProjections = _projectionManager
@@ -37,25 +31,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 .ToList();
 
             var responses = await CreateProjectionResponses(registeredConnectedProjections, cancellationToken);
-            var streamPosition = await GetStreamPosition(cancellationToken);
+            var streamPosition = await streamStore.ReadHeadPosition(cancellationToken);
 
             return Ok(new ProjectionResponseList(responses, _baseUri)
             {
                 StreamPosition = streamPosition
             });
-        }
-
-        private async Task<long> GetStreamPosition(CancellationToken cancellationToken)
-        {
-            var streamPosition = -1L;
-
-            using (var connection = new SqlConnection(_eventsConnectionString))
-            {
-                streamPosition =
-                    await connection.ExecuteScalarAsync<long>($"SELECT MAX([Position]) FROM [{_eventsSchema}].[Messages]", cancellationToken);
-            }
-
-            return streamPosition;
         }
 
         private async Task<IEnumerable<ProjectionResponse>> CreateProjectionResponses(IEnumerable<RegisteredConnectedProjection> registeredConnectedProjections, CancellationToken cancellationToken)
