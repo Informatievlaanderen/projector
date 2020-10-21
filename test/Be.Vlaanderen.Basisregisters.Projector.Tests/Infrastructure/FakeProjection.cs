@@ -46,6 +46,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
 
         public Task<long> GetLastSavedPosition(CancellationToken cancellationToken)
             => throw new NotImplementedException($"{nameof(FakeProjection)}.{nameof(GetLastSavedPosition)}");
+
+        public Task SetErrorMessage(Exception exception, CancellationToken cancellationToken)
+            => throw new NotImplementedException($"{nameof(FakeProjection)}.{nameof(SetErrorMessage)}");
+
+        public Task ClearErrorMessage(CancellationToken cancellationToken)
+            => throw new NotImplementedException($"{nameof(FakeProjection)}.{nameof(ClearErrorMessage)}");
     }
 
     public class FakeProjectionContext : RunnerDbContext<FakeProjectionContext>

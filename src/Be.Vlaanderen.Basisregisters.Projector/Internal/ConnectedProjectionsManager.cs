@@ -46,7 +46,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public async Task Start(CancellationToken cancellationToken)
         {
             foreach (var projection in _registeredProjections.Projections)
+            {
+                await projection.ClearErrorMessage(cancellationToken);
                 await projection.UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
+            }
 
             _commandBus.Queue<StartAll>();
         }
@@ -58,9 +61,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             if (!_registeredProjections.Exists(projectionName))
                 return; // throw new ArgumentException("Invalid projection name.", nameof(projectionName));
 
-            await _registeredProjections
-                .GetProjection(projectionName)
-                .UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
+            var projection = _registeredProjections.GetProjection(projectionName);
+
+            await projection.UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
+            await projection.ClearErrorMessage(cancellationToken);
 
             _commandBus.Queue(new Start(projectionName));
         }
@@ -70,7 +74,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             foreach (var projection in _registeredProjections.Projections)
             {
                 if (await projection.ShouldResume(cancellationToken))
+                {
+                    await projection.ClearErrorMessage(cancellationToken);
                     _commandBus.Queue(new Start(projection.Name));
+                }
             }
         }
 
