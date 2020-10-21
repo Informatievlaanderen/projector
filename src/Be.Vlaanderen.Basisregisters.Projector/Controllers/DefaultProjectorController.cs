@@ -31,18 +31,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         {
             var registeredConnectedProjections = _projectionManager
                 .GetRegisteredProjections()
-                .Select(x => new ProjectionResponse(x))
                 .ToList();
 
-            await UpdateWithProjectionState(registeredConnectedProjections, cancellationToken);
+            var responses = await CreateProjectionResponses(registeredConnectedProjections, cancellationToken);
             var streamPosition = await GetStreamPosition(cancellationToken);
 
-            var projectionsList = new ProjectionResponseList(registeredConnectedProjections)
+            return Ok(new ProjectionResponseList(responses)
             {
                 StreamPosition = streamPosition
-            };
-
-            return Ok(projectionsList);
+            });
         }
 
         private async Task<long> GetStreamPosition(CancellationToken cancellationToken)
@@ -58,21 +55,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             return streamPosition;
         }
 
-        private async Task UpdateWithProjectionState(List<ProjectionResponse> registeredConnectedProjections, CancellationToken cancellationToken)
+        private async Task<IEnumerable<ProjectionResponse>> CreateProjectionResponses(IEnumerable<RegisteredConnectedProjection> registeredConnectedProjections, CancellationToken cancellationToken)
         {
-            var projectionStates = await _projectionManager.GetProjectionStates(cancellationToken);
-            foreach (var projectionState in projectionStates)
-            {
-                var projection = registeredConnectedProjections.SingleOrDefault(x => x.ProjectionName == projectionState.Name);
-                if (projection != null)
-                {
-                    projection.CurrentPosition = projection.CurrentPosition;
-                    projection.ErrorMessage = projection.ErrorMessage;
+            var projectionResponses = new List<ProjectionResponse>();
 
-                    if (projection.ProjectionState == ProjectionState.Stopped && !string.IsNullOrEmpty(projection.ErrorMessage))
-                        projection.ProjectionState = ProjectionState.Crashed;
-                }
+            var projectionStates = await _projectionManager.GetProjectionStates(cancellationToken);
+            foreach (var connectedProjection in registeredConnectedProjections)
+            {
+                var projectionState = projectionStates.SingleOrDefault(x => x.Name == connectedProjection.Name);
+                projectionResponses.Add(new ProjectionResponse(connectedProjection, projectionState));
             }
+
+            return projectionResponses;
         }
 
         [HttpPost("start/all")]
