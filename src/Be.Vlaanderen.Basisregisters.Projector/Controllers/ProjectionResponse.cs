@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
     using System.Collections.Generic;
     using ConnectedProjections;
+    using ProjectionHandling.Runner.ProjectionStates;
 
     public class ProjectionResponseList
     {
@@ -21,19 +22,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         public long CurrentPosition { get; set; }
         public string ErrorMessage { get; set; }
 
-        public ProjectionResponse(RegisteredConnectedProjection projection)
+        public ProjectionResponse(RegisteredConnectedProjection projection, ProjectionStateItem? projectionState)
         {
             ProjectionName = projection.Name;
-            ProjectionState = MapProjectionState(projection.State);
-            CurrentPosition = -1;
+            ProjectionState = MapProjectionState(projection.State, !string.IsNullOrEmpty(projectionState?.ErrorMessage));
+            CurrentPosition = projectionState?.Position ?? -1;
+            ErrorMessage = projectionState?.ErrorMessage ?? string.Empty;
         }
 
-        private ProjectionState MapProjectionState(ConnectedProjectionState projectionState)
+        private ProjectionState MapProjectionState(ConnectedProjectionState projectionState, bool hasErrorMessage)
         {
             return projectionState switch
             {
+                ConnectedProjectionState.Stopped => hasErrorMessage ? ProjectionState.Crashed : ProjectionState.Stopped,
                 ConnectedProjectionState.CatchingUp => ProjectionState.CatchingUp,
-                ConnectedProjectionState.Stopped => ProjectionState.Stopped,
                 ConnectedProjectionState.Subscribed => ProjectionState.Subscribed,
                 _ => ProjectionState.Subscribed
             };
