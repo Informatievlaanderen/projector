@@ -83,7 +83,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         {
                             case ProcessMessageAction.Skip:
                                 continue;
-                                
+
                             case ProcessMessageAction.HandleGap:
                                 await streamGapStrategy.HandleMessage(
                                     message,
@@ -92,11 +92,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                                     RunnerName,
                                     completeMessageInProcess);
                                 break;
-                                
+
                             case ProcessMessageAction.Process:
                                 await ProcessMessage(message, completeMessageInProcess);
                                 break;
-                                
+
                             default:
                                 throw new NotImplementedException($"No handle defined for {processAction}");
                         }
@@ -113,6 +113,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 catch (TaskCanceledException) { }
                 catch (Exception exception)
                 {
+                    await context.SetErrorMessage(RunnerName, exception, cancellationToken);
                     throw new ConnectedProjectionMessageHandlingException(exception, RunnerName, processedState);
                 }
             }

@@ -8,7 +8,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     using Dapper;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Data.SqlClient;
-    using Microsoft.Extensions.Configuration;
 
     public abstract partial class DefaultProjectorController : ControllerBase
     {
@@ -28,7 +27,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Get(
-            [FromServices] IConfiguration configuration,
             CancellationToken cancellationToken)
         {
             var registeredConnectedProjections = _projectionManager

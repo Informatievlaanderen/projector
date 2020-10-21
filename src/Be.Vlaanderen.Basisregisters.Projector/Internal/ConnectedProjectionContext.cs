@@ -41,11 +41,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ConnectedProjectionName projectionName,
             CancellationToken ct);
 
+        Task SetErrorMessage(
+            ConnectedProjectionName projectionName,
+            Exception exception,
+            CancellationToken cancellationToken);
+
+        Task ClearErrorMessage(
+            ConnectedProjectionName projectionName,
+            CancellationToken cancellationToken);
+
         Task SaveChangesAsync(CancellationToken cancellationToken);
     }
 
     internal class ConnectedProjectionContext<TContext> : IConnectedProjectionContext<TContext>
-        where TContext: RunnerDbContext<TContext>
+        where TContext : RunnerDbContext<TContext>
     {
         private readonly TContext _context;
         private readonly EnvelopeFactory _envelopeFactory;
@@ -107,9 +116,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public async Task<long> GetLastSavedPosition(
             ConnectedProjectionName projectionName,
             CancellationToken cancellationToken)
+            => (await _context.ProjectionStates.SingleOrDefaultAsync(x => x.Name == projectionName, cancellationToken))?.Position ?? -1L;
+
+        public async Task SetErrorMessage(
+            ConnectedProjectionName projectionName,
+            Exception exception,
+            CancellationToken cancellationToken)
         {
-            return (await _context.ProjectionStates.SingleOrDefaultAsync(x => x.Name == projectionName, cancellationToken))?.Position ?? -1L;
+            var message = exception.Message + "Stacktrace: " + exception.StackTrace;
+            await _context.SetErrorMessage(projectionName, message, cancellationToken);
         }
+
+        public async Task ClearErrorMessage(
+            ConnectedProjectionName projectionName,
+            CancellationToken cancellationToken)
+            => await _context.SetErrorMessage(projectionName, null, cancellationToken);
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)
             => await _context.SaveChangesAsync(cancellationToken);

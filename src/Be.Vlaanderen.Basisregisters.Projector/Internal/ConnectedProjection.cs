@@ -17,6 +17,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken);
         Task<bool> ShouldResume(CancellationToken cancellationToken);
         Task<long> GetLastSavedPosition(CancellationToken cancellationToken);
+        Task SetErrorMessage(Exception exception, CancellationToken cancellationToken);
+        Task ClearErrorMessage(CancellationToken cancellationToken);
     }
 
     internal interface IConnectedProjection<TContext>
@@ -74,6 +76,24 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             await using (var ctx = ContextFactory().Value)
             {
                 return await ctx.GetLastSavedPosition(Name, cancellationToken);
+            }
+        }
+
+        public async Task SetErrorMessage(Exception exception, CancellationToken cancellationToken)
+        {
+            await using (var ctx = ContextFactory().Value)
+            {
+                await ctx.SetErrorMessage(Name, exception, cancellationToken);
+                await ctx.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        public async Task ClearErrorMessage(CancellationToken cancellationToken)
+        {
+            await using (var ctx = ContextFactory().Value)
+            {
+                await ctx.ClearErrorMessage(Name, cancellationToken);
+                await ctx.SaveChangesAsync(cancellationToken);
             }
         }
 
