@@ -17,15 +17,34 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     public class ProjectionResponse
     {
         public ConnectedProjectionName ProjectionName { get; set; }
-        public ConnectedProjectionState ProjectionState { get; set; }
+        public ProjectionState ProjectionState { get; set; }
         public long CurrentPosition { get; set; }
         public string ErrorMessage { get; set; }
 
         public ProjectionResponse(RegisteredConnectedProjection projection)
         {
             ProjectionName = projection.Name;
-            ProjectionState = projection.State;
+            ProjectionState = MapProjectionState(projection.State);
             CurrentPosition = -1;
         }
+
+        private ProjectionState MapProjectionState(ConnectedProjectionState projectionState)
+        {
+            return projectionState switch
+            {
+                ConnectedProjectionState.CatchingUp => ProjectionState.CatchingUp,
+                ConnectedProjectionState.Stopped => ProjectionState.Stopped,
+                ConnectedProjectionState.Subscribed => ProjectionState.Subscribed,
+                _ => ProjectionState.Subscribed
+            };
+        }
+    }
+
+    public enum ProjectionState
+    {
+        Subscribed,
+        CatchingUp,
+        Stopped,
+        Crashed,
     }
 }
