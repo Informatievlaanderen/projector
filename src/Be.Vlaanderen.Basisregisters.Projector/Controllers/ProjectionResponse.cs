@@ -19,6 +19,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         public ConnectedProjectionName ProjectionName { get; set; }
         public ConnectedProjectionState ProjectionState { get; set; }
         public long CurrentPosition { get; set; }
+        public string ErrorMessage { get; set; }
 
         public ProjectionResponse(RegisteredConnectedProjection projection)
         {

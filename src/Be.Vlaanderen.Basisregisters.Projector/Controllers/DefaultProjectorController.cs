@@ -34,7 +34,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 .Select(x => new ProjectionResponse(x))
                 .ToList();
 
-            await UpdatePositions(registeredConnectedProjections, cancellationToken);
+            await UpdateWithProjectionState(registeredConnectedProjections, cancellationToken);
             var streamPosition = await GetStreamPosition(cancellationToken);
 
             var projectionsList = new ProjectionResponseList(registeredConnectedProjections)
@@ -58,13 +58,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             return streamPosition;
         }
 
-        private async Task UpdatePositions(List<ProjectionResponse> registeredConnectedProjections, CancellationToken cancellationToken)
+        private async Task UpdateWithProjectionState(List<ProjectionResponse> registeredConnectedProjections, CancellationToken cancellationToken)
         {
-            var positions = await _projectionManager.GetLastSavedPositionsByName(cancellationToken);
-            foreach (var position in positions)
+            var projectionStates = await _projectionManager.GetProjectionStates(cancellationToken);
+            foreach (var projectionState in projectionStates)
             {
-                var projection = registeredConnectedProjections.Single(x => x.ProjectionName == position.Key);
-                projection.CurrentPosition = position.Value;
+                var projection = registeredConnectedProjections.SingleOrDefault(x => x.ProjectionName == projectionState.Name);
+                if (projection != null)
+                {
+                    projection.CurrentPosition = projection.CurrentPosition;
+                    projection.ErrorMessage = projection.ErrorMessage;
+                }
             }
         }
 

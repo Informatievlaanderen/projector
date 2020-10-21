@@ -9,6 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Connector;
     using ProjectionHandling.Runner;
+    using ProjectionHandling.Runner.ProjectionStates;
 
     internal interface IConnectedProjection
     {
@@ -16,7 +17,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         dynamic Instance { get; }
         Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken);
         Task<bool> ShouldResume(CancellationToken cancellationToken);
-        Task<long> GetLastSavedPosition(CancellationToken cancellationToken);
+        Task<ProjectionStateItem?> GetProjectionState(CancellationToken cancellationToken);
         Task SetErrorMessage(Exception exception, CancellationToken cancellationToken);
         Task ClearErrorMessage(CancellationToken cancellationToken);
     }
@@ -71,12 +72,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             }
         }
 
-        public async Task<long> GetLastSavedPosition(CancellationToken cancellationToken)
+        public async Task<ProjectionStateItem?> GetProjectionState(CancellationToken cancellationToken)
         {
             await using (var ctx = ContextFactory().Value)
-            {
-                return await ctx.GetLastSavedPosition(Name, cancellationToken);
-            }
+                return await ctx.GetProjectionState(Name, cancellationToken);
         }
 
         public async Task SetErrorMessage(Exception exception, CancellationToken cancellationToken)
