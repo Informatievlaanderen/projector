@@ -68,6 +68,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 {
                     projection.CurrentPosition = projection.CurrentPosition;
                     projection.ErrorMessage = projection.ErrorMessage;
+
+                    if (projection.ProjectionState == ProjectionState.Stopped && !string.IsNullOrEmpty(projection.ErrorMessage))
+                        projection.ProjectionState = ProjectionState.Crashed;
                 }
             }
         }
