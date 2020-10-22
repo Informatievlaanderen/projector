@@ -1,3 +1,23 @@
+# [6.1.0](https://github.com/informatievlaanderen/projector/compare/v6.0.0...v6.1.0) (2020-10-22)
+
+
+### Bug Fixes
+
+* correct issues after rebase ([1a9cc2e](https://github.com/informatievlaanderen/projector/commit/1a9cc2e8ad5d49e62dc6830becd4be09f6c3dfb2))
+* resolve some review remarks ([61cca96](https://github.com/informatievlaanderen/projector/commit/61cca9651bb97b39a0f19af3bcde4bbb2bbbe3db))
+* set default position to -1 for projection state in api ([1a27f9d](https://github.com/informatievlaanderen/projector/commit/1a27f9d2f6b0c56981c4fcab6214b619a9b6ac72))
+
+
+### Features
+
+* add error message to api + refactor getting the state GRAR-1302 ([2a67c3b](https://github.com/informatievlaanderen/projector/commit/2a67c3b4f0d68713a1c40bf154a32bebd0444378))
+* add HATEOAS links to projections GRAR-1304 ([40d86d8](https://github.com/informatievlaanderen/projector/commit/40d86d8d6782a5b7789acc57b6e16cd24e0a9966))
+* add last projection position to projection api status GRAR-1300 ([62587f6](https://github.com/informatievlaanderen/projector/commit/62587f6c684e4f6bf668b81e313d9259982ca752))
+* add projection state 'Crashed' to status api GRAR-1303 ([2f18e82](https://github.com/informatievlaanderen/projector/commit/2f18e8265371efa4ddde2bad8741923fbe881718))
+* add stream position to projection status api GRAR-1301 ([c8ba6f7](https://github.com/informatievlaanderen/projector/commit/c8ba6f72317b1cf91352a3544e4b07bf79658e92))
+* set and clear errormessage for the projection GRAR-1302 ([b5f086e](https://github.com/informatievlaanderen/projector/commit/b5f086efc87765e20da3131e68149eea57047c64))
+* update packages projection handling ([38c5b12](https://github.com/informatievlaanderen/projector/commit/38c5b126a8e2da4f575540ce9c40d50681cbb04e))
+
 # [6.0.0](https://github.com/informatievlaanderen/projector/compare/v5.4.5...v6.0.0) (2020-10-20)
 
 
