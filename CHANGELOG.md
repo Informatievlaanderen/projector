@@ -1,3 +1,10 @@
+## [6.1.1](https://github.com/informatievlaanderen/projector/compare/v6.1.0...v6.1.1) (2020-10-23)
+
+
+### Bug Fixes
+
+* projector module uses now IConfiguration instead of Root ([ca4ff22](https://github.com/informatievlaanderen/projector/commit/ca4ff22e81cb363889dd6b6416dc67123a33b980))
+
 # [6.1.0](https://github.com/informatievlaanderen/projector/compare/v6.0.0...v6.1.0) (2020-10-22)
 
 
