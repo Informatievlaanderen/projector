@@ -14,9 +14,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
 
     public class ProjectorModule : Module
     {
-        private readonly IConfigurationRoot _configuration;
+        private readonly IConfiguration _configuration;
 
-        public ProjectorModule(IConfigurationRoot configuration)
+        public ProjectorModule(IConfiguration configuration)
             => _configuration = configuration;
 
         protected override void Load(ContainerBuilder builder)
