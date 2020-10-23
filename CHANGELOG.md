@@ -1,3 +1,10 @@
+## [6.1.2](https://github.com/informatievlaanderen/projector/compare/v6.1.1...v6.1.2) (2020-10-23)
+
+
+### Bug Fixes
+
+* remove ending slash of base url ([514d2e8](https://github.com/informatievlaanderen/projector/commit/514d2e8ed58fe0254905d2b6ed1c1121060be781))
+
 ## [6.1.1](https://github.com/informatievlaanderen/projector/compare/v6.1.0...v6.1.1) (2020-10-23)
 
 
