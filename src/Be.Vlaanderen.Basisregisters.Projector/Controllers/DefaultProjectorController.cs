@@ -18,7 +18,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             string baseUri)
         {
             _projectionManager = connectedProjectionsManager;
-            _baseUri = baseUri;
+            _baseUri = baseUri.TrimEnd('/');
         }
 
         [HttpGet]
