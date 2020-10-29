@@ -4,12 +4,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac.Features.OwnedInstances;
+    using Commands;
+    using Configuration;
     using ConnectedProjections;
     using Extensions;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Connector;
     using ProjectionHandling.Runner;
     using ProjectionHandling.Runner.ProjectionStates;
+    using SqlStreamStore;
+    using StreamGapStrategies;
 
     internal interface IConnectedProjection
     {
@@ -28,24 +32,29 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         ConnectedProjectionName Name { get; }
         Func<Owned<IConnectedProjectionContext<TContext>>> ContextFactory { get; }
         IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
+        ConnectedProjectionCatchUp<TContext> CreateCatchUp(
+            IReadonlyStreamStore streamStore,
+            IConnectedProjectionsCommandBus commandBus,
+            IStreamGapStrategy catchUpStreamGapStrategy,
+            ILogger logger);
     }
 
     internal class ConnectedProjection<TConnectedProjection, TContext> : IConnectedProjection<TContext>, IConnectedProjection
         where TConnectedProjection : ConnectedProjection<TContext>
         where TContext : RunnerDbContext<TContext>
     {
+        private readonly IConnectedProjectionSettings _settings;
         public ConnectedProjectionName Name => new ConnectedProjectionName(typeof(TConnectedProjection));
-        public ConnectedProjectionSettings Settings { get; }
         public Func<Owned<IConnectedProjectionContext<TContext>>> ContextFactory { get; }
         public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
         public ConnectedProjection(
             Func<Owned<IConnectedProjectionContext<TContext>>> contextFactory,
             TConnectedProjection connectedProjection,
-            ConnectedProjectionSettings settings,
+            IConnectedProjectionSettings settings,
             ILoggerFactory loggerFactory)
         {
-            Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
 
             ConnectedProjectionMessageHandler = new ConnectedProjectionMessageHandler<TContext>(
@@ -53,8 +62,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 connectedProjection?.Handlers ?? throw new ArgumentNullException(nameof(connectedProjection)),
                 ContextFactory,
                 loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory))
-            ).WithPolicy(Settings.RetryPolicy);
+            ).WithPolicy(_settings.RetryPolicy);
         }
+
+        public ConnectedProjectionCatchUp<TContext> CreateCatchUp(
+            IReadonlyStreamStore streamStore,
+            IConnectedProjectionsCommandBus commandBus,
+            IStreamGapStrategy catchUpStreamGapStrategy,
+            ILogger logger)
+            => new ConnectedProjectionCatchUp<TContext>(
+                this,
+                _settings,
+                streamStore,
+                commandBus,
+                catchUpStreamGapStrategy,
+                logger);
 
         public async Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken)
         {

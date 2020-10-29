@@ -1,8 +1,9 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 {
     using System;
+    using Internal.Configuration;
 
-    public class ConnectedProjectionSettings
+    public class ConnectedProjectionSettings : IConnectedProjectionSettings
     {
         internal ConnectedProjectionSettings(int catchUpPageSize, MessageHandlingRetryPolicy retryPolicy)
         {
