@@ -22,7 +22,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         {
             builder.RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(
                 () => new TrackHandledEventsProjection(MessageWasHandled),
-                RetryPolicy.NoRetries
+                ConnectedProjectionSettings.Default
             );
         }
 

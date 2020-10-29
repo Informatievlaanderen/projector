@@ -23,9 +23,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
             builder
                 .RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(
                     () => new TrackHandledEventsProjection(MessageWasHandled),
-                    RetryPolicy.NoRetries
+                    ConnectedProjectionSettings.Default
                 )
-                .RegisterProjections<SlowProjections, ProjectionContext>(RetryPolicy.NoRetries);
+                .RegisterProjections<SlowProjections, ProjectionContext>(ConnectedProjectionSettings.Default);
         }
 
         protected override Task Setup()

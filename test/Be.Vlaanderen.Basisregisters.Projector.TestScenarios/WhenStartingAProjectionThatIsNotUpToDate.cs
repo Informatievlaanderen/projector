@@ -1,6 +1,5 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 {
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac;
@@ -9,7 +8,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using FluentAssertions;
     using Infrastructure;
     using SqlStreamStore;
-    using SqlStreamStore.Streams;
     using TestProjections.Messages;
     using TestProjections.Projections;
     using Xunit;
@@ -23,7 +21,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         {
             builder.RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(
                 () => new TrackHandledEventsProjection(MessageWasHandled),
-                RetryPolicy.NoRetries
+                ConnectedProjectionSettings.Default
             );
         }
 
