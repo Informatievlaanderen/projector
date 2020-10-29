@@ -35,15 +35,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         where TContext : RunnerDbContext<TContext>
     {
         public ConnectedProjectionName Name => new ConnectedProjectionName(typeof(TConnectedProjection));
+        public ConnectedProjectionSettings Settings { get; }
         public Func<Owned<IConnectedProjectionContext<TContext>>> ContextFactory { get; }
         public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
         public ConnectedProjection(
             Func<Owned<IConnectedProjectionContext<TContext>>> contextFactory,
             TConnectedProjection connectedProjection,
-            MessageHandlingRetryPolicy retryPolicy,
+            ConnectedProjectionSettings settings,
             ILoggerFactory loggerFactory)
         {
+            Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
 
             ConnectedProjectionMessageHandler = new ConnectedProjectionMessageHandler<TContext>(
@@ -51,7 +53,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 connectedProjection?.Handlers ?? throw new ArgumentNullException(nameof(connectedProjection)),
                 ContextFactory,
                 loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory))
-            ).WithPolicy(retryPolicy);
+            ).WithPolicy(Settings.RetryPolicy);
         }
 
         public async Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken)
