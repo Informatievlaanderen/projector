@@ -58,13 +58,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 ConnectedProjectionState.Stopped => hasErrorMessage ? ProjectionState.Crashed : ProjectionState.Stopped,
                 ConnectedProjectionState.CatchingUp => ProjectionState.CatchingUp,
                 ConnectedProjectionState.Subscribed => ProjectionState.Subscribed,
-                _ => ProjectionState.Subscribed
+                _ => ProjectionState.Unknown
             };
         }
     }
 
     public enum ProjectionState
     {
+        Unknown,
         Subscribed,
         CatchingUp,
         Stopped,
