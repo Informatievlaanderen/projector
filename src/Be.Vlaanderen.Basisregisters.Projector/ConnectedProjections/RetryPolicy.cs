@@ -1,28 +1,31 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 {
     using System;
-    using Internal.Extensions;
     using Internal.RetryPolicies;
     using Microsoft.Extensions.Configuration;
 
+    [Obsolete("Use ConnectedProjectionSettings to define MessageHandlingRetryPolicy", true)]
     public static class RetryPolicy {
 
+        [Obsolete("Use ConnectedProjectionSettings to define MessageHandlingRetryPolicy", true)]
         public static MessageHandlingRetryPolicy NoRetries => new NoRetries();
 
+        [Obsolete("Use ConnectedProjectionSettings to define MessageHandlingRetryPolicy", true)]
         public static MessageHandlingRetryPolicy LinearBackoff<TException>(
             int numberOfRetries,
             TimeSpan initialWait)
             where TException : Exception
-            => new LinearBackOff<TException>(numberOfRetries, initialWait);
+            => ConnectedProjectionSettings
+                .Configure(configurator => configurator.ConfigureLinearBackoff<TException>(numberOfRetries, initialWait))
+                .RetryPolicy;
 
+        [Obsolete("Use ConnectedProjectionSettings to define MessageHandlingRetryPolicy", true)]
         public static MessageHandlingRetryPolicy ConfigureLinearBackoff<TException>(
             IConfiguration configuration,
             string policyName)
             where TException : Exception
-            => configuration.Configure(
-                LinearBackoff<TException>,
-                config => config.GetValue<int>("NumberOfRetries"),
-                config => TimeSpan.FromSeconds(config.GetValue<int>("DelayInSeconds")),
-                policyName);
+            => ConnectedProjectionSettings
+                .Configure(configurator => configurator.ConfigureLinearBackoff<TException>(configuration, policyName))
+                .RetryPolicy;
     }
 }
