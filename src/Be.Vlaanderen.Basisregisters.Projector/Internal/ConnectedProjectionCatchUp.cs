@@ -6,6 +6,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     using Commands;
     using Commands.CatchUp;
     using Commands.Subscription;
+    using Configuration;
     using Exceptions;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
@@ -16,21 +17,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     internal class ConnectedProjectionCatchUp<TContext> where TContext : RunnerDbContext<TContext>
     {
         private readonly IConnectedProjection<TContext> _projection;
+        private readonly IConnectedProjectionCatchUpSettings _settings;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly IStreamGapStrategy _catchUpStreamGapStrategy;
         private readonly ILogger _logger;
         private readonly IReadonlyStreamStore _streamStore;
 
-        public int CatchUpPageSize { get; set; } = 1000;
-
         public ConnectedProjectionCatchUp(
             IConnectedProjection<TContext> projection,
+            IConnectedProjectionCatchUpSettings settings,
             IReadonlyStreamStore streamStore,
             IConnectedProjectionsCommandBus commandBus,
             IStreamGapStrategy catchUpStreamGapStrategy,
             ILogger logger)
         {
             _projection = projection ?? throw new ArgumentNullException(nameof(projection));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
             _catchUpStreamGapStrategy = catchUpStreamGapStrategy ?? throw new ArgumentNullException(nameof(catchUpStreamGapStrategy));
@@ -48,7 +51,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                 _logger.LogDebug(
                     "Started catch up with paging (CatchUpPageSize: {CatchUpPageSize})",
-                    CatchUpPageSize);
+                    _settings.CatchUpPageSize);
 
                 long? position;
                 using (var context = _projection.ContextFactory())
@@ -162,7 +165,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             return await streamStore.ReadAllForwards(
                 position + 1 ?? Position.Start,
-                CatchUpPageSize,
+                _settings.CatchUpPageSize,
                 prefetchJsonData: true,
                 cancellationToken);
         }

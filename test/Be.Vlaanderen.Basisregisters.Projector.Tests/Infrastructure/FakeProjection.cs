@@ -7,10 +7,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     using Autofac.Features.OwnedInstances;
     using ConnectedProjections;
     using Internal;
+    using Internal.Commands;
     using Internal.StreamGapStrategies;
+    using Microsoft.Extensions.Logging;
     using Moq;
     using ProjectionHandling.Runner;
     using ProjectionHandling.Runner.ProjectionStates;
+    using SqlStreamStore;
     using SqlStreamStore.Streams;
 
     internal class FakeProjection : IConnectedProjection<FakeProjectionContext>, IConnectedProjection
@@ -18,6 +21,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
         public ConnectedProjectionName Name { get; }
         public dynamic Instance => this;
         public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
+
+        public ConnectedProjectionCatchUp<FakeProjectionContext> CreateCatchUp(
+            IReadonlyStreamStore streamStore,
+            IConnectedProjectionsCommandBus commandBus,
+            IStreamGapStrategy catchUpStreamGapStrategy,
+            ILogger logger)
+            => throw new NotImplementedException();
+
         public Func<Owned<IConnectedProjectionContext<FakeProjectionContext>>> ContextFactory { get; }
 
         public FakeProjection(

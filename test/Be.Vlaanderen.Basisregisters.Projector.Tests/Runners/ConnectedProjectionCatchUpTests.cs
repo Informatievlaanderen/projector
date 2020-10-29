@@ -76,6 +76,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
 
             var sut = new ConnectedProjectionCatchUp<FakeProjectionContext>(
                 _projection,
+                ConnectedProjectionSettings.Default,
                 streamMock.Object,
                 _commandBusMock.Object,
                 gapStrategyMock.Object,
