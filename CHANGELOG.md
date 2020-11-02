@@ -1,3 +1,24 @@
+# [7.0.0](https://github.com/informatievlaanderen/projector/compare/v6.1.2...v7.0.0) (2020-11-02)
+
+
+### Bug Fixes
+
+* change noretry to default settings ([e9199c7](https://github.com/informatievlaanderen/projector/commit/e9199c79de515945e672ae8d43d0ba8b473bdec1))
+* return unknow status for default mapping ([dcbc09f](https://github.com/informatievlaanderen/projector/commit/dcbc09f1f080b0dbe0bb8c50fbe4587957c46a1a))
+* use catch up page size from settings ([4d96d5e](https://github.com/informatievlaanderen/projector/commit/4d96d5e200757ec55fef1444b58324e95a4a1d8b))
+
+
+### Features
+
+* introduce projection specific settings ([ead9df0](https://github.com/informatievlaanderen/projector/commit/ead9df08c3e31adf5e938c58cab31b8e37d7cc4b))
+
+
+### BREAKING CHANGES
+
+* CHANGES
+introduce the ConnectedProjectionSettings
+no longer except registrations without projection settings
+
 ## [6.1.2](https://github.com/informatievlaanderen/projector/compare/v6.1.1...v6.1.2) (2020-10-23)
 
 
