@@ -1,3 +1,10 @@
+## [7.0.1](https://github.com/informatievlaanderen/projector/compare/v7.0.0...v7.0.1) (2020-11-18)
+
+
+### Bug Fixes
+
+* remove set-env usage in gh-actions ([8c82ae9](https://github.com/informatievlaanderen/projector/commit/8c82ae956a37438d9cc111874872327c80c2b827))
+
 # [7.0.0](https://github.com/informatievlaanderen/projector/compare/v6.1.2...v7.0.0) (2020-11-02)
 
 
