@@ -1,3 +1,10 @@
+## [7.0.2](https://github.com/informatievlaanderen/projector/compare/v7.0.1...v7.0.2) (2020-11-19)
+
+
+### Bug Fixes
+
+* update eventhandling reference ([0219497](https://github.com/informatievlaanderen/projector/commit/02194976363145f484f81a4e4ef1cd43c7a09c48))
+
 ## [7.0.1](https://github.com/informatievlaanderen/projector/compare/v7.0.0...v7.0.1) (2020-11-18)
 
 
