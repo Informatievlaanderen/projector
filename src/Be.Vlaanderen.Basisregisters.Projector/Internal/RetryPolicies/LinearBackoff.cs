@@ -10,7 +10,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
     using SqlStreamStore.Streams;
     using StreamGapStrategies;
 
-    internal class LinearBackOff<TException> : MessageHandlingRetryPolicy where TException : Exception
+    public class LinearBackOff<TException> : MessageHandlingRetryPolicy where TException : Exception
     {
         private readonly int _numberOfRetries;
         private readonly TimeSpan _delay;
