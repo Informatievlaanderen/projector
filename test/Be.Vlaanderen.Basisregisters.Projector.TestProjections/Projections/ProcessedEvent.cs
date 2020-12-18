@@ -20,7 +20,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
         {
             b.ToTable(TableName, Schemas.Projections)
                 .HasKey(x => x.Id)
-                .ForSqlServerIsClustered(false);
+                .IsClustered(false);
 
             b.Property(x => x.Event);
             b.Property(x => x.Position);
