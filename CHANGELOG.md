@@ -1,3 +1,10 @@
+## [7.0.3](https://github.com/informatievlaanderen/projector/compare/v7.0.2...v7.0.3) (2020-12-19)
+
+
+### Bug Fixes
+
+* move to 5.0.1 ([a98fc91](https://github.com/informatievlaanderen/projector/commit/a98fc91a18f294152049c3960bcf6102eeb8c60d))
+
 ## [7.0.2](https://github.com/informatievlaanderen/projector/compare/v7.0.1...v7.0.2) (2020-11-19)
 
 
