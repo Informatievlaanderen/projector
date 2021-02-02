@@ -8,36 +8,36 @@ nuget Autofac.Extensions.DependencyInjection 7.1.0
 nuget System.Threading.Tasks.Dataflow 5.0.0
 nuget System.Threading.Tasks.Extensions 4.5.4
 
-nuget Microsoft.EntityFrameworkCore.Design 5.0.1
+nuget Microsoft.EntityFrameworkCore.Design 5.0.2
 
 nuget Dapper 2.0.78
-nuget Microsoft.Data.SqlClient 2.1.0
+nuget Microsoft.Data.SqlClient 2.1.1
 
 nuget Polly 7.2.1
 
 // BASE REGISTRIES STUFF
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 5.0.1
+nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 5.0.2
 
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 7.0.4
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 7.0.4
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 7.0.4
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 7.0.4
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 7.0.6
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 7.0.6
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 7.0.6
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 7.0.6
 
-nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 5.0.12
+nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 5.0.13
 
-nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 3.0.3
+nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 3.0.4
 
 // TEST STUFF
 nuget Microsoft.NET.Test.Sdk 16.8.3
-nuget Microsoft.EntityFrameworkCore.InMemory 5.0.1
+nuget Microsoft.EntityFrameworkCore.InMemory 5.0.2
 nuget xunit 2.4.1
 nuget xunit.runner.visualstudio 2.4.3
 nuget xunit.categories 2.0.4
-nuget AutoFixture 4.14.0
-nuget AutoFixture.Idioms 4.14.0
-nuget AutoFixture.Xunit2 4.14.0
+nuget AutoFixture 4.15.0
+nuget AutoFixture.Idioms 4.15.0
+nuget AutoFixture.Xunit2 4.15.0
 nuget FluentAssertions 5.10.3
-nuget Moq 4.15.2
+nuget Moq 4.16.0
 
 // BUILD STUFF
 nuget SourceLink.Embed.AllSourceFiles 2.8.3 copy_local: true
