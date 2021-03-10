@@ -4,19 +4,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     {
         public ConnectedProjectionIdentifier Id { get; }
         public ConnectedProjectionState State { get; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public ConnectedProjectionInfo Info { get; set; }
 
         public RegisteredConnectedProjection(
             ConnectedProjectionIdentifier id,
             ConnectedProjectionState state,
-            string name,
-            string description)
+            ConnectedProjectionInfo info)
         {
             Id = id;
             State = state;
-            Name = name;
-            Description = description;
+            Info = info;
         }
     }
 }

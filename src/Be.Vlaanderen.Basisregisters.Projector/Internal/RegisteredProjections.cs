@@ -46,8 +46,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 new RegisteredConnectedProjection(
                     projection.Id,
                     GetState(projection.Id),
-                    projection.GetName(),
-                    projection.GetDescription()));
+                    projection.Info));
 
         private ConnectedProjectionState GetState(ConnectedProjectionIdentifier projection)
         {

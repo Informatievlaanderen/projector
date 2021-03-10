@@ -45,8 +45,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 new RegisteredConnectedProjection(
                     _fixture.Create<ConnectedProjectionIdentifier>(),
                     ConnectedProjectionState.CatchingUp,
-                    _fixture.Create<string>(),
-                    _fixture.Create<string>())
+                    new ConnectedProjectionInfo(string.Empty, string.Empty))
             };
 
             _registeredProjections

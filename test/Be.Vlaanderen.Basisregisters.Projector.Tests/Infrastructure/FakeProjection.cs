@@ -19,6 +19,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     internal class FakeProjection : IConnectedProjection<FakeProjectionContext>, IConnectedProjection
     {
         public ConnectedProjectionIdentifier Id { get; }
+        public ConnectedProjectionInfo Info { get; }
         public dynamic Instance => this;
         public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
@@ -37,6 +38,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
             IConnectedProjectionContext<FakeProjectionContext> context)
         {
             Id = new ConnectedProjectionIdentifier($"{GetType().FullName}-{id}");
+            Info = new ConnectedProjectionInfo(string.Empty, string.Empty);
 
             var messageHandlerMock = new Mock<IConnectedProjectionMessageHandler>();
             messageHandlerMock

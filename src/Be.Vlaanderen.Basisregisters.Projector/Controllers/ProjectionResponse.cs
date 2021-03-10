@@ -42,8 +42,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             string baseUri)
         {
             Id = projection.Id;
-            Name = projection.Name;
-            Description = projection.Description;
+            Name = projection.Info.Name;
+            Description = projection.Info.Description;
             State = MapProjectionState(projection.State, !string.IsNullOrEmpty(projectionState?.ErrorMessage));
             CurrentPosition = projectionState?.Position ?? -1;
             ErrorMessage = projectionState?.ErrorMessage ?? string.Empty;

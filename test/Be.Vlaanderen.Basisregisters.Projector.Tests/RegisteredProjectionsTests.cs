@@ -104,8 +104,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                     new RegisteredConnectedProjection(
                         connectedProjection.Id,
                         _fixture.Create<ConnectedProjectionState>(),
-                        string.Empty,
-                        string.Empty))
+                        new ConnectedProjectionInfo(string.Empty, string.Empty)))
                 .ToReadOnlyList();
 
             _sut.IsCatchingUp = id => expectedStates
@@ -122,56 +121,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Should()
                 .HaveSameCount(_registeredProjections)
                 .And.BeEquivalentTo(expectedStates);
-        }
-
-        [Fact]
-        public void When_requesting_the_projection_states_then_states_contain_the_name_from_the_name_attribute()
-        {
-            var randomProjection = _fixture.Create<IEnumerable<IConnectedProjection>>().First();
-            var projectionWithAttributes = new ProjectionWithAttributes();
-            var sut = new RegisteredProjections(new []{ randomProjection , projectionWithAttributes });
-
-            sut
-                .GetStates()
-                .Single(projection => projection.Id == randomProjection.Id)
-                .Name.Should().BeEmpty();
-
-            sut
-                .GetStates()
-                .Single(projection => projection.Id == projectionWithAttributes.Id)
-                .Name.Should().Be(TestProjectionName);
-        }
-
-        [Fact]
-        public void When_requesting_the_projection_states_then_states_contain_the_description_from_the_description_attribute()
-        {
-            var randomProjection = _fixture.Create<IEnumerable<IConnectedProjection>>().First();
-            var projectionWithAttributes = new ProjectionWithAttributes();
-            var sut = new RegisteredProjections(new[] { randomProjection, projectionWithAttributes });
-
-            sut
-                .GetStates()
-                .Single(projection => projection.Id == randomProjection.Id)
-                .Description.Should().BeEmpty();
-
-            sut
-                .GetStates()
-                .Single(projection => projection.Id == projectionWithAttributes.Id)
-                .Description.Should().Be(TestProjectionDescription);
-        }
-
-        private const string TestProjectionName = "Test.Projection";
-        private const string TestProjectionDescription = "This projection generate NotImplementedExctions!";
-
-        [ConnectedProjectionName(TestProjectionName)]
-        [ConnectedProjectionDescription(TestProjectionDescription)]
-        private class ProjectionWithAttributes : FakeProjection
-        {
-            public ProjectionWithAttributes()
-                : base(
-                    "projection-with-attributes",
-                    (messages, strategy, arg3, arg4) => throw new NotImplementedException(),
-                    new Mock<IConnectedProjectionContext<FakeProjectionContext>>().Object) { }
         }
     }
 }
