@@ -15,7 +15,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
     public class WhenStartingAProjectionThatIsUpToDate : Scenario
     {
-        private ConnectedProjectionName _projection;
+        private ConnectedProjectionIdentifier _projection;
         private AutoResetEvent _waitForProjection;
 
         protected override void ContainerSetup(ContainerBuilder builder)
@@ -29,7 +29,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         protected override async Task Setup()
         {
             _waitForProjection = new AutoResetEvent(false);
-            _projection = new ConnectedProjectionName(typeof(TrackHandledEventsProjection));
+            _projection = new ConnectedProjectionIdentifier(typeof(TrackHandledEventsProjection));
             await PushToStream(Fixture.Create<SomethingHappened>());
             await ProjectionManager.Start(CancellationToken.None);
             _waitForProjection.WaitOne();
@@ -55,7 +55,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name == _projection
+                    connectedProjection.Id == _projection
                     && connectedProjection.State == ConnectedProjectionState.Stopped);
         }
 
@@ -69,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(connectedProjection =>
-                    connectedProjection.Name == _projection
+                    connectedProjection.Id == _projection
                     && connectedProjection.State == ConnectedProjectionState.Subscribed);
         }
 

@@ -28,7 +28,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 
     public class ProjectionResponse
     {
-        public ConnectedProjectionName ProjectionName { get; set; }
+        public ConnectedProjectionIdentifier ProjectionId { get; set; }
         public ProjectionState ProjectionState { get; set; }
         public long CurrentPosition { get; set; }
         public string ErrorMessage { get; set; }
@@ -39,19 +39,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             ProjectionStateItem? projectionState,
             string baseUri)
         {
-            ProjectionName = projection.Name;
+            ProjectionId = projection.Id;
             ProjectionState = MapProjectionState(projection.State, !string.IsNullOrEmpty(projectionState?.ErrorMessage));
             CurrentPosition = projectionState?.Position ?? -1;
             ErrorMessage = projectionState?.ErrorMessage ?? string.Empty;
 
             Links = new List<HateoasLink>
             {
-                new HateoasLink(new Uri($"{baseUri}/projections/start/{ProjectionName}"), "projections", HttpMethods.Post),
-                new HateoasLink(new Uri($"{baseUri}/projections/stop/{ProjectionName}"), "projections", HttpMethods.Post),
+                new HateoasLink(new Uri($"{baseUri}/projections/start/{ProjectionId}"), "projections", HttpMethods.Post),
+                new HateoasLink(new Uri($"{baseUri}/projections/stop/{ProjectionId}"), "projections", HttpMethods.Post),
             };
         }
 
-        private ProjectionState MapProjectionState(ConnectedProjectionState projectionState, bool hasErrorMessage)
+        private static ProjectionState MapProjectionState(ConnectedProjectionState projectionState, bool hasErrorMessage)
         {
             return projectionState switch
             {

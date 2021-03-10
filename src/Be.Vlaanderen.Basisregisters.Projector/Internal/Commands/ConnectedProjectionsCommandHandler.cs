@@ -32,8 +32,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCommandHandler>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        public async Task Handle(ConnectedProjectionCommand command)
+        public async Task Handle(ConnectedProjectionCommand? command)
         {
+            if (command == null)
+            {
+                _logger.LogWarning("Skipping null Command");
+                return;
+            }
+
             switch (command)
             {
                 case SubscriptionCommand subscriptionCommand:
@@ -49,7 +55,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
             switch (command)
             {
                 case Start start:
-                    _commandBus.Queue(new Subscribe(start.ProjectionName));
+                    _commandBus.Queue(new Subscribe(start.Projection));
                     break;
 
                 case StartAll _:
@@ -57,8 +63,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
                     break;
 
                 case Stop stop:
-                    _commandBus.Queue(new StopCatchUp(stop.ProjectionName));
-                    _commandBus.Queue(new Unsubscribe(stop.ProjectionName));
+                    _commandBus.Queue(new StopCatchUp(stop.Projection));
+                    _commandBus.Queue(new Unsubscribe(stop.Projection));
                     break;
 
                 case StopAll _:
@@ -68,7 +74,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 
                 case Restart restart:
                     await Task.Delay(restart.After);
-                    _commandBus.Queue(new Start(restart.ProjectionName));
+                    _commandBus.Queue(new Start(restart.Projection));
                     break;
 
                 default:

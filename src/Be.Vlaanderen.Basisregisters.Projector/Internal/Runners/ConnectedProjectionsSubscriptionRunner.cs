@@ -23,7 +23,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
     internal class ConnectedProjectionsSubscriptionRunner : IConnectedProjectionsSubscriptionRunner
     {
-        private readonly Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>> _handlers;
+        private readonly Dictionary<ConnectedProjectionIdentifier, Func<StreamMessage, CancellationToken, Task>> _handlers;
         private readonly IRegisteredProjections _registeredProjections;
         private readonly IConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
         private readonly IConnectedProjectionsCommandBus _commandBus;
@@ -39,7 +39,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             IStreamGapStrategy subscriptionStreamGapStrategy,
             ILoggerFactory loggerFactory)
         {
-            _handlers = new Dictionary<ConnectedProjectionName, Func<StreamMessage, CancellationToken, Task>>();
+            _handlers = new Dictionary<ConnectedProjectionIdentifier, Func<StreamMessage, CancellationToken, Task>>();
 
             _registeredProjections = registeredProjections ?? throw new ArgumentNullException(nameof(registeredProjections));
             _registeredProjections.IsSubscribed = HasSubscription;
@@ -50,12 +50,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        internal bool HasSubscription(ConnectedProjectionName projectionName)
-            => projectionName != null && _handlers.ContainsKey(projectionName);
+        internal bool HasSubscription(ConnectedProjectionIdentifier projection)
+            => projection != null && _handlers.ContainsKey(projection);
 
-        public async Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand command)
+        public async Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand? command)
             where TSubscriptionCommand : SubscriptionCommand
         {
+            if (command == null)
+            {
+                _logger.LogWarning("Subscription: Skipping null Command");
+                return;
+            }
+
             _logger.LogTrace("Subscription: Handling {Command}", command);
             switch (command)
             {
@@ -108,7 +114,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             if (_streamsStoreSubscription.StreamIsRunning)
             {
                 var projection = _registeredProjections
-                    .GetProjection(subscribe?.ProjectionName)
+                    .GetProjection(subscribe.Projection)
                     ?.Instance;
 
                 await Subscribe(projection);
@@ -124,8 +130,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         {
             if (_streamsStoreSubscription.StreamIsRunning)
             {
-                foreach (var projectionName in _registeredProjections.Names)
-                    await Handle(new Subscribe(projectionName));
+                foreach (var projection in _registeredProjections.Identifiers)
+                    await Handle(new Subscribe(projection));
             }
             else
             {
@@ -136,11 +142,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private void Handle(Unsubscribe unsubscribe)
         {
-            if (unsubscribe?.ProjectionName == null)
-                return;
-
-            _logger.LogInformation("Unsubscribing {Projection}", unsubscribe.ProjectionName);
-            _handlers.Remove(unsubscribe.ProjectionName);
+            _logger.LogInformation("Unsubscribing {Projection}", unsubscribe.Projection);
+            _handlers.Remove(unsubscribe.Projection);
             if (_handlers.Count == 0)
                 _lastProcessedMessagePosition = null;
         }
@@ -155,23 +158,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private async Task Subscribe<TContext>(IConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if (projection == null || _registeredProjections.IsProjecting(projection.Name))
+            if (projection == null || _registeredProjections.IsProjecting(projection.Id))
                 return;
 
             long? projectionPosition;
             using (var context = projection.ContextFactory())
-                projectionPosition = await context.Value.GetProjectionPosition(projection.Name, CancellationToken.None);
+                projectionPosition = await context.Value.GetProjectionPosition(projection.Id, CancellationToken.None);
 
             if ((projectionPosition ?? -1) >= (_lastProcessedMessagePosition ?? -1))
             {
                 _logger.LogInformation(
-                    "Subscribing {ProjectionName} at {ProjectionPosition} to AllStream at {StreamPosition}",
-                    projection.Name,
+                    "Subscribing {Projection} at {ProjectionPosition} to AllStream at {StreamPosition}",
+                    projection.Id,
                     projectionPosition,
                     _lastProcessedMessagePosition);
 
                 _handlers.Add(
-                    projection.Name,
+                    projection.Id,
                     async (message, token) => await projection
                         .ConnectedProjectionMessageHandler
                         .HandleAsync(
@@ -180,7 +183,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                             token));
             }
             else
-                _commandBus.Queue(new StartCatchUp(projection.Name));
+                _commandBus.Queue(new StartCatchUp(projection.Id));
         }
 
         private async Task Handle(ProcessStreamEvent processStreamEvent)
@@ -196,18 +199,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 processStreamEvent.Message.Position);
 
 
-            foreach (var projectionName in _handlers.Keys.ToReadOnlyList())
+            foreach (var projection in _handlers.Keys.ToReadOnlyList())
             {
                 try
                 {
-                    await _handlers[projectionName](processStreamEvent.Message, processStreamEvent.CancellationToken);
+                    await _handlers[projection](processStreamEvent.Message, processStreamEvent.CancellationToken);
                 }
                 catch (ConnectedProjectionMessageHandlingException e)
                     when (e.InnerException is StreamGapDetectedException)
                 {
-                    var projectionInError = e.RunnerName;
+                    var projectionInError = e.Projection;
                     _logger.LogWarning(
-                        "Detected gap in the message stream for subscribed projection. Unsubscribed projection {RunnerName} and queued restart in {restartDelay} seconds.",
+                        "Detected gap in the message stream for subscribed projection. Unsubscribed projection {Projection} and queued restart in {RestartDelay} seconds.",
                         projectionInError,
                         _subscriptionStreamGapStrategy.Settings.RetryDelayInSeconds);
 
@@ -220,10 +223,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 }
                 catch (ConnectedProjectionMessageHandlingException messageHandlingException)
                 {
-                    var projectionInError = messageHandlingException.RunnerName;
+                    var projectionInError = messageHandlingException.Projection;
                     _logger.LogError(
                         messageHandlingException.InnerException,
-                        "Handle message Subscription {RunnerName} failed because an exception was thrown when handling the message at {Position}.",
+                        "Handle message Subscription {Projection} failed because an exception was thrown when handling the message at {Position}.",
                         projectionInError,
                         messageHandlingException.RunnerPosition);
 
@@ -241,9 +244,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
                     _logger.LogInformation(
                         "Removing faulty subscribed projection {Projection}",
-                        projectionName);
+                        projection);
 
-                    _handlers.Remove(projectionName);
+                    _handlers.Remove(projection);
                 }
             }
         }

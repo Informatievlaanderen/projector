@@ -13,7 +13,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             StreamMessage message,
             IProcessedStreamState state,
             Func<StreamMessage, CancellationToken, Task> executeProjectMessage,
-            ConnectedProjectionName runnerName,
+            ConnectedProjectionIdentifier projection,
             CancellationToken cancellationToken);
 
         IStreamGapStrategyConfigurationSettings Settings { get; }

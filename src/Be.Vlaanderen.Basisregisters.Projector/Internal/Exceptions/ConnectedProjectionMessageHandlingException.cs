@@ -5,13 +5,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Exceptions
 
     internal class ConnectedProjectionMessageHandlingException : Exception
     {
-        public ConnectedProjectionName RunnerName { get; }
+        public ConnectedProjectionIdentifier Projection { get; }
         public long RunnerPosition { get; }
 
-        public ConnectedProjectionMessageHandlingException(Exception exception, ConnectedProjectionName runnerName, IProcessedStreamState? processedState)
+        public ConnectedProjectionMessageHandlingException(Exception exception, ConnectedProjectionIdentifier projection, IProcessedStreamState? processedState)
             : base($"Error occured handling message at position: {processedState?.LastProcessedMessagePosition}", exception)
         {
-            RunnerName = runnerName;
+            Projection = projection;
             RunnerPosition = processedState?.LastProcessedMessagePosition ?? -1L;
         }
     }

@@ -20,7 +20,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public RegisteredProjectionsTests()
         {
             _fixture = new Fixture()
-                .CustomizeConnectedProjectionNames()
+                .CustomizeConnectedProjectionIdentifiers()
                 .CustomizeRegisteredProjectionsCollection();
 
             _registeredProjections = _fixture.Create<IEnumerable<IConnectedProjection>>();
@@ -28,11 +28,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
         [Fact]
-        public void When_requesting_the_names_then_the_names_of_all_registered_projections_are_returned()
+        public void When_requesting_the_ids_then_the_ids_of_all_registered_projections_are_returned()
         {
-            var expectedNames = _registeredProjections.Select(projection => projection.Name);
+            var expectedNames = _registeredProjections.Select(projection => projection.Id);
 
-            _sut.Names
+            _sut.Identifiers
                 .Should()
                 .BeEquivalentTo(expectedNames);
         }
@@ -40,9 +40,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_checking_if_an_existing_projection_exists_returns_true()
         {
-            var projectionName = _registeredProjections.ToArray()[1].Name;
+            var projection = _registeredProjections.ToArray()[1].Id;
 
-            _sut.Exists(projectionName)
+            _sut.Exists(projection)
                 .Should()
                 .Be(true);
         }
@@ -50,7 +50,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_checking_if_a_non_existing_projection_exists_returns_false()
         {
-            _sut.Exists(new ConnectedProjectionName(_fixture.Create<string>()))
+            _sut.Exists(new ConnectedProjectionIdentifier(_fixture.Create<string>()))
                 .Should()
                 .Be(false);
         }
@@ -58,7 +58,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_checking_if_a_projection_that_is_catching_up_is_projecting_then_true_is_returned()
         {
-            var projection = _fixture.Create<ConnectedProjectionName>();
+            var projection = _fixture.Create<ConnectedProjectionIdentifier>();
             _sut.IsCatchingUp = name => name == projection;
 
             _sut.IsProjecting(projection)
@@ -69,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_checking_if_a_projection_that_is_subscribed_is_projecting_then_true_is_returned()
         {
-            var projection = _fixture.Create<ConnectedProjectionName>();
+            var projection = _fixture.Create<ConnectedProjectionIdentifier>();
             _sut.IsSubscribed = name => name == projection;
 
             _sut.IsProjecting(projection)
@@ -80,7 +80,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         [Fact]
         public void When_checking_if_a_projection_that_is_not_catching_up_or_subscribed_is_projecting_then_true_is_returned()
         {
-            var projection = _fixture.Create<ConnectedProjectionName>();
+            var projection = _fixture.Create<ConnectedProjectionIdentifier>();
             _sut.IsCatchingUp = name => name != projection;
             _sut.IsSubscribed = name => name != projection;
 
@@ -96,17 +96,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Shuffle()
                 .Select(connectedProjection =>
                     new RegisteredConnectedProjection(
-                        connectedProjection.Name,
+                        connectedProjection.Id,
                         _fixture.Create<ConnectedProjectionState>()))
                 .ToReadOnlyList();
 
             _sut.IsCatchingUp = name => expectedStates
                 .Where(projection => projection.State == ConnectedProjectionState.CatchingUp)
-                .Select(projection => projection.Name)
+                .Select(projection => projection.Id)
                 .Contains(name);
             _sut.IsSubscribed = name => expectedStates
                 .Where(projection => projection.State == ConnectedProjectionState.Subscribed)
-                .Select(projection => projection.Name)
+                .Select(projection => projection.Id)
                 .Contains(name);
 
             _sut.GetStates()

@@ -1,11 +1,12 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands.Subscription
 {
+    using System;
     using ConnectedProjections;
 
     internal class Unsubscribe : SubscriptionCommand
     {
-        public ConnectedProjectionName ProjectionName { get; }
+        public ConnectedProjectionIdentifier Projection { get; }
 
-        public Unsubscribe(ConnectedProjectionName projectionName) => ProjectionName = projectionName;
+        public Unsubscribe(ConnectedProjectionIdentifier projection) => Projection = projection ?? throw new ArgumentNullException(nameof(projection));
     }
 }

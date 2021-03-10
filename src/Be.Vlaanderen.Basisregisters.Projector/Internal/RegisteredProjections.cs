@@ -8,56 +8,51 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal interface IRegisteredProjections
     {
-        Func<ConnectedProjectionName, bool> IsCatchingUp { set; }
-        Func<ConnectedProjectionName, bool> IsSubscribed { set; }
-        IEnumerable<ConnectedProjectionName> Names { get; }
         IEnumerable<IConnectedProjection> Projections { get; }
-        bool Exists(ConnectedProjectionName name);
-        IConnectedProjection GetProjection(ConnectedProjectionName projectionName);
-        bool IsProjecting(ConnectedProjectionName projectionName);
+        IEnumerable<ConnectedProjectionIdentifier> Identifiers { get; }
+        Func<ConnectedProjectionIdentifier, bool> IsCatchingUp { set; }
+        Func<ConnectedProjectionIdentifier, bool> IsSubscribed { set; }
+        bool Exists(ConnectedProjectionIdentifier projection);
+        IConnectedProjection? GetProjection(ConnectedProjectionIdentifier projection);
+        bool IsProjecting(ConnectedProjectionIdentifier projection);
         IEnumerable<RegisteredConnectedProjection> GetStates();
     }
 
     internal class RegisteredProjections : IRegisteredProjections
     {
-        private readonly IEnumerable<IConnectedProjection> _registeredProjections;
+        public IEnumerable<IConnectedProjection> Projections { get; }
 
-        public Func<ConnectedProjectionName, bool> IsCatchingUp { private get; set; }
+        public IEnumerable<ConnectedProjectionIdentifier> Identifiers
+            => Projections.Select(projection => projection.Id);
 
-        public Func<ConnectedProjectionName, bool> IsSubscribed { private get; set; }
+        public Func<ConnectedProjectionIdentifier, bool>? IsCatchingUp { private get; set; }
+
+        public Func<ConnectedProjectionIdentifier, bool>? IsSubscribed { private get; set; }
 
         public RegisteredProjections(IEnumerable<IConnectedProjection> registeredProjections)
-            => _registeredProjections = registeredProjections?.RemoveNullReferences() ?? throw new ArgumentNullException(nameof(registeredProjections));
+            => Projections = registeredProjections?.RemoveNullReferences() ?? throw new ArgumentNullException(nameof(registeredProjections));
+        
+        public bool Exists(ConnectedProjectionIdentifier projection)
+            => Projections.Any(registeredProjection => registeredProjection.Id == projection);
 
-        public IEnumerable<ConnectedProjectionName> Names =>
-            _registeredProjections
-                .Select(projection => projection.Name);
+        public IConnectedProjection? GetProjection(ConnectedProjectionIdentifier projection) =>
+            Projections.SingleOrDefault(registeredProjection => registeredProjection.Id == projection);
 
-        public IEnumerable<IConnectedProjection> Projections => _registeredProjections;
+        public bool IsProjecting(ConnectedProjectionIdentifier projection)
+            => GetState(projection) != ConnectedProjectionState.Stopped;
 
-        public bool Exists(ConnectedProjectionName name) =>
-            _registeredProjections != null &&
-            _registeredProjections
-                .Any(projection => projection.Name == name);
-
-        public IConnectedProjection GetProjection(ConnectedProjectionName projectionName) =>
-            _registeredProjections?.SingleOrDefault(projection => projection.Name == projectionName);
-
-        public bool IsProjecting(ConnectedProjectionName projectionName) =>
-            GetState(projectionName) != ConnectedProjectionState.Stopped;
-
-        public IEnumerable<RegisteredConnectedProjection> GetStates() => _registeredProjections
+        public IEnumerable<RegisteredConnectedProjection> GetStates() => Projections
             .Select(projection =>
                 new RegisteredConnectedProjection(
-                    projection.Name,
-                    GetState(projection.Name)));
+                    projection.Id,
+                    GetState(projection.Id)));
 
-        private ConnectedProjectionState GetState(ConnectedProjectionName projectionName)
+        private ConnectedProjectionState GetState(ConnectedProjectionIdentifier projection)
         {
-            if (IsCatchingUp?.Invoke(projectionName) ?? false)
+            if (IsCatchingUp?.Invoke(projection) ?? false)
                 return ConnectedProjectionState.CatchingUp;
 
-            if (IsSubscribed?.Invoke(projectionName) ?? false)
+            if (IsSubscribed?.Invoke(projection) ?? false)
                 return ConnectedProjectionState.Subscribed;
 
             return ConnectedProjectionState.Stopped;

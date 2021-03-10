@@ -29,15 +29,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
 
         internal override IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler)
         {
-            var projectionName = messageHandler.RunnerName;
+            var projection = messageHandler.Projection;
             var messageHandlerLogger = messageHandler.Logger;
 
             void LogRetryAttempt(Exception exception, TimeSpan waitTime, int attempt, Context context)
                 => messageHandlerLogger
                 .LogWarning(
                     exception,
-                    "Projection '{ProjectionName}' failed. Retry attempt #{RetryAttempt} in {RetryTime} seconds.",
-                    projectionName,
+                    "Projection '{Projection}' failed. Retry attempt #{RetryAttempt} in {RetryTime} seconds.",
+                    projection,
                     attempt,
                     waitTime.TotalSeconds);
 
@@ -52,7 +52,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
                     .ExecuteAsync(async ct => await messageHandler.HandleAsync(messages, streamGapStrategy, ct), token);
             }
 
-            return new RetryMessageHandler(ExecuteWithRetryPolicy, projectionName, messageHandlerLogger);
+            return new RetryMessageHandler(ExecuteWithRetryPolicy, projection, messageHandlerLogger);
         }
     }
 }

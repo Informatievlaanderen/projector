@@ -15,7 +15,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
     public class WhenStartingAProjectionForAnEmptyStream : Scenario
     {
-        private ConnectedProjectionName _projection;
+        private ConnectedProjectionIdentifier _projection;
         private AutoResetEvent _projectionStarted;
 
         protected override void ContainerSetup(ContainerBuilder builder)
@@ -30,14 +30,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
         protected override Task Setup()
         {
-            _projection = new ConnectedProjectionName(typeof(TrackHandledEventsProjection));
+            _projection = new ConnectedProjectionIdentifier(typeof(TrackHandledEventsProjection));
             _projectionStarted = new AutoResetEvent(false);
             return Task.CompletedTask;
         }
 
-        private ConnectedProjectionState GetStateFor(ConnectedProjectionName projection) => ProjectionManager
+        private ConnectedProjectionState GetStateFor(ConnectedProjectionIdentifier projection) => ProjectionManager
             .GetRegisteredProjections()
-            .Single(connectedProjection => connectedProjection.Name == projection)
+            .Single(connectedProjection => connectedProjection.Id == projection)
             .State;
 
         private void MessageWasHandled() => _projectionStarted?.Set();

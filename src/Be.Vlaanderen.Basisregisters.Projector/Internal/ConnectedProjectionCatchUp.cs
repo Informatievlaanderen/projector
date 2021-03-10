@@ -55,14 +55,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                 long? position;
                 using (var context = _projection.ContextFactory())
-                    position = await context.Value.GetProjectionPosition(_projection.Name, cancellationToken);
+                    position = await context.Value.GetProjectionPosition(_projection.Id, cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
                     return;
 
                 _logger.LogInformation(
-                    "Start catch up {RunnerName} at {Position}",
-                    _projection.Name,
+                    "Start catch up {Projection} at {Position}",
+                    _projection.Id,
                     position);
 
                 var page = await ReadPages(_streamStore, position, cancellationToken);
@@ -97,27 +97,27 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             catch (ConnectedProjectionMessageHandlingException e)
                 when(e.InnerException is StreamGapDetectedException)
             {
-                var projectionName = e.RunnerName;
+                var projection = e.Projection;
                 var delayInSeconds = _catchUpStreamGapStrategy.Settings.RetryDelayInSeconds;
 
                 _logger.LogWarning(
-                    "Detected gap in the message stream for catching up projection. Aborted projection {_projectionName} and queued restart in {_gapStrategySettings.RetryDelayInSeconds} seconds.",
-                    projectionName,
+                    "Detected gap in the message stream for catching up projection. Aborted projection {Projection} and queued restart in {GapStrategySettings.RetryDelayInSeconds} seconds.",
+                    projection,
                     delayInSeconds);
                     
                 CatchUpStopped(CatchUpStopReason.Aborted);
 
                 _commandBus.Queue(
                     new Restart(
-                        projectionName,
+                        projection,
                         TimeSpan.FromSeconds(delayInSeconds)));
             }
             catch (ConnectedProjectionMessageHandlingException exception)
             {
                 _logger.LogError(
                     exception.InnerException,
-                    "{RunnerName} catching up failed because an exception was thrown when handling the message at {Position}.",
-                    exception.RunnerName,
+                    "{Projection} catching up failed because an exception was thrown when handling the message at {Position}.",
+                    exception.Projection,
                     exception.RunnerPosition);
                     
                 CatchUpStopped(CatchUpStopReason.Error);
@@ -126,8 +126,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             {
                 _logger.LogError(
                     exception,
-                    "{RunnerName} catching up failed because an exception was thrown",
-                    _projection.Name);
+                    "{Projection} catching up failed because an exception was thrown",
+                    _projection.Id);
                     
                 CatchUpStopped(CatchUpStopReason.Error);
             }
@@ -135,27 +135,27 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         private void CatchUpStopped(CatchUpStopReason reason)
         {
-            var message = "Stopping catch up {RunnerName}: {Reason}";
+            var message = "Stopping catch up {Projection}: {Reason}";
             
             switch (reason)
             {
                 case CatchUpStopReason.Error:
-                    _logger.LogError(message, _projection.Name, reason);
+                    _logger.LogError(message, _projection.Id, reason);
                     break;
                     
                 case CatchUpStopReason.Aborted:
-                    _logger.LogWarning(message, _projection.Name, reason);
+                    _logger.LogWarning(message, _projection.Id, reason);
                     break;
                     
                 default:
-                    _logger.LogInformation(message, _projection.Name, reason);
+                    _logger.LogInformation(message, _projection.Id, reason);
                     break;
             }
 
-            _commandBus.Queue(new RemoveStoppedCatchUp(_projection.Name));
+            _commandBus.Queue(new RemoveStoppedCatchUp(_projection.Id));
             
             if (CatchUpStopReason.Finished == reason)
-                _commandBus.Queue(new Subscribe(_projection.Name));
+                _commandBus.Queue(new Subscribe(_projection.Id));
         }
 
         private async Task<ReadAllPage> ReadPages(

@@ -17,7 +17,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal interface IConnectedProjection
     {
-        ConnectedProjectionName Name { get; }
+        ConnectedProjectionIdentifier Id { get; }
         dynamic Instance { get; }
         Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken);
         Task<bool> ShouldResume(CancellationToken cancellationToken);
@@ -29,7 +29,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     internal interface IConnectedProjection<TContext>
         where TContext : RunnerDbContext<TContext>
     {
-        ConnectedProjectionName Name { get; }
+        ConnectedProjectionIdentifier Id { get; }
         Func<Owned<IConnectedProjectionContext<TContext>>> ContextFactory { get; }
         IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
         ConnectedProjectionCatchUp<TContext> CreateCatchUp(
@@ -44,7 +44,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         where TContext : RunnerDbContext<TContext>
     {
         private readonly IConnectedProjectionSettings _settings;
-        public ConnectedProjectionName Name => new ConnectedProjectionName(typeof(TConnectedProjection));
+        public ConnectedProjectionIdentifier Id => new ConnectedProjectionIdentifier(typeof(TConnectedProjection));
         public Func<Owned<IConnectedProjectionContext<TContext>>> ContextFactory { get; }
         public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
@@ -58,7 +58,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
 
             ConnectedProjectionMessageHandler = new ConnectedProjectionMessageHandler<TContext>(
-                Name,
+                Id,
                 connectedProjection?.Handlers ?? throw new ArgumentNullException(nameof(connectedProjection)),
                 ContextFactory,
                 loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory))
@@ -82,7 +82,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             await using (var ctx = ContextFactory().Value)
             {
-                await ctx.UpdateProjectionDesiredState(Name, userDesiredState, cancellationToken);
+                await ctx.UpdateProjectionDesiredState(Id, userDesiredState, cancellationToken);
                 await ctx.SaveChangesAsync(cancellationToken);
             }
         }
@@ -91,7 +91,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             await using (var ctx = ContextFactory().Value)
             {
-                var state = await ctx.GetProjectionDesiredState(Name, cancellationToken);
+                var state = await ctx.GetProjectionDesiredState(Id, cancellationToken);
                 return state is { } && state == UserDesiredState.Started;
             }
         }
@@ -99,14 +99,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public async Task<ProjectionStateItem?> GetProjectionState(CancellationToken cancellationToken)
         {
             await using (var ctx = ContextFactory().Value)
-                return await ctx.GetProjectionState(Name, cancellationToken);
+                return await ctx.GetProjectionState(Id, cancellationToken);
         }
 
         public async Task SetErrorMessage(Exception exception, CancellationToken cancellationToken)
         {
             await using (var ctx = ContextFactory().Value)
             {
-                await ctx.SetErrorMessage(Name, exception, cancellationToken);
+                await ctx.SetErrorMessage(Id, exception, cancellationToken);
                 await ctx.SaveChangesAsync(cancellationToken);
             }
         }
@@ -115,7 +115,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             await using (var ctx = ContextFactory().Value)
             {
-                await ctx.ClearErrorMessage(Name, cancellationToken);
+                await ctx.ClearErrorMessage(Id, cancellationToken);
                 await ctx.SaveChangesAsync(cancellationToken);
             }
         }

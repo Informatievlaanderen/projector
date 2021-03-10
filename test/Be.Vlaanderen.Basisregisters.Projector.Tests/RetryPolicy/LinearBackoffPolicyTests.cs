@@ -28,10 +28,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         public WhenApplyingALinearBackoffPolicyOnAHandler()
         {
             _fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
             _handlerWithoutPolicy = new MessageHandlerWithExecutionTracking(
-                _fixture.Create<ConnectedProjectionName>(),
+                _fixture.Create<ConnectedProjectionIdentifier>(),
                 new Mock<ILogger>().Object);
 
             var numberOfRetries = _fixture.CreatePositive<int>() + 1;
@@ -51,11 +51,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         }
 
         [Fact]
-        public void ThenProjectionRunnerNameIsTheSameAsTheOriginal()
+        public void ThenProjectionIdIsTheSameAsTheOriginal()
         {
-            _sut.RunnerName
+            _sut.Projection
                 .Should()
-                .BeSameAs(_handlerWithoutPolicy.RunnerName);
+                .BeSameAs(_handlerWithoutPolicy.Projection);
         }
 
         [Fact]
@@ -78,10 +78,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         public WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetry()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
             _handlerWithoutPolicy = new MessageHandlerWithExecutionTracking(
-               fixture.Create<ConnectedProjectionName>(),
+               fixture.Create<ConnectedProjectionIdentifier>(),
                new FakeLoggerFactory().ResolveLoggerMock<MessageHandlerWithExecutionTracking>().AsLogger(),
                new DoNotRetryException());
 
@@ -123,7 +123,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private readonly IConnectedProjectionMessageHandler _sut;
         private readonly IReadOnlyCollection<StreamMessage> _messages;
         private readonly FakeLogger _loggerMock;
-        private readonly ConnectedProjectionName _projectionName;
+        private readonly ConnectedProjectionIdentifier _projection;
         private readonly TimeSpan _initialWait;
         private readonly Times _numberOfExpectedAttempts;
         private readonly Exception[] _exceptionSequence;
@@ -131,14 +131,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         public WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetryAfterRetrying()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
             _exceptionSequence = new Exception[] { new RetryException(), new DoNotRetryException() };
 
             _loggerMock = new FakeLoggerFactory().ResolveLoggerMock<MessageHandlerWithExecutionTracking>();
-            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _projection = fixture.Create<ConnectedProjectionIdentifier>();
             _handlerWithoutPolicy = new MessageHandlerWithExecutionTracking(
-               _projectionName,
+               _projection,
                _loggerMock.AsLogger(),
                _exceptionSequence);
 
@@ -191,7 +191,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
 
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projectionName}' failed. Retry attempt #{attempt.Retry} in {_initialWait.Multiply(attempt.Retry).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{attempt.Retry} in {_initialWait.Multiply(attempt.Retry).TotalSeconds} seconds.",
                     Times.Once);
             }
         }
@@ -204,23 +204,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private readonly IReadOnlyCollection<StreamMessage> _messages;
         private readonly int _numberOfRetries;
         private readonly FakeLogger _loggerMock;
-        private readonly ConnectedProjectionName _projectionName;
+        private readonly ConnectedProjectionIdentifier _projection;
         private readonly TimeSpan _initialWait;
         private readonly Times _numberOfExpectedAttempts;
 
         public WhenMessageHandlerThrowsTheExceptionDefinedInThePolicyMoreThanTheNumberOfRetries()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
             var exceptionSequence = fixture
                 .CreateMany<RetryException>(2, 10)
                 .ToArray<Exception>();
 
             _loggerMock = new FakeLoggerFactory().ResolveLoggerMock<MessageHandlerWithExecutionTracking>();
-            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _projection = fixture.Create<ConnectedProjectionIdentifier>();
             _handlerWithoutPolicy = new MessageHandlerWithExecutionTracking(
-               _projectionName,
+               _projection,
                _loggerMock.AsLogger(),
                exceptionSequence);
 
@@ -270,7 +270,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             {
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projectionName}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds} seconds.",
                     Times.Once);
             }
         }
@@ -282,23 +282,23 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private readonly IReadOnlyCollection<StreamMessage> _messages;
         private readonly int _numberOfRetries;
         private readonly FakeLogger _loggerMock;
-        private readonly ConnectedProjectionName _projectionName;
+        private readonly ConnectedProjectionIdentifier _projection;
         private readonly TimeSpan _initialWait;
         private readonly Times _numberOfExpectedAttempts;
 
         public WhenMessageHandlerThrowsExceptionsDefinedByRetryPolicy()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
             var exceptionSequence = fixture
                 .CreateMany<RetryException>(2, 10)
                 .ToArray<Exception>();
 
             _loggerMock = new FakeLoggerFactory().ResolveLoggerMock<MessageHandlerWithExecutionTracking>();
-            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _projection = fixture.Create<ConnectedProjectionIdentifier>();
             _handlerWithoutPolicy = new MessageHandlerWithExecutionTracking(
-               _projectionName,
+               _projection,
                _loggerMock.AsLogger(),
                exceptionSequence);
 
@@ -327,7 +327,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             {
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projectionName}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds} seconds.",
                     Times.Once);
             }
         }
