@@ -62,6 +62,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_checking_if_a_projection_that_is_catching_up_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionIdentifier>();
+            
             _sut.IsCatchingUp = name => name == projection;
 
             _sut.IsProjecting(projection)
@@ -73,6 +74,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_checking_if_a_projection_that_is_subscribed_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionIdentifier>();
+            
             _sut.IsSubscribed = name => name == projection;
 
             _sut.IsProjecting(projection)
@@ -84,6 +86,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public void When_checking_if_a_projection_that_is_not_catching_up_or_subscribed_is_projecting_then_true_is_returned()
         {
             var projection = _fixture.Create<ConnectedProjectionIdentifier>();
+            
             _sut.IsCatchingUp = name => name != projection;
             _sut.IsSubscribed = name => name != projection;
 
@@ -109,6 +112,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Where(projection => projection.State == ConnectedProjectionState.CatchingUp)
                 .Select(projection => projection.Id)
                 .Contains(id);
+            
             _sut.IsSubscribed = id => expectedStates
                 .Where(projection => projection.State == ConnectedProjectionState.Subscribed)
                 .Select(projection => projection.Id)
@@ -159,7 +163,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         private const string TestProjectionName = "Test.Projection";
         private const string TestProjectionDescription = "This projection generate NotImplementedExctions!";
 
-
         [ConnectedProjectionName(TestProjectionName)]
         [ConnectedProjectionDescription(TestProjectionDescription)]
         private class ProjectionWithAttributes : FakeProjection
@@ -168,9 +171,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 : base(
                     "projection-with-attributes",
                     (messages, strategy, arg3, arg4) => throw new NotImplementedException(),
-                    new Mock<IConnectedProjectionContext<FakeProjectionContext>>().Object)
-            { }
+                    new Mock<IConnectedProjectionContext<FakeProjectionContext>>().Object) { }
         }
-
     }
 }
