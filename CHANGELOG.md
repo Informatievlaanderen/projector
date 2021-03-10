@@ -1,3 +1,16 @@
+# [8.0.0](https://github.com/informatievlaanderen/projector/compare/v7.0.4...v8.0.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* rename projection identifier from Name to Id GRAR-1876 ([618f8e2](https://github.com/informatievlaanderen/projector/commit/618f8e25b2941d53141d255ded55423662c801ce))
+
+
+### BREAKING CHANGES
+
+* CHANGE
+Exception and Response have been modified
+
 ## [7.0.4](https://github.com/informatievlaanderen/projector/compare/v7.0.3...v7.0.4) (2021-02-02)
 
 
