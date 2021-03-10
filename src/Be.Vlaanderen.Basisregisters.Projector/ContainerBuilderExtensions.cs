@@ -12,56 +12,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector
 
     public static class ContainerBuilderExtensions
     {
-        #region Deprecated Projection Registrations (without projection settings)
-        [Obsolete("Use overload with ConnectedProjectionSettings. Default policy: RetryPolicy.NoRetries", true)]
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(this ContainerBuilder builder)
-            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>, new()
-            where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(container => new TConnectedProjection(), ConnectedProjectionSettings.Default);
-
-        [Obsolete("Use overload with ConnectedProjectionSettings. Default policy: RetryPolicy.NoRetries", true)]
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
-            this ContainerBuilder builder,
-            Func<TConnectedProjection> projectionFactory)
-            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
-            where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(container => projectionFactory(), ConnectedProjectionSettings.Default);
-
-        [Obsolete("Use overload with ConnectedProjectionSettings. Default policy: RetryPolicy.NoRetries", true)]
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
-            this ContainerBuilder builder,
-            Func<IComponentContext, TConnectedProjection> projectionFactory)
-            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
-            where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(projectionFactory, ConnectedProjectionSettings.Default);
-
-        [Obsolete("Use overload with ConnectedProjectionSettings", true)]
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
-            this ContainerBuilder builder,
-            MessageHandlingRetryPolicy retryPolicy)
-            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>, new()
-            where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(container => new TConnectedProjection(), ConnectedProjectionSettings.Configure(configurator => configurator.SetPolicy(retryPolicy)));
-
-        [Obsolete("Use overload with ConnectedProjectionSettings", true)]
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
-            this ContainerBuilder builder,
-            Func<TConnectedProjection> projectionFactory,
-            MessageHandlingRetryPolicy retryPolicy)
-            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
-            where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(container => projectionFactory(), ConnectedProjectionSettings.Configure(configurator => configurator.SetPolicy(retryPolicy)));
-
-        [Obsolete("Use overload with ConnectedProjectionSettings", true)]
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
-            this ContainerBuilder builder,
-            Func<IComponentContext, TConnectedProjection> projectionFactory,
-            MessageHandlingRetryPolicy retryPolicy)
-            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
-            where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(projectionFactory, ConnectedProjectionSettings.Configure(configurator => configurator.SetPolicy(retryPolicy).CreateSettings()));
-        #endregion
-		
         public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
             this ContainerBuilder builder,
             ConnectedProjectionSettings settings)
