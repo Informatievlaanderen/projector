@@ -28,8 +28,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 
     public class ProjectionResponse
     {
-        public ConnectedProjectionIdentifier ProjectionId { get; set; }
-        public ProjectionState ProjectionState { get; set; }
+        public ConnectedProjectionIdentifier Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public ProjectionState State { get; set; }
         public long CurrentPosition { get; set; }
         public string ErrorMessage { get; set; }
         public List<HateoasLink> Links { get; set; }
@@ -39,15 +41,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             ProjectionStateItem? projectionState,
             string baseUri)
         {
-            ProjectionId = projection.Id;
-            ProjectionState = MapProjectionState(projection.State, !string.IsNullOrEmpty(projectionState?.ErrorMessage));
+            Id = projection.Id;
+            Name = projection.Name;
+            Description = projection.Description;
+            State = MapProjectionState(projection.State, !string.IsNullOrEmpty(projectionState?.ErrorMessage));
             CurrentPosition = projectionState?.Position ?? -1;
             ErrorMessage = projectionState?.ErrorMessage ?? string.Empty;
 
             Links = new List<HateoasLink>
             {
-                new HateoasLink(new Uri($"{baseUri}/projections/start/{ProjectionId}"), "projections", HttpMethods.Post),
-                new HateoasLink(new Uri($"{baseUri}/projections/stop/{ProjectionId}"), "projections", HttpMethods.Post),
+                new HateoasLink(new Uri($"{baseUri}/projections/start/{projection.Id}"), "projections", HttpMethods.Post),
+                new HateoasLink(new Uri($"{baseUri}/projections/stop/{projection.Id}"), "projections", HttpMethods.Post),
             };
         }
 
