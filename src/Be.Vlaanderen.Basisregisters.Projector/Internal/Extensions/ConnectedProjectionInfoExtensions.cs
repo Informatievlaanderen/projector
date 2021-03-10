@@ -2,20 +2,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Extensions
 {
     using System;
     using System.Linq;
+    using System.Reflection;
     using ProjectionHandling.Connector;
 
     internal static class ConnectedProjectionInfoExtensions
     {
-        public static string GetName(this IConnectedProjection projection)
-            => projection.GetAttribute<ConnectedProjectionNameAttribute>() ?? string.Empty;
+        public static string GetProjectionName(this Type type)
+            => type.GetAttribute<ConnectedProjectionNameAttribute>() ?? string.Empty;
 
-        public static string GetDescription(this IConnectedProjection projection)
-            => projection.GetAttribute<ConnectedProjectionDescriptionAttribute>() ?? string.Empty;
+        public static string GetProjectionDescription(this Type type)
+            => type.GetAttribute<ConnectedProjectionDescriptionAttribute>() ?? string.Empty;
 
-        private static T? GetAttribute<T>(this IConnectedProjection projection)
+        private static T? GetAttribute<T>(this ICustomAttributeProvider type)
             where T : Attribute
-            => (T?) projection
-                ?.GetType()
-                ?.GetCustomAttributes(typeof(T), false).SingleOrDefault();
+            => (T?)type
+			  ?.GetCustomAttributes(typeof(T), false)
+			  .SingleOrDefault();
     }
 }

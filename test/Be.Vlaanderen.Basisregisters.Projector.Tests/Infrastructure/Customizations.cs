@@ -4,6 +4,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     using System.Collections.Generic;
     using System.Linq;
     using AutoFixture;
+    using ConnectedProjections;
     using Internal;
     using Moq;
 
@@ -35,6 +36,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
                     projectionMock
                         .SetupGet(projection => projection.Id)
                         .Returns(generator(fixture));
+
+                    projectionMock
+                        .SetupGet(projection => projection.Info)
+                        .Returns(new ConnectedProjectionInfo(string.Empty, string.Empty));
 
                     projectionMock
                         .SetupGet(projection => projection.Instance)

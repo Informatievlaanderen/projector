@@ -18,6 +18,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     internal interface IConnectedProjection
     {
         ConnectedProjectionIdentifier Id { get; }
+        ConnectedProjectionInfo Info { get; }
         dynamic Instance { get; }
         Task UpdateUserDesiredState(UserDesiredState userDesiredState, CancellationToken cancellationToken);
         Task<bool> ShouldResume(CancellationToken cancellationToken);
@@ -45,6 +46,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     {
         private readonly IConnectedProjectionSettings _settings;
         public ConnectedProjectionIdentifier Id => new ConnectedProjectionIdentifier(typeof(TConnectedProjection));
+        public ConnectedProjectionInfo Info { get; }
         public Func<Owned<IConnectedProjectionContext<TContext>>> ContextFactory { get; }
         public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
@@ -54,6 +56,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             IConnectedProjectionSettings settings,
             ILoggerFactory loggerFactory)
         {
+            Info = new ConnectedProjectionInfo(
+                typeof(TConnectedProjection).GetProjectionName(),
+                typeof(TConnectedProjection).GetProjectionDescription());
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
 
