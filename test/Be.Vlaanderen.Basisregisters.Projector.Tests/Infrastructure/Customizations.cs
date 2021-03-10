@@ -29,11 +29,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
         public static IFixture CustomizeRegisteredProjectionsCollection(this IFixture fixture)
         {
             fixture.Customize<IEnumerable<IConnectedProjection>>(composer =>
-                composer.FromFactory(() => Generators.ProjectionName.Select(generator =>
+                composer.FromFactory(() => Generators.ProjectionIdentifier.Select(generator =>
                 {
                     var projectionMock = new Mock<IConnectedProjection>();
                     projectionMock
-                        .SetupGet(projection => projection.Name)
+                        .SetupGet(projection => projection.Id)
                         .Returns(generator(fixture));
 
                     projectionMock
@@ -46,10 +46,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
             return fixture;
         }
 
-        public static IFixture CustomizeConnectedProjectionNames(this IFixture fixture)
+        public static IFixture CustomizeConnectedProjectionIdentifiers(this IFixture fixture)
         {
             return fixture
-                .CustomizeFromGenerators(Generators.ProjectionName);
+                .CustomizeFromGenerators(Generators.ProjectionIdentifier);
         }
 
         public static IFixture CustomizeConnectedProjectionCommands(this IFixture fixture)

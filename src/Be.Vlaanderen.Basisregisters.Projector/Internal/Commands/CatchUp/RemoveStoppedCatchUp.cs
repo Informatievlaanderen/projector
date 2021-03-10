@@ -1,11 +1,12 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands.CatchUp
 {
+    using System;
     using ConnectedProjections;
 
     internal class RemoveStoppedCatchUp : CatchUpCommand
     {
-        public ConnectedProjectionName ProjectionName { get; }
+        public ConnectedProjectionIdentifier Projection { get; }
 
-        public RemoveStoppedCatchUp(ConnectedProjectionName projectionName) => ProjectionName = projectionName;
+        public RemoveStoppedCatchUp(ConnectedProjectionIdentifier projection) => Projection = projection ?? throw new ArgumentNullException(nameof(projection));
     }
 }

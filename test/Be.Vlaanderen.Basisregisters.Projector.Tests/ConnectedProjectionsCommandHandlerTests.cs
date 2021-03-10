@@ -25,7 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public ConnectedProjectionsCommandHandlerTests()
         {
             _fixture = new Fixture()
-                .CustomizeConnectedProjectionNames()
+                .CustomizeConnectedProjectionIdentifiers()
                 .CustomizeConnectedProjectionCommands();
 
             var fakeLoggerFactory = new FakeLoggerFactory();
@@ -117,7 +117,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             await _sut.Handle(command);
 
             _commandBusMock.Verify(
-                bus => bus.Queue(It.Is<Subscribe>(subscribe => subscribe.ProjectionName == command.ProjectionName)),
+                bus => bus.Queue(It.Is<Subscribe>(subscribe => subscribe.Projection == command.Projection)),
                 Times.Once);
         }        [Fact]
 
@@ -140,7 +140,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             await _sut.Handle(command);
 
             _commandBusMock.Verify(
-                bus => bus.Queue(It.Is<Unsubscribe>(unsubscribe => unsubscribe.ProjectionName == command.ProjectionName)),
+                bus => bus.Queue(It.Is<Unsubscribe>(unsubscribe => unsubscribe.Projection == command.Projection)),
                 Times.Once);
         }
 
@@ -152,7 +152,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             await _sut.Handle(command);
 
             _commandBusMock.Verify(
-                bus => bus.Queue(It.Is<StopCatchUp>(stop => stop.ProjectionName == command.ProjectionName)),
+                bus => bus.Queue(It.Is<StopCatchUp>(stop => stop.Projection == command.Projection)),
                 Times.Once);
         }
 
@@ -184,21 +184,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public async Task When_handling_a_restart_command_then_a_start_command_is_dispatched_after_the_delay()
         {
             var command = new Restart(
-                _fixture.Create<ConnectedProjectionName>(),
+                _fixture.Create<ConnectedProjectionIdentifier>(),
                 TimeSpan.FromMilliseconds(new Random(_fixture.Create<int>()).Next(10, 2000)));
 
             // don't await Handle
             _sut.Handle(command);
 
             _commandBusMock.Verify(
-                bus => bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals(command.ProjectionName))),
+                bus => bus.Queue(It.Is<Start>(start => start.Projection.Equals(command.Projection))),
                 Times.Never,
                 $"Start command was sent before the delay({command.After.TotalMilliseconds}ms) completed");
 
             await Task.Delay(command.After.Add(TimeSpan.FromMilliseconds(1)));
 
             _commandBusMock.Verify(
-                bus => bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals(command.ProjectionName))),
+                bus => bus.Queue(It.Is<Start>(start => start.Projection.Equals(command.Projection))),
                 Times.Once);
         }
     }

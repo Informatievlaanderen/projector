@@ -75,14 +75,14 @@ var projectsStatus = projectionManager.GetRegisteredProjections();
 // Start all registered projections
 projectionManager.Start();
 
-// Start a specific projection by name
-projectionManager.Start(projectionName);
+// Start a specific projection by id
+projectionManager.Start(projection);
 
 // Stop all registered projections
 projectionManager.Stop();
 
-// Stop a specific projection by name
-projectionManager.Stop(projectionName);
+// Stop a specific projection by id
+projectionManager.Stop(projection);
 ```
 
 #### Managing the registered projections with api calls
@@ -100,9 +100,9 @@ Inherit Controller from `DefaultProjectionContoller`
 
 Status of registered projections: [GET] https://projector.url/controller-path/  
 Start all registered projections: [POST] https://projector.url/controller-path/start/all  
-Start a specific projection by name: [POST] https://projector.url/controller-path/start/{projectionName}  
+Start a specific projection by id: [POST] https://projector.url/controller-path/start/{projection}  
 Stop all registered projections: [POST] https://projector.url/controller-path/stop/all  
-Stop a specific projection by name: [POST] https://projector.url/controller-path/stop/{projectionName}  
+Stop a specific projection by id: [POST] https://projector.url/controller-path/stop/{projection}  
 
 ## Quick contributing guide
 

@@ -43,7 +43,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
 
             var contextMock = new Mock<IConnectedProjectionContext<FakeProjectionContext>>();
             contextMock
-                .Setup(context => context.GetProjectionPosition(It.IsAny<ConnectedProjectionName>(), It.IsAny<CancellationToken>()))
+                .Setup(context => context.GetProjectionPosition(It.IsAny<ConnectedProjectionIdentifier>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((long?)null);
 
             var missingMessagesPositions = fixture.CreateMany<long>(2,10).ToList();
@@ -65,8 +65,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
 
             var registeredProjectionsMock = new Mock<IRegisteredProjections>();
             registeredProjectionsMock
-                .Setup(projections => projections.GetProjection(It.IsAny<ConnectedProjectionName>()))
-                .Returns((ConnectedProjectionName name) => _registeredProjections.FirstOrDefault(projection => projection.Name.Equals(name)));
+                .Setup(projections => projections.GetProjection(It.IsAny<ConnectedProjectionIdentifier>()))
+                .Returns((ConnectedProjectionIdentifier projectionId) => _registeredProjections.FirstOrDefault(projection => projection.Id.Equals(projectionId)));
 
             var loggerFactory = new FakeLoggerFactory();
             _loggerMock = loggerFactory.ResolveLoggerMock<ConnectedProjectionsSubscriptionRunner>();
@@ -85,7 +85,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
                 loggerFactory);
 
             foreach (var projection in _registeredProjections)
-                _sut.HandleSubscriptionCommand(new Subscribe(projection.Name)).GetAwaiter();
+                _sut.HandleSubscriptionCommand(new Subscribe(projection.Id)).GetAwaiter();
 
             VerifySetup();
             _sut.HandleSubscriptionCommand(new ProcessStreamEvent(fixture.Create<StreamMessage>(), fixture.Create<CancellationToken>())).GetAwaiter();
@@ -94,16 +94,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
         private void VerifySetup()
         {
             foreach (var projection in _registeredProjections)
-                _sut.HasSubscription(projection.Name)
+                _sut.HasSubscription(projection.Id)
                     .Should()
-                    .BeTrue($"expected {projection.Name} to be subscribed");
+                    .BeTrue($"expected {projection.Id} to be subscribed");
         }
 
-        private static Func<IEnumerable<StreamMessage>, IStreamGapStrategy, ConnectedProjectionName, CancellationToken, Task> ThrowMissingMessageException(IEnumerable<long> missingMessagesPositions)
+        private static Func<IEnumerable<StreamMessage>, IStreamGapStrategy, ConnectedProjectionIdentifier, CancellationToken, Task> ThrowMissingMessageException(IEnumerable<long> missingMessagesPositions)
             => (messages, strategy, name, ct) => throw new ConnectedProjectionMessageHandlingException(new StreamGapDetectedException(missingMessagesPositions, name), name, null);
 
         private static bool IsMissingMessageProjection(IConnectedProjection projection)
-            => projection.Name.ToString().Contains(MissingMessageProjectionIdentifier);
+            => projection.Id.ToString().Contains(MissingMessageProjectionIdentifier);
 
         [Fact]
         public void Then_a_restart_projection_is_queued_for_each_projection_that_threw_the_exception()
@@ -113,7 +113,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
                     bus => bus.Queue(
                         It.Is<Restart>(restart =>
                             restart.After == TimeSpan.FromSeconds(_gapStrategySettings.RetryDelayInSeconds) &&
-                            restart.ProjectionName.Equals(projection.Name))),
+                            restart.Projection.Equals(projection.Id))),
                     Times.Once);
         }
 
@@ -123,7 +123,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
             foreach (var projection in _registeredProjections.Where(IsMissingMessageProjection))
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Detected gap in the message stream for subscribed projection. Unsubscribed projection {projection.Name} and queued restart in {_gapStrategySettings.RetryDelayInSeconds} seconds.",
+                    $"Detected gap in the message stream for subscribed projection. Unsubscribed projection {projection.Id} and queued restart in {_gapStrategySettings.RetryDelayInSeconds} seconds.",
                     Times.Once);
         }
 
@@ -131,9 +131,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
         public void Then_the_projections_that_threw_the_exception_are_removed()
         {
             foreach (var projection in _registeredProjections.Where(IsMissingMessageProjection))
-                _sut.HasSubscription(projection.Name)
+                _sut.HasSubscription(projection.Id)
                     .Should()
-                    .BeFalse($"expected {projection.Name} to be removed from subscriptions");
+                    .BeFalse($"expected {projection.Id} to be removed from subscriptions");
         }
     }
 }

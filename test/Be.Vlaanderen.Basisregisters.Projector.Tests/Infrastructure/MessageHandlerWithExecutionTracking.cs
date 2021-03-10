@@ -17,15 +17,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     {
         private readonly Stack<Exception> _exceptionSequence;
         
-        public ConnectedProjectionName RunnerName { get; }
+        public ConnectedProjectionIdentifier Projection { get; }
         public ILogger Logger { get; }
 
         public MessageHandlerWithExecutionTracking(
-            ConnectedProjectionName runnerName,
+            ConnectedProjectionIdentifier projection,
             ILogger logger,
             params Exception[] exceptionSequence)
         {
-            RunnerName = runnerName;
+            Projection = projection;
             Logger = logger;
             _exceptionSequence = new Stack<Exception>(exceptionSequence.Reverse());
         }

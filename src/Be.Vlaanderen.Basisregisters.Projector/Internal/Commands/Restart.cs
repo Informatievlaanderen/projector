@@ -5,12 +5,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 
     internal class Restart : ConnectedProjectionCommand
     {
-        public ConnectedProjectionName ProjectionName { get; }
+        public ConnectedProjectionIdentifier Projection { get; }
         public TimeSpan After { get; set; }
 
-        public Restart(ConnectedProjectionName projectionName, TimeSpan restartAfter)
+        public Restart(ConnectedProjectionIdentifier projection, TimeSpan restartAfter)
         {
-            ProjectionName = projectionName ?? throw new ArgumentNullException(nameof(projectionName));
+            Projection = projection ?? throw new ArgumentNullException(nameof(projection));
             After = restartAfter < TimeSpan.Zero ? TimeSpan.Zero : restartAfter;
         }
     }

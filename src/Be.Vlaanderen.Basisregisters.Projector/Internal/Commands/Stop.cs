@@ -4,8 +4,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 
     internal class Stop : ConnectedProjectionCommand
     {
-        public ConnectedProjectionName ProjectionName { get; }
+        public ConnectedProjectionIdentifier Projection { get; }
 
-        public Stop(ConnectedProjectionName projectionName) => ProjectionName = projectionName;
+        public Stop(ConnectedProjectionIdentifier projection) => Projection = projection;
     }
 }

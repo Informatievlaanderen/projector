@@ -41,8 +41,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public IEnumerable<RegisteredConnectedProjection> GetRegisteredProjections()
             => _registeredProjections.GetStates();
 
-        public bool Exists(string name)
-            => _registeredProjections.Exists(new ConnectedProjectionName(name));
+        public bool Exists(string id)
+            => _registeredProjections.Exists(new ConnectedProjectionIdentifier(id));
 
         public async Task Start(CancellationToken cancellationToken)
         {
@@ -55,19 +55,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             _commandBus.Queue<StartAll>();
         }
 
-        public async Task Start(string name, CancellationToken cancellationToken)
+        public async Task Start(string id, CancellationToken cancellationToken)
         {
-            var projectionName = new ConnectedProjectionName(name);
-
-            if (!_registeredProjections.Exists(projectionName))
-                return; // throw new ArgumentException("Invalid projection name.", nameof(projectionName));
-
-            var projection = _registeredProjections.GetProjection(projectionName);
+            var projection = _registeredProjections.GetProjection(new ConnectedProjectionIdentifier(id));
+            if (projection == null)
+                return;
 
             await projection.UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
             await projection.ClearErrorMessage(cancellationToken);
 
-            _commandBus.Queue(new Start(projectionName));
+            _commandBus.Queue(new Start(projection.Id));
         }
 
         public async Task Resume(CancellationToken cancellationToken)
@@ -77,7 +74,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 if (await projection.ShouldResume(cancellationToken))
                 {
                     await projection.ClearErrorMessage(cancellationToken);
-                    _commandBus.Queue(new Start(projection.Name));
+                    _commandBus.Queue(new Start(projection.Id));
                 }
             }
         }
@@ -90,18 +87,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             _commandBus.Queue<StopAll>();
         }
 
-        public async Task Stop(string name, CancellationToken cancellationToken)
+        public async Task Stop(string id, CancellationToken cancellationToken)
         {
-            var projectionName = new ConnectedProjectionName(name);
+            var projection = new ConnectedProjectionIdentifier(id);
 
-            if (!_registeredProjections.Exists(projectionName))
-                return; // throw new ArgumentException("Invalid projection name.", nameof(projectionName));
+            if (!_registeredProjections.Exists(projection))
+                return; // throw new ArgumentException("Invalid projection Id.", nameof(projection));
 
             await _registeredProjections
-                .GetProjection(projectionName)
+                .GetProjection(projection)
                 .UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken);
 
-            _commandBus.Queue(new Stop(projectionName));
+            _commandBus.Queue(new Stop(projection));
         }
 
         public async Task<IEnumerable<ProjectionStateItem>> GetProjectionStates(CancellationToken cancellationToken)

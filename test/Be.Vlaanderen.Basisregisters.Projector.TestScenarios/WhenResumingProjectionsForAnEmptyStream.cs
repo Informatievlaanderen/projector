@@ -14,7 +14,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
     public class WhenResumingProjectionsForAnEmptyStream : Scenario
     {
-        private  readonly ConnectedProjectionName  _projectionToResume =  new ConnectedProjectionName(typeof(FastProjections));
+        private  readonly ConnectedProjectionIdentifier  _projectionToResume =  new ConnectedProjectionIdentifier(typeof(FastProjections));
         private IRegisteredProjections _registeredProjections;
 
         protected override void ContainerSetup(ContainerBuilder builder)
@@ -62,7 +62,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .GetRegisteredProjections()
                 .Should()
                 .Contain(projection =>
-                    projection.Name == _projectionToResume
+                    projection.Id == _projectionToResume
                     && projection.State == ConnectedProjectionState.Subscribed);
         }
 
@@ -74,7 +74,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
             await Task.Delay(1000);
             ProjectionManager
                 .GetRegisteredProjections()
-                .Where(projection => projection.Name != _projectionToResume)
+                .Where(projection => projection.Id != _projectionToResume)
                 .Should()
                 .OnlyContain(projection => projection.State == ConnectedProjectionState.Stopped);
         }

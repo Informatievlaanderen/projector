@@ -20,7 +20,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
     internal class ConnectedProjectionsCatchUpRunner : IConnectedProjectionsCatchUpRunner
     {
-        private readonly Dictionary<ConnectedProjectionName, CancellationTokenSource> _projectionCatchUps;
+        private readonly Dictionary<ConnectedProjectionIdentifier, CancellationTokenSource> _projectionCatchUps;
         private readonly IRegisteredProjections _registeredProjections;
         private readonly IReadonlyStreamStore _streamStore;
         private readonly IConnectedProjectionsCommandBus _commandBus;
@@ -34,7 +34,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             IStreamGapStrategy catchUpStreamGapStrategy,
             ILoggerFactory loggerFactory)
         {
-            _projectionCatchUps = new Dictionary<ConnectedProjectionName, CancellationTokenSource>();
+            _projectionCatchUps = new Dictionary<ConnectedProjectionIdentifier, CancellationTokenSource>();
 
             _registeredProjections = registeredProjections ?? throw new ArgumentNullException(nameof(registeredProjections));
             _registeredProjections.IsCatchingUp = IsCatchingUp;
@@ -45,12 +45,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             _logger = loggerFactory?.CreateLogger<ConnectedProjectionsCatchUpRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        private bool IsCatchingUp(ConnectedProjectionName projectionName)
-            => projectionName != null && _projectionCatchUps.ContainsKey(projectionName);
+        private bool IsCatchingUp(ConnectedProjectionIdentifier projection)
+            => projection != null && _projectionCatchUps.ContainsKey(projection);
 
-        public void HandleCatchUpCommand<TCatchUpCommand>(TCatchUpCommand command)
+        public void HandleCatchUpCommand<TCatchUpCommand>(TCatchUpCommand? command)
             where TCatchUpCommand : CatchUpCommand
         {
+            if (command == null)
+            {
+                _logger.LogWarning("CatchUp: Skipping null Command");
+                return;
+            }
+
             _logger.LogTrace("CatchUp: Handling {Command}", command);
             switch (command)
             {
@@ -76,22 +82,22 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             }
         }
 
-        private void Handle(StopCatchUp stopCatchUp) => StopCatchUp(stopCatchUp?.ProjectionName);
+        private void Handle(StopCatchUp stopCatchUp) => StopCatchUp(stopCatchUp.Projection);
 
         private void StopAllCatchUps()
         {
-            foreach (var projectionName in _projectionCatchUps.Keys.ToReadOnlyList())
-                StopCatchUp(projectionName);
+            foreach (var projection in _projectionCatchUps.Keys.ToReadOnlyList())
+                StopCatchUp(projection);
         }
 
-        private void StopCatchUp(ConnectedProjectionName projectionName)
+        private void StopCatchUp(ConnectedProjectionIdentifier projection)
         {
-            if (projectionName == null || IsCatchingUp(projectionName) == false)
+            if (projection == null || IsCatchingUp(projection) == false)
                 return;
 
             try
             {
-                using (var catchUp = _projectionCatchUps[projectionName])
+                using (var catchUp = _projectionCatchUps[projection])
                     catchUp.Cancel();
             }
             catch (KeyNotFoundException) { }
@@ -101,19 +107,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         private void Handle(StartCatchUp startCatchUp)
         {
             var projection = _registeredProjections
-                .GetProjection(startCatchUp?.ProjectionName)
+                .GetProjection(startCatchUp.Projection)
                 ?.Instance;
 
             Start(projection);
         }
 
-        private void Start<TContext>(IConnectedProjection<TContext> projection)
+        private void Start<TContext>(IConnectedProjection<TContext>? projection)
             where TContext : RunnerDbContext<TContext>
         {
-            if (projection == null || _registeredProjections.IsProjecting(projection.Name))
+            if (projection == null || _registeredProjections.IsProjecting(projection.Id))
                 return;
 
-            _projectionCatchUps.Add(projection.Name, new CancellationTokenSource());
+            _projectionCatchUps.Add(projection.Id, new CancellationTokenSource());
 
             var projectionCatchUp = projection.CreateCatchUp(
                 _streamStore,
@@ -121,9 +127,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 _catchUpStreamGapStrategy,
                 _logger);
 
-            TaskRunner.Dispatch(async () => await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Name].Token));
+            TaskRunner.Dispatch(async () => await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Id].Token));
         }
 
-        private void Handle(RemoveStoppedCatchUp message) => _projectionCatchUps.Remove(message.ProjectionName);
+        private void Handle(RemoveStoppedCatchUp message) => _projectionCatchUps.Remove(message.Projection);
     }
 }

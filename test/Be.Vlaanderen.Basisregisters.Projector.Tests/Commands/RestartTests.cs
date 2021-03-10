@@ -16,10 +16,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Commands
         public When_creating_a_restart_command_with_a_negative_delay()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
             _sut = new Restart(
-                fixture.Create<ConnectedProjectionName>(),
+                fixture.Create<ConnectedProjectionIdentifier>(),
                 TimeSpan.FromSeconds(fixture.CreateNegative<int>()));
         }
 

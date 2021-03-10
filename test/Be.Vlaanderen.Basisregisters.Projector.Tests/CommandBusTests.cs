@@ -21,7 +21,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public CommandBusTests()
         {
             _fixture = new Fixture()
-                .CustomizeConnectedProjectionNames()
+                .CustomizeConnectedProjectionIdentifiers()
                 .CustomizeConnectedProjectionCommands();
 
             _commandHandlerMock = new Mock<IConnectedProjectionsCommandHandler>();
@@ -78,7 +78,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public async Task When_queueing_commands_then_the_commands_get_handled_in_the_given_order()
         {
             var commands = _fixture
-                .CustomizeConnectedProjectionNames()
+                .CustomizeConnectedProjectionIdentifiers()
                 .CustomizeConnectedProjectionCommands()
                 .CreateMany<ConnectedProjectionCommand>(2,10)
                 .ToReadOnlyList();
@@ -107,7 +107,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public async Task When_queueing_commands_then_queue_a_other_command_is_not_blocked_by_handling_the_current_queue()
         {
             var commands = _fixture
-                .CustomizeConnectedProjectionNames()
+                .CustomizeConnectedProjectionIdentifiers()
                 .CustomizeConnectedProjectionCommands()
                 .CreateMany<ConnectedProjectionCommand>(100,500)
                 .ToReadOnlyList();

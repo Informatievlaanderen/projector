@@ -35,16 +35,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             StreamMessage message,
             IProcessedStreamState state,
             Func<StreamMessage, CancellationToken, Task> executeProjectMessage,
-            ConnectedProjectionName runnerName,
+            ConnectedProjectionIdentifier projection,
             CancellationToken cancellationToken)
         {
             if (await IsCloseToStreamEnd(message, cancellationToken))
-                throw new StreamGapDetectedException(state.DetermineGapPositions(message), runnerName);
+                throw new StreamGapDetectedException(state.DetermineGapPositions(message), projection);
 
             _logger.LogWarning(
-                "Expected messages at positions [{unprocessedPositions}] were not processed for {RunnerName}.",
+                "Expected messages at positions [{UnprocessedPositions}] were not processed for {Projection}.",
                 string.Join(", ", state.DetermineGapPositions(message)),
-                runnerName);
+                projection);
 
             await executeProjectMessage(message, cancellationToken);
         }

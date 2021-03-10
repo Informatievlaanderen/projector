@@ -20,7 +20,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
     public class When_handling_a_message_using_the_default_subscription_stream_gap_strategy
     {
         private readonly Func<Task> _handlingMessage;
-        private readonly ConnectedProjectionName _projectionName;
+        private readonly ConnectedProjectionIdentifier _projection;
         private readonly IEnumerable<long> _missingPositions;
         private string _processMessageFunctionStatus;
 
@@ -28,9 +28,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         public When_handling_a_message_using_the_default_subscription_stream_gap_strategy()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
-            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _projection = fixture.Create<ConnectedProjectionIdentifier>();
             _missingPositions = fixture.CreateMany<long>(1, 10);
             var message = fixture.Create<StreamMessage>();
 
@@ -50,7 +50,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
                         _processMessageFunctionStatus = "Executed";
                         return Task.CompletedTask;
                     },
-                    _projectionName,
+                    _projection,
                     fixture.Create<CancellationToken>());
         }
 
@@ -62,7 +62,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
                 .Throw<StreamGapDetectedException>()
                 .And.Message
                     .Should()
-                    .Contain(_projectionName.ToString())
+                    .Contain(_projection.ToString())
                     .And
                     .Contain($"[{string.Join(',', _missingPositions)}]");
         }

@@ -15,13 +15,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal interface IConnectedProjectionMessageHandler
     {
+        ConnectedProjectionIdentifier Projection { get; }
+        ILogger Logger { get; }
         Task HandleAsync(
             IEnumerable<StreamMessage> messages,
             IStreamGapStrategy streamGapStrategy,
             CancellationToken cancellationToken);
-
-        ConnectedProjectionName RunnerName { get; }
-        ILogger Logger { get; }
     }
 
     internal class ConnectedProjectionMessageHandler<TContext> : IConnectedProjectionMessageHandler
@@ -30,17 +29,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private readonly Func<Owned<IConnectedProjectionContext<TContext>>> _contextFactory;
         private readonly ConnectedProjector<TContext> _projector;
 
-        public ConnectedProjectionName RunnerName { get; }
+        public ConnectedProjectionIdentifier Projection { get; }
 
         public ILogger Logger { get; }
 
         public ConnectedProjectionMessageHandler(
-            ConnectedProjectionName runnerName,
+            ConnectedProjectionIdentifier projection,
             ConnectedProjectionHandler<TContext>[] handlers,
             Func<Owned<IConnectedProjectionContext<TContext>>> contextFactory,
             ILoggerFactory loggerFactory)
         {
-            RunnerName = runnerName;
+            Projection = projection;
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _projector = new ConnectedProjector<TContext>(Resolve.WhenEqualToHandlerMessageType(handlers));
             Logger = loggerFactory?.CreateLogger<ConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -57,13 +56,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 try
                 {
                     var completeMessageInProcess = CancellationToken.None;
-                    processedState = new ActiveProcessedStreamState(await context.GetProjectionPosition(RunnerName, completeMessageInProcess));
+                    processedState = new ActiveProcessedStreamState(await context.GetProjectionPosition(Projection, completeMessageInProcess));
 
                     async Task ProcessMessage(StreamMessage message, CancellationToken ct)
                     {
                         Logger.LogTrace(
-                            "[{RunnerName}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
-                            RunnerName,
+                            "[{Projection}] [STREAM {StreamId} AT {Position}] [{Type}] [LATENCY {Latency}]",
+                            Projection,
                             message.StreamId,
                             message.Position,
                             message.Type,
@@ -89,7 +88,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                                     message,
                                     processedState,
                                     ProcessMessage,
-                                    RunnerName,
+                                    Projection,
                                     completeMessageInProcess);
                                 break;
 
@@ -104,7 +103,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                     if (processedState.HasChanged)
                         await context.UpdateProjectionPosition(
-                            RunnerName,
+                            Projection,
                             processedState.Position,
                             completeMessageInProcess);
 
@@ -113,13 +112,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 catch (TaskCanceledException) { }
                 catch (Exception exception)
                 {
-                    await context.SetErrorMessage(RunnerName, exception, cancellationToken);
-                    throw new ConnectedProjectionMessageHandlingException(exception, RunnerName, processedState);
+                    await context.SetErrorMessage(Projection, exception, cancellationToken);
+                    throw new ConnectedProjectionMessageHandlingException(exception, Projection, processedState);
                 }
             }
         }
 
-        private ProcessMessageAction DetermineProcessMessageAction(
+        private static ProcessMessageAction DetermineProcessMessageAction(
             StreamMessage message,
             IProcessedStreamState lastProcessedPosition)
         {

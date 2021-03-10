@@ -11,7 +11,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
     internal class ConnectedProjectionsCommandBus : IConnectedProjectionsCommandBus, IConnectedProjectionsCommandBusHandlerConfiguration
     {
         private readonly ActionBlock<ConnectedProjectionCommand> _mailbox;
-        private IConnectedProjectionsCommandHandler _commandHandler;
+        private IConnectedProjectionsCommandHandler? _commandHandler;
 
         public ConnectedProjectionsCommandBus()
         {

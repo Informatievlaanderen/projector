@@ -22,7 +22,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
 
     public class When_handling_a_message_with_position_and_creation_outside_stream_end_buffers_using_the_default_catchup_stream_gap_strategy
     {
-        private readonly ConnectedProjectionName _projectionName;
+        private readonly ConnectedProjectionIdentifier _projection;
         private readonly IEnumerable<long> _missingPositions;
         private readonly FakeLogger _loggerMock;
         private string _processMessageFunctionStatus;
@@ -30,9 +30,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         public When_handling_a_message_with_position_and_creation_outside_stream_end_buffers_using_the_default_catchup_stream_gap_strategy()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
-            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _projection = fixture.Create<ConnectedProjectionIdentifier>();
             _missingPositions = fixture.CreateMany<long>(1, 10);
 
             var settings = new StreamGapStrategyConfigurationSettings
@@ -84,7 +84,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
                         _processMessageFunctionStatus = "Executed";
                         return Task.CompletedTask;
                     },
-                    _projectionName,
+                    _projection,
                     fixture.Create<CancellationToken>())
                 .GetAwaiter();
         }
@@ -94,7 +94,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         {
             _loggerMock.Verify(
                 LogLevel.Warning,
-                $"Expected messages at positions [{string.Join(", ", _missingPositions)}] were not processed for {_projectionName}.",
+                $"Expected messages at positions [{string.Join(", ", _missingPositions)}] were not processed for {_projection}.",
                 Times.Once);
         }
 
@@ -109,7 +109,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
 
     public class When_handling_a_message_with_position_and_creation_within_stream_end_buffers_using_the_default_catchup_stream_gap_strategy
     {
-        private readonly ConnectedProjectionName _projectionName;
+        private readonly ConnectedProjectionIdentifier _projection;
         private readonly IEnumerable<long> _missingPositions;
         private readonly FakeLogger _loggerMock;
         private readonly Func<Task> _handlingMessage;
@@ -118,9 +118,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         public When_handling_a_message_with_position_and_creation_within_stream_end_buffers_using_the_default_catchup_stream_gap_strategy()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
-            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _projection = fixture.Create<ConnectedProjectionIdentifier>();
             _missingPositions = fixture.CreateMany<long>(1, 10);
 
             var settings = new StreamGapStrategyConfigurationSettings
@@ -172,7 +172,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
                         _processMessageFunctionStatus = "Executed";
                         return Task.CompletedTask;
                     },
-                    _projectionName,
+                    _projection,
                     fixture.Create<CancellationToken>());
         }
 
@@ -184,7 +184,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
                 .Throw<StreamGapDetectedException>()
                 .And.Message
                 .Should()
-                .Contain(_projectionName.ToString())
+                .Contain(_projection.ToString())
                 .And
                 .Contain($"[{string.Join(',', _missingPositions)}]");
         }
@@ -201,7 +201,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
             {
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Expected messages at positions [{string.Join(", ", _missingPositions)}] were not processed for {_projectionName}.",
+                    $"Expected messages at positions [{string.Join(", ", _missingPositions)}] were not processed for {_projection}.",
                     Times.Never);
             }
         }
@@ -225,7 +225,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
 
     public class When_handling_a_message_with_position_outside_and_creation_within_stream_end_buffer_using_the_default_catchup_stream_gap_strategy
     {
-        private readonly ConnectedProjectionName _projectionName;
+        private readonly ConnectedProjectionIdentifier _projection;
         private readonly IEnumerable<long> _missingPositions;
         private readonly FakeLogger _loggerMock;
         private string _processMessageFunctionStatus;
@@ -233,9 +233,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         public When_handling_a_message_with_position_outside_and_creation_within_stream_end_buffer_using_the_default_catchup_stream_gap_strategy()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
-            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _projection = fixture.Create<ConnectedProjectionIdentifier>();
             _missingPositions = fixture.CreateMany<long>(1, 10);
 
             var settings = new StreamGapStrategyConfigurationSettings
@@ -287,7 +287,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
                         _processMessageFunctionStatus = "Executed";
                         return Task.CompletedTask;
                     },
-                    _projectionName,
+                    _projection,
                     fixture.Create<CancellationToken>())
                 .GetAwaiter();
         }
@@ -297,7 +297,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         {
             _loggerMock.Verify(
                 LogLevel.Warning,
-                $"Expected messages at positions [{string.Join(", ", _missingPositions)}] were not processed for {_projectionName}.",
+                $"Expected messages at positions [{string.Join(", ", _missingPositions)}] were not processed for {_projection}.",
                 Times.Once);
         }
 
@@ -312,7 +312,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
 
     public class When_handling_a_message_with_position_within_and_creation_outside_stream_end_buffer_using_the_default_catchup_stream_gap_strategy
     {
-        private readonly ConnectedProjectionName _projectionName;
+        private readonly ConnectedProjectionIdentifier _projection;
         private readonly IEnumerable<long> _missingPositions;
         private readonly FakeLogger _loggerMock;
         private string _processMessageFunctionStatus;
@@ -320,9 +320,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         public When_handling_a_message_with_position_within_and_creation_outside_stream_end_buffer_using_the_default_catchup_stream_gap_strategy()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
-            _projectionName = fixture.Create<ConnectedProjectionName>();
+            _projection = fixture.Create<ConnectedProjectionIdentifier>();
             _missingPositions = fixture.CreateMany<long>(1, 10);
 
             var settings = new StreamGapStrategyConfigurationSettings
@@ -374,7 +374,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
                         _processMessageFunctionStatus = "Executed";
                         return Task.CompletedTask;
                     },
-                    _projectionName,
+                    _projection,
                     fixture.Create<CancellationToken>())
                 .GetAwaiter();
         }
@@ -384,7 +384,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         {
             _loggerMock.Verify(
                 LogLevel.Warning,
-                $"Expected messages at positions [{string.Join(", ", _missingPositions)}] were not processed for {_projectionName}.",
+                $"Expected messages at positions [{string.Join(", ", _missingPositions)}] were not processed for {_projection}.",
                 Times.Once);
         }
 

@@ -28,12 +28,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
 
-        public RegisteredProjectionsBuilder AddNamedProjection(string projectionNameString) =>
-            AddNamedProjection(projectionNameString, mock => { });
+        public RegisteredProjectionsBuilder AddProjectionWithId(string id)
+            => AddProjectionWithId(id, mock => { });
 
-        public RegisteredProjectionsBuilder AddNamedProjection(string projectionNameString, Action<ProjectionMock> configure)
+        public RegisteredProjectionsBuilder AddProjectionWithId(string id, Action<ProjectionMock> configure)
         {
-            var projectionMock = new ProjectionMock(projectionNameString);
+            var projectionMock = new ProjectionMock(id);
             configure?.Invoke(projectionMock);
             _connectedProjections.Add(projectionMock);
 
@@ -44,8 +44,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             for (var i = 0; i < _fixture.Create<int>(); i++)
             {
-                var projectionName = _fixture.Create<ConnectedProjectionName>();
-                _connectedProjections.Add(new ProjectionMock(projectionName));
+                var projectionId = _fixture.Create<ConnectedProjectionIdentifier>();
+                _connectedProjections.Add(new ProjectionMock(projectionId));
             }
 
             return this;
@@ -56,11 +56,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             foreach (var connectedProjection in _connectedProjections)
             {
                 _registeredProjectionsMock
-                    .Setup(projections => projections.Exists(connectedProjection.ProjectionName))
+                    .Setup(projections => projections.Exists(connectedProjection.ProjectionId))
                     .Returns(true);
 
                 _registeredProjectionsMock
-                    .Setup(projections => projections.GetProjection(connectedProjection.ProjectionName))
+                    .Setup(projections => projections.GetProjection(connectedProjection.ProjectionId))
                     .Returns(connectedProjection.Projection.Object);
 
                 connectedProjection.Projection
@@ -68,8 +68,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                     .Returns(Task.CompletedTask);
 
                 connectedProjection.Projection
-                    .Setup(x => x.Name)
-                    .Returns(connectedProjection.ProjectionName);
+                    .Setup(x => x.Id)
+                    .Returns(connectedProjection.ProjectionId);
             }
 
             _registeredProjectionsMock
@@ -83,16 +83,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             private bool _shouldResume;
 
-            public ConnectedProjectionName ProjectionName { get; }
+            public ConnectedProjectionIdentifier ProjectionId { get; }
             public Mock<IConnectedProjection> Projection { get; }
 
-            public ProjectionMock(string projectionName)
-                :this(BuildConnectedProjectionNameFor(projectionName))
+            public ProjectionMock(string projectionId)
+                :this(BuildConnectedProjectionIdFor(projectionId))
             { }
 
-            public ProjectionMock(ConnectedProjectionName projectionName)
+            public ProjectionMock(ConnectedProjectionIdentifier projectionId)
             {
-                ProjectionName = projectionName;
+                ProjectionId = projectionId;
                 Projection = new Mock<IConnectedProjection>();
 
                 Projection
@@ -100,7 +100,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                     .ReturnsAsync(() => _shouldResume);
             }
 
-            private static ConnectedProjectionName BuildConnectedProjectionNameFor(string name)
+            private static ConnectedProjectionIdentifier BuildConnectedProjectionIdFor(string name)
             {
                 var assemblyName = new AssemblyName("ProjectionsDynamicAssembly");
 
@@ -110,7 +110,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
 
                 var connectedProjectionType = moduleBuilder.DefineType(name, TypeAttributes.Public);
 
-                return new ConnectedProjectionName(connectedProjectionType);
+                return new ConnectedProjectionIdentifier(connectedProjectionType);
             }
 
             public void ShouldResume(bool shouldResume)

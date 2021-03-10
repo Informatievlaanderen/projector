@@ -14,10 +14,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     {
         internal static IReadOnlyList<Func<IFixture, CatchUpCommand>> CatchUpCommand = new Func<IFixture, CatchUpCommand>[]
         {
-            fixture => new RemoveStoppedCatchUp(fixture.Create<ConnectedProjectionName>()),
-            fixture => new StartCatchUp(fixture.Create<ConnectedProjectionName>()),
+            fixture => new RemoveStoppedCatchUp(fixture.Create<ConnectedProjectionIdentifier>()),
+            fixture => new StartCatchUp(fixture.Create<ConnectedProjectionIdentifier>()),
             fixture => new StopAllCatchUps(),
-            fixture => new StopCatchUp(fixture.Create<ConnectedProjectionName>()),
+            fixture => new StopCatchUp(fixture.Create<ConnectedProjectionIdentifier>()),
             fixture => new CustomCatchUpCommand()
         };
 
@@ -35,9 +35,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
         internal static IReadOnlyList<Func<IFixture, SubscriptionCommand>> SubscriptionCommand = new Func<IFixture, SubscriptionCommand>[]
         {
 //            fixture => new ProcessStreamEvent(), 
-            fixture => new Subscribe(fixture.Create<ConnectedProjectionName>()),
+            fixture => new Subscribe(fixture.Create<ConnectedProjectionIdentifier>()),
             fixture => new SubscribeAll(),
-            fixture => new Unsubscribe(fixture.Create<ConnectedProjectionName>()),
+            fixture => new Unsubscribe(fixture.Create<ConnectedProjectionIdentifier>()),
             fixture => new UnsubscribeAll(), 
             fixture => new CustomSubscriptionCommand()
         };
@@ -58,9 +58,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
             fixture => fixture.Create<CatchUpCommand>(),
             fixture => fixture.Create<SubscriptionCommand>(),
             fixture => new StartAll(),
-            fixture => new Start(fixture.Create<ConnectedProjectionName>()),
+            fixture => new Start(fixture.Create<ConnectedProjectionIdentifier>()),
             fixture => new StopAll(),
-            fixture => new Stop(fixture.Create<ConnectedProjectionName>()),
+            fixture => new Stop(fixture.Create<ConnectedProjectionIdentifier>()),
             fixture => new CustomCommand()
         };
 
@@ -75,13 +75,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
             }
         }
 
-        internal static IReadOnlyList<Func<IFixture, ConnectedProjectionName>> ProjectionName => new Func<IFixture, ConnectedProjectionName>[]
+        internal static IReadOnlyList<Func<IFixture, ConnectedProjectionIdentifier>> ProjectionIdentifier => new Func<IFixture, ConnectedProjectionIdentifier>[]
         {
-            fixture => new ConnectedProjectionName(typeof(OtherSlowProjections)),
-            fixture => new ConnectedProjectionName(typeof(OtherRandomProjections)),
-            fixture => new ConnectedProjectionName(typeof(FastProjections)),
-            fixture => new ConnectedProjectionName(typeof(SlowProjections)),
-            fixture => new ConnectedProjectionName(typeof(TrackHandledEventsProjection))
+            fixture => new ConnectedProjectionIdentifier(typeof(OtherSlowProjections)),
+            fixture => new ConnectedProjectionIdentifier(typeof(OtherRandomProjections)),
+            fixture => new ConnectedProjectionIdentifier(typeof(FastProjections)),
+            fixture => new ConnectedProjectionIdentifier(typeof(SlowProjections)),
+            fixture => new ConnectedProjectionIdentifier(typeof(TrackHandledEventsProjection))
         };
     }
 }

@@ -18,7 +18,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
 
     internal class FakeProjection : IConnectedProjection<FakeProjectionContext>, IConnectedProjection
     {
-        public ConnectedProjectionName Name { get; }
+        public ConnectedProjectionIdentifier Id { get; }
         public dynamic Instance => this;
         public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
@@ -33,18 +33,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
 
         public FakeProjection(
             string name,
-            Func<IEnumerable<StreamMessage>, IStreamGapStrategy, ConnectedProjectionName, CancellationToken, Task> messageHandler,
+            Func<IEnumerable<StreamMessage>, IStreamGapStrategy, ConnectedProjectionIdentifier, CancellationToken, Task> messageHandler,
             IConnectedProjectionContext<FakeProjectionContext> context)
         {
-            Name = new ConnectedProjectionName($"{GetType().FullName}-{name}");
+            Id = new ConnectedProjectionIdentifier($"{GetType().FullName}-{name}");
 
             var messageHandlerMock = new Mock<IConnectedProjectionMessageHandler>();
             messageHandlerMock
-                .SetupGet(handler => handler.RunnerName)
-                .Returns(Name);
+                .SetupGet(handler => handler.Projection)
+                .Returns(Id);
             messageHandlerMock
                 .Setup(handler => handler.HandleAsync(It.IsAny<IEnumerable<StreamMessage>>(), It.IsAny<IStreamGapStrategy>(), It.IsAny<CancellationToken>()))
-                .Returns((IEnumerable<StreamMessage> messages, IStreamGapStrategy strategy, CancellationToken ct) => messageHandler(messages, strategy, Name, ct));
+                .Returns((IEnumerable<StreamMessage> messages, IStreamGapStrategy strategy, CancellationToken ct) => messageHandler(messages, strategy, Id, ct));
 
             ConnectedProjectionMessageHandler = messageHandlerMock.Object;
             ContextFactory = () => new Owned<IConnectedProjectionContext<FakeProjectionContext>>(context, Mock.Of<IDisposable>());

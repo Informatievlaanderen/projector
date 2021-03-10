@@ -29,11 +29,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
         public When_a_projection_catch_up_processes_a_stream_and_throws_a_detected_stream_gap_exception()
         {
             var fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
             var contextMock = new Mock<IConnectedProjectionContext<FakeProjectionContext>>();
             contextMock
-                .Setup(context => context.GetProjectionPosition(It.IsAny<ConnectedProjectionName>(), It.IsAny<CancellationToken>()))
+                .Setup(context => context.GetProjectionPosition(It.IsAny<ConnectedProjectionIdentifier>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((long?)null);
 
             var streamMock = new Mock<IReadonlyStreamStore>();
@@ -92,7 +92,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
                     bus => bus.Queue(
                         It.Is<Restart>(restart =>
                             restart.After == TimeSpan.FromSeconds(_gapStrategySettings.RetryDelayInSeconds) &&
-                            restart.ProjectionName.Equals(_projection.Name))),
+                            restart.Projection.Equals(_projection.Id))),
                     Times.Once);
         }
 
@@ -101,7 +101,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
         {
                 _commandBusMock.Verify(
                     bus => bus.Queue(
-                        It.Is<RemoveStoppedCatchUp>(stopped => stopped.ProjectionName.Equals(_projection.Name))),
+                        It.Is<RemoveStoppedCatchUp>(stopped => stopped.Projection.Equals(_projection.Id))),
                     Times.Once);
         }
 
@@ -110,7 +110,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
         {
             _loggerMock.Verify(
                 LogLevel.Warning,
-                $"Detected gap in the message stream for catching up projection. Aborted projection {_projection.Name} and queued restart in {_gapStrategySettings.RetryDelayInSeconds} seconds.",
+                $"Detected gap in the message stream for catching up projection. Aborted projection {_projection.Id} and queued restart in {_gapStrategySettings.RetryDelayInSeconds} seconds.",
                 Times.Once);
         }
 
@@ -119,7 +119,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
         {
             _loggerMock.Verify(
                 LogLevel.Warning,
-                $"Stopping catch up {_projection.Name}: {CatchUpStopReason.Aborted}",
+                $"Stopping catch up {_projection.Id}: {CatchUpStopReason.Aborted}",
                 Times.Once);
         }
     }

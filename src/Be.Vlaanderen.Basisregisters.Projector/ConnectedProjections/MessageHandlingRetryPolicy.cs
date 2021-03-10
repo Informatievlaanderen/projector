@@ -17,16 +17,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         {
             private readonly Func<IEnumerable<StreamMessage>, IStreamGapStrategy, CancellationToken, Task> _messageHandling;
 
-            public ConnectedProjectionName RunnerName { get; }
+            public ConnectedProjectionIdentifier Projection { get; }
             public ILogger Logger { get; }
 
             public RetryMessageHandler(
                 Func<IEnumerable<StreamMessage>, IStreamGapStrategy, CancellationToken, Task> messageHandling,
-                ConnectedProjectionName projectionName,
+                ConnectedProjectionIdentifier projection,
                 ILogger messageHandlerLogger)
             {
                 _messageHandling = messageHandling ?? throw new ArgumentNullException(nameof(messageHandling));
-                RunnerName = projectionName ?? throw new ArgumentNullException(nameof(projectionName));
+                Projection = projection ?? throw new ArgumentNullException(nameof(projection));
                 Logger = messageHandlerLogger ?? throw new ArgumentNullException(nameof(messageHandlerLogger));
             }
 

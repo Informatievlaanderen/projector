@@ -24,7 +24,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public ConnectedProjectionsManagerTests()
         {
             _fixture = new Fixture()
-                .CustomizeConnectedProjectionNames();
+                .CustomizeConnectedProjectionIdentifiers();
 
             _registeredProjections = new Mock<IRegisteredProjections>();
             _commandBusMock = new Mock<IConnectedProjectionsCommandBus>();
@@ -43,7 +43,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             IEnumerable<RegisteredConnectedProjection> projectionStates = new[]
             {
                 new RegisteredConnectedProjection(
-                    _fixture.Create<ConnectedProjectionName>(),
+                    _fixture.Create<ConnectedProjectionIdentifier>(),
                     ConnectedProjectionState.CatchingUp),
             };
 
@@ -81,49 +81,49 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
         [Fact]
-        public async Task When_starting_a_projection_by_name_then_the_start_command_is_dispatched_with_projection_command()
+        public async Task When_starting_a_projection_by_id_then_the_start_command_is_dispatched_with_projection_command()
         {
-            var projectionNameString = "projection-name";
+            const string projectionId = "projection-id";
             new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
-                    .AddNamedProjection(projectionNameString)
+                    .AddProjectionWithId(projectionId)
                     .Build();
 
-            await _sut.Start(projectionNameString, CancellationToken.None);
+            await _sut.Start(projectionId, CancellationToken.None);
 
             _commandBusMock
                 .Verify(bus =>
-                    bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals(projectionNameString))),
+                    bus.Queue(It.Is<Start>(start => start.Projection.Equals(projectionId))),
                     Times.Once);
         }
 
         [Fact]
-        public async Task When_starting_a_projection_by_name_then_the_user_desired_state_is_updated()
+        public async Task When_starting_a_projection_by_id_then_the_user_desired_state_is_updated()
         {
-            var projectionNameString = "projection-name";
+            const string projectionId = "projection-id";
             var projections = new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
-                .AddNamedProjection(projectionNameString)
+                .AddProjectionWithId(projectionId)
                 .Build();
 
-            await _sut.Start(projectionNameString, CancellationToken.None);
+            await _sut.Start(projectionId, CancellationToken.None);
 
             projections.First().Projection.Verify(x => x.UpdateUserDesiredState(UserDesiredState.Started, It.IsAny<CancellationToken>()));
         }
 
         [Fact]
-        public async Task When_starting_an_unknown_projection_by_name_then_no_start_command_is_dispatched()
+        public async Task When_starting_an_unknown_projection_by_id_then_no_start_command_is_dispatched()
         {
-            var projectionNameString = "non-existing-projection";
+            const string projectionId = "non-existing-projection";
             _registeredProjections
-                .Setup(projections => projections.Exists(new ConnectedProjectionName(projectionNameString)))
+                .Setup(projections => projections.Exists(new ConnectedProjectionIdentifier(projectionId)))
                 .Returns(false);
 
-            await _sut.Stop(projectionNameString, CancellationToken.None);
+            await _sut.Stop(projectionId, CancellationToken.None);
 
             _commandBusMock.Verify(bus => bus.Queue(It.IsAny<Start>()), Times.Never());
         }
 
         [Fact]
-        public async Task When_starting_an_unknown_projection_by_name_then_no_user_desired_state_is_updated()
+        public async Task When_starting_an_unknown_projection_by_id_then_no_user_desired_state_is_updated()
         {
             var projections = new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
                 .AddRandomProjections()
@@ -161,30 +161,30 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
         [Fact]
-        public async Task When_stopping_a_projection_by_name_then_the_stop_projection_command_is_dispatched()
+        public async Task When_stopping_a_projection_by_id_then_the_stop_projection_command_is_dispatched()
         {
-            var projectionNameString = "projection-name";
+            const string projectionId = "projection-id";
             new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
-                .AddNamedProjection(projectionNameString)
+                .AddProjectionWithId(projectionId)
                 .Build();
 
-            await _sut.Stop(projectionNameString, CancellationToken.None);
+            await _sut.Stop(projectionId, CancellationToken.None);
 
             _commandBusMock
                 .Verify(bus =>
-                        bus.Queue(It.Is<Stop>(stop => stop.ProjectionName.Equals(projectionNameString))),
+                        bus.Queue(It.Is<Stop>(stop => stop.Projection.Equals(projectionId))),
                     Times.Once);
         }
 
         [Fact]
-        public async Task When_stopping_a_projection_by_name_then_the_user_desired_state_is_updated()
+        public async Task When_stopping_a_projection_by_id_then_the_user_desired_state_is_updated()
         {
-            var projectionNameString = "projection-name";
+            const string projectionId = "projection-id";
             var projections = new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
-                .AddNamedProjection(projectionNameString)
+                .AddProjectionWithId(projectionId)
                 .Build();
 
-            await _sut.Stop(projectionNameString, CancellationToken.None);
+            await _sut.Stop(projectionId, CancellationToken.None);
 
             projections.First().Projection
                 .Verify(x =>
@@ -193,22 +193,22 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         }
 
         [Fact]
-        public async Task When_stopping_an_unknown_projection_by_name_then_no_stop_command_is_dispatched()
+        public async Task When_stopping_an_unknown_projection_by_id_then_no_stop_command_is_dispatched()
         {
-            var projectionNameString = "unknown-projection-name";
+            const string projectionId = "unknown-projection-id";
 
             new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
-                .AddNamedProjection("some-projection", projection => projection.ShouldResume(true))
-                .AddNamedProjection("another-projection")
+                .AddProjectionWithId("some-projection", projection => projection.ShouldResume(true))
+                .AddProjectionWithId("another-projection")
                 .Build();
 
-            await _sut.Stop(projectionNameString, CancellationToken.None);
+            await _sut.Stop(projectionId, CancellationToken.None);
 
             _commandBusMock.Verify(bus => bus.Queue(It.IsAny<Stop>()), Times.Never());
         }
 
         [Fact]
-        public async Task When_stopping_an_unknown_projection_by_name_then_no_user_desired_state_is_updated()
+        public async Task When_stopping_an_unknown_projection_by_id_then_no_user_desired_state_is_updated()
         {
             var projections = new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
                 .AddRandomProjections()
@@ -227,20 +227,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         public async Task When_resuming_the_projections_then_the_start_command_is_dispatched_for_projections_with_a_desired_state_started()
         {
             new RegisteredProjectionsBuilder(_fixture, _registeredProjections)
-                .AddNamedProjection("some-projection", projection => projection.ShouldResume(true))
-                .AddNamedProjection("another-projection")
+                .AddProjectionWithId("some-projection", projection => projection.ShouldResume(true))
+                .AddProjectionWithId("another-projection")
                 .Build();
 
             await _sut.Resume(CancellationToken.None);
 
             _commandBusMock
                 .Verify(bus =>
-                        bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals("some-projection"))),
+                        bus.Queue(It.Is<Start>(start => start.Projection.Equals("some-projection"))),
                     Times.Once);
 
             _commandBusMock
                 .Verify(bus =>
-                        bus.Queue(It.Is<Start>(start => start.ProjectionName.Equals("another-projection"))),
+                        bus.Queue(It.Is<Start>(start => start.Projection.Equals("another-projection"))),
                     Times.Never);
         }
 

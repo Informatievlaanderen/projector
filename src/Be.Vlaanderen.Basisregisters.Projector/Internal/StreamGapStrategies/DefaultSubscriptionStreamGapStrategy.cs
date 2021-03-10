@@ -19,8 +19,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             StreamMessage message,
             IProcessedStreamState state,
             Func<StreamMessage, CancellationToken, Task> processMessage,
-            ConnectedProjectionName runnerName,
+            ConnectedProjectionIdentifier projection,
             CancellationToken cancellationToken)
-            => throw new StreamGapDetectedException(state.DetermineGapPositions(message), runnerName);
+            => throw new StreamGapDetectedException(state.DetermineGapPositions(message), projection);
     }
 }
