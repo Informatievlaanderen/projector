@@ -18,10 +18,10 @@ nuget Polly 7.2.1
 // BASE REGISTRIES STUFF
 nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 5.0.2
 
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 7.0.6
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 7.0.6
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 7.0.6
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 7.0.6
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 7.1.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 7.1.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 7.1.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 7.1.0
 
 nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 5.0.13
 
