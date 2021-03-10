@@ -1,3 +1,20 @@
+# [10.0.0](https://github.com/informatievlaanderen/projector/compare/v9.0.0...v10.0.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* clean up deprecated out code ([b022e9a](https://github.com/informatievlaanderen/projector/commit/b022e9a8ce5e962a6ddae4426c4754e1813e5d98))
+* get name and description from acutal projections GRAR-1876 ([cd41783](https://github.com/informatievlaanderen/projector/commit/cd417834471f91d9e20da65caffe722ae6345528))
+
+
+### BREAKING CHANGES
+
+* CHANGE
+Removed deprecated code that was alreayd flagged with 'error on build'
+* CHANGE
+updated the RegisteredConnectedProjection to use ConnectedProjectionInfo
+instead of strings
+
 # [9.0.0](https://github.com/informatievlaanderen/projector/compare/v8.0.0...v9.0.0) (2021-03-10)
 
 
