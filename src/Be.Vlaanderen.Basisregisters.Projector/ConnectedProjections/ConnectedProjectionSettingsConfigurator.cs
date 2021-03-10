@@ -45,12 +45,5 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             => new ConnectedProjectionSettings(
                 _catchUpPageSize ?? DefaultCatchUpPageSize,
                 _retryPolicy ?? new NoRetries());
-
-        [Obsolete("Temporary solution for RegisterProjections directly using RetryPolicies", true)]
-        internal ConnectedProjectionSettingsConfigurator SetPolicy(MessageHandlingRetryPolicy retryPolicy)
-        {
-            _retryPolicy = retryPolicy;
-            return this;
-        }
     }
 }
