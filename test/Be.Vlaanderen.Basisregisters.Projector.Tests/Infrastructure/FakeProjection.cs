@@ -32,11 +32,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
         public Func<Owned<IConnectedProjectionContext<FakeProjectionContext>>> ContextFactory { get; }
 
         public FakeProjection(
-            string name,
+            string id,
             Func<IEnumerable<StreamMessage>, IStreamGapStrategy, ConnectedProjectionIdentifier, CancellationToken, Task> messageHandler,
             IConnectedProjectionContext<FakeProjectionContext> context)
         {
-            Id = new ConnectedProjectionIdentifier($"{GetType().FullName}-{name}");
+            Id = new ConnectedProjectionIdentifier($"{GetType().FullName}-{id}");
 
             var messageHandlerMock = new Mock<IConnectedProjectionMessageHandler>();
             messageHandlerMock
