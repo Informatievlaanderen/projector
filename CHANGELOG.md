@@ -1,3 +1,21 @@
+# [9.0.0](https://github.com/informatievlaanderen/projector/compare/v8.0.0...v9.0.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* update projectionhandling dependency GRAR-1876 ([2f2b60c](https://github.com/informatievlaanderen/projector/commit/2f2b60cb5258948cdd4cd06f73112b230f7bd07e))
+
+
+### Features
+
+* add name and description to registered projections GRAR-1876 ([8bd4dbc](https://github.com/informatievlaanderen/projector/commit/8bd4dbc9435cf301c3a09caac37d77d7160e3c14))
+
+
+### BREAKING CHANGES
+
+* CHANGE
+Extended the ProjectionRepsonse type and cleaned up property names
+
 # [8.0.0](https://github.com/informatievlaanderen/projector/compare/v7.0.4...v8.0.0) (2021-03-10)
 
 
