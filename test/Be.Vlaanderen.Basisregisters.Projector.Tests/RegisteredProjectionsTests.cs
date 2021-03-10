@@ -100,14 +100,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                         _fixture.Create<ConnectedProjectionState>()))
                 .ToReadOnlyList();
 
-            _sut.IsCatchingUp = name => expectedStates
+            _sut.IsCatchingUp = id => expectedStates
                 .Where(projection => projection.State == ConnectedProjectionState.CatchingUp)
                 .Select(projection => projection.Id)
-                .Contains(name);
-            _sut.IsSubscribed = name => expectedStates
+                .Contains(id);
+            _sut.IsSubscribed = id => expectedStates
                 .Where(projection => projection.State == ConnectedProjectionState.Subscribed)
                 .Select(projection => projection.Id)
-                .Contains(name);
+                .Contains(id);
 
             _sut.GetStates()
                 .Should()

@@ -16,9 +16,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         /// <summary>
         /// Starts a specific projection.
         /// </summary>
-        /// <param name="name">Case insensitive name of the projection to start.</param>
+        /// <param name="id">Case insensitive id of the projection to start.</param>
         /// <param name="cancellationToken"></param>
-        Task Start(string name, CancellationToken cancellationToken);
+        Task Start(string id, CancellationToken cancellationToken);
 
         /// <summary>
         /// Stops all running projections.
@@ -29,9 +29,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         /// <summary>
         /// Stops a specific running projection.
         /// </summary>
-        /// <param name="name">Case insensitive name of the projection to stop.</param>
+        /// <param name="id">Case insensitive id of the projection to stop.</param>
         /// <param name="cancellationToken"></param>
-        Task Stop(string name, CancellationToken cancellationToken);
+        Task Stop(string id, CancellationToken cancellationToken);
 
         /// <summary>
         /// Starts any projections that were previously running.
@@ -48,8 +48,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         /// <summary>
         /// Checks if a specific projection exists.
         /// </summary>
-        /// <param name="name">Case insensitive name of the projection to check.</param>
-        bool Exists(string name);
+        /// <param name="id">Case insensitive id of the projection to check.</param>
+        bool Exists(string id);
 
         /// <summary>
         /// Get the projection states.
