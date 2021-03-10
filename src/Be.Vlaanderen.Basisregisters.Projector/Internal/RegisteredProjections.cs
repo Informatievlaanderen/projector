@@ -35,8 +35,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public bool Exists(ConnectedProjectionIdentifier projection)
             => Projections.Any(registeredProjection => registeredProjection.Id == projection);
 
-        public IConnectedProjection? GetProjection(ConnectedProjectionIdentifier projection) =>
-            Projections.SingleOrDefault(registeredProjection => registeredProjection.Id == projection);
+        public IConnectedProjection? GetProjection(ConnectedProjectionIdentifier projection) 
+            => Projections.SingleOrDefault(registeredProjection => registeredProjection.Id == projection);
 
         public bool IsProjecting(ConnectedProjectionIdentifier projection)
             => GetState(projection) != ConnectedProjectionState.Stopped;
