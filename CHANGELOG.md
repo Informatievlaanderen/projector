@@ -1,3 +1,10 @@
+## [10.1.2](https://github.com/informatievlaanderen/projector/compare/v10.1.1...v10.1.2) (2021-10-20)
+
+
+### Bug Fixes
+
+* bump projection handling ([b045f1e](https://github.com/informatievlaanderen/projector/commit/b045f1ecc2fe8f0dc408134e839b5df1e2d6f0a2))
+
 ## [10.1.1](https://github.com/informatievlaanderen/projector/compare/v10.1.0...v10.1.1) (2021-05-28)
 
 
