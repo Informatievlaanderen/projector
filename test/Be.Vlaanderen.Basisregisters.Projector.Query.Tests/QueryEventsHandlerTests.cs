@@ -15,12 +15,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Query.Tests
             _testOutputHelper = testOutputHelper;
         }
 
-        // use connectionString "Server=tcp:127.0.0.1,19001;Database=REGISTRY-DATABASE;User=basisregisters;Password=ySbATyGpjfPzd4XH7nNs2SNYPrV7sKEvcmnGt6FmETD8rSkbxqEyJ32U2gafEqxn7H3WHpP6uvM7NxA3dm9YECqugx3w4r9fhxxF"
-
         [Theory]
-        [InlineData("", "address-registry", "8a4b70c4-7582-5bef-b634-7bea4ccc74cc")]
-        [InlineData("", "municipality-registry", "86fc4ce0-7291-553f-ba81-b07b9d03e553")]
-        public async Task PerformQuery(string connectionString, string registryName, string businessId)
+        [InlineData("address-registry", "8a4b70c4-7582-5bef-b634-7bea4ccc74cc", "")]
+        [InlineData("building-registry", "6cf9be2f-6361-5cec-b130-3b905aba3ce7", "")]
+        [InlineData("municipality-registry", "86fc4ce0-7291-553f-ba81-b07b9d03e553", "")]
+        [InlineData("parcel-registry", "10ad670a-ab6e-5fda-9a8a-733e11f59902", "")]
+        [InlineData("postal-registry", "9000", "")]
+        [InlineData("streetname-registry", "2d0b1f31-8e31-5fc5-b628-fcf5a1382674", "")]
+        public async Task PerformQuery(string registryName, string businessId, string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
             {
@@ -33,7 +35,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Query.Tests
 
             Assert.NotNull(response);
             Assert.True(response.IsSuccess);
-            _testOutputHelper.WriteLine($"Number of results: {response.Values?.Count()}");
+            _testOutputHelper.WriteLine($"Number of results: {response.Values?.Count()}\n");
+            if (response.Values != null)
+            {
+                foreach (var responseValue in response.Values)
+                {
+                    _testOutputHelper.WriteLine(responseValue.ToString());
+                }
+            }
         }
     }
 }

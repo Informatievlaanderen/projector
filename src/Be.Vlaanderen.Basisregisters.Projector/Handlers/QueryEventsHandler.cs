@@ -9,8 +9,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
     {
         private static readonly Dictionary<string, EventDatabaseInfo> eventDatabaseInfoMap = new Dictionary<string, EventDatabaseInfo>
         {
+            // organisation-registry, publicservice-registry, road-registry are not included because they use different database schema's
+            ["address-registry"] = new EventDatabaseInfo("PersistentLocalId", "AddressId", "AddressRegistryLegacy", "AddressSyndication", "PersistentLocalId", "AddressRegistryExtract", "Address", "AddressPersistentLocalId"),
+            ["building-registry"] = new EventDatabaseInfo("PersistentLocalId", "BuildingId", "BuildingRegistryLegacy", "BuildingSyndication", "PersistentLocalId", "BuildingRegistryExtract", "Building", "PersistentLocalId"),
             ["municipality-registry"] = new EventDatabaseInfo("NisCode", "MunicipalityId", "MunicipalityRegistryLegacy", "MunicipalitySyndication", "MunicipalityId", "MunicipalityRegistryExtract", "Municipality", "MunicipalityId"),
-            ["address-registry"] = new EventDatabaseInfo("PersistentLocalId", "AddressId", "AddressRegistryLegacy", "AddressSyndication", "PersistentLocalId", "AddressRegistryExtract", "Address", "AddressPersistentLocalId")
+            ["parcel-registry"] = new EventDatabaseInfo("CaPaKey", "ParcelId", "ParcelRegistryLegacy", "ParcelSyndication", "CaPaKey", "ParcelRegistryExtract", "Parcel", "CaPaKey"),
+            ["postal-registry"] = new EventDatabaseInfo("PostalCode", "PostalCode", "PostalRegistryLegacy", "PostalInformationSyndication", "PostalCode", "PostalRegistryExtract", "Postal", "PostalCode"),
+            ["streetname-registry"] = new EventDatabaseInfo("PersistentLocalId", "StreetNameId", "StreetNameRegistryLegacy", "StreetNameSyndication", "PersistentLocalId", "StreetNameRegistryExtract", "StreetName", "StreetNamePersistentLocalId")
         };
 
         public async Task<Result<QueryRow>> Handle(QueryEventsRequest request)
@@ -26,13 +31,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
     ,d.{eventDatabaseInfo.InternalId} InternalId
 	,d.Position EventId
 	,d.ChangeType ChangeType
+	,d.EventDataAsXml [EventData]
+	,convert(varchar(25), d.SyndicationItemCreatedAt, 121) [Timestamp]
 from
 	{eventDatabaseInfo.DetailSchemaName}.{eventDatabaseInfo.DetailTableName} d
 	left join {eventDatabaseInfo.MainSchemaName}.{eventDatabaseInfo.MainTableName} m on m.{eventDatabaseInfo.MainJoinColumnName} = d.{eventDatabaseInfo.DetailJoinColumnName}
 where
 	d.{eventDatabaseInfo.InternalId} = '{businessId}'
 order by
-   	d.RecordCreatedAt desc
+    d.Position desc
+   	,d.RecordCreatedAt desc
 	,d.SyndicationItemCreatedAt desc
 ";
 
@@ -54,6 +62,4 @@ order by
     }
 
     public record QueryEventsRequest(string ConnectionString, string RegistryName, string BusinessId);
-
-    public record QueryEventsResponse;
 }

@@ -80,6 +80,4 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
     }
 
     public record QueryRequest(string ConnectionString, string Schema, string Table, Dictionary<string, string?>? Query);
-
-    public record QueryResponse;
 }

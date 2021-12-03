@@ -16,12 +16,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Query.Tests
             _testOutputHelper = testOutputHelper;
         }
 
-        // use connectionString "Server=tcp:127.0.0.1,19001;Database=REGISTRY-DATABASE;User=basisregisters;Password=ySbATyGpjfPzd4XH7nNs2SNYPrV7sKEvcmnGt6FmETD8rSkbxqEyJ32U2gafEqxn7H3WHpP6uvM7NxA3dm9YECqugx3w4r9fhxxF"
-
         [Theory]
-        [InlineData("", "AddressRegistryExtract", "Address", "Complete", "0")]
-        [InlineData("", "MunicipalityRegistryExtract", "Municipality", "OfficialLanguages", "[\"dutch\",\"french\"]")]
-        public async Task PerformQuery(string connectionString, string schemaName, string tableName, string filterKey, string filterValue)
+        [InlineData("AddressRegistryExtract", "Address", "Complete", "0", "")]
+        [InlineData("MunicipalityRegistryExtract", "Municipality", "OfficialLanguages", "[\"dutch\",\"french\"]", "")]
+        public async Task PerformQuery(string schemaName, string tableName, string filterKey, string filterValue, string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
             {
