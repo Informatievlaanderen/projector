@@ -42,6 +42,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 ? Ok(response.Values)
                 : BadRequest(response.Error);
         }
+
+        protected void RegisterConnectionString(string schema, string connectionString)
+            => _connectionStringBySchema.Add(schema.ToUpperInvariant(), connectionString);
     }
 
     internal class EventDatabaseInfo
