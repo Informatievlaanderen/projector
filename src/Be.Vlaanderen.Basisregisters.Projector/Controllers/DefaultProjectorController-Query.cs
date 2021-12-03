@@ -1,72 +1,78 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 {
     using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
     using System.Linq;
-    using System.Text;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-    using Dapper;
+    using Handlers;
     using Microsoft.AspNetCore.Mvc;
 
     public abstract partial class DefaultProjectorController
     {
         private readonly Dictionary<string, string> _connectionStringBySchema = new Dictionary<string, string>();
 
-        [HttpGet("query/{schema}/{table}")]
+        [HttpGet("query/table/{schema}/{table}")]
         public async Task<IActionResult> Query(
             [FromRoute] string schema,
             [FromRoute] string table)
         {
-            // https://stackoverflow.com/a/30152027/412692
-            var tableNameRegex = new Regex(@"^[\p{L}_][\p{L}\p{N}@$#_]{0,127}$");
+            var connectionString = _connectionStringBySchema[schema.ToUpperInvariant()];
+            var request = new QueryRequest(connectionString, schema, table, Request.Query.ToDictionary(x => x.Key, x => x.Value.FirstOrDefault()));
+            var handler = new QueryHandler();
+            var response = await handler.Handle(request);
 
-            // https://stackoverflow.com/a/4978062/412692
-            var columnNameRegex = new Regex(@"^[a-zA-Z_][a-zA-Z0-9_]*$");
-
-            if (!tableNameRegex.IsMatch(schema) || !tableNameRegex.IsMatch(table) || !_connectionStringBySchema.ContainsKey(schema.ToUpperInvariant()))
-                return BadRequest("Invalid schema or table name.");
-
-            if (Request.Query.Count == 0)
-                return BadRequest("Please specify a filter in the query string.");
-
-            var select = new StringBuilder($"SELECT * FROM [{schema}].[{table}] WHERE ");
-
-            var a = Request.Query
-                .ToDictionary(x => x.Key, y => (object)y.Value.ToString())
-                .ToExpando();
-
-            foreach (var keyValue in Request.Query)
-            {
-                if (!columnNameRegex.IsMatch(keyValue.Key))
-                    return BadRequest("Invalid query parameter.");
-
-                select.Append($"[{keyValue.Key}] = @{keyValue.Key} AND ");
-            }
-
-            select.Length -= 4;
-            select.Append(";");
-
-            IEnumerable<dynamic> result;
-            await using (var connection = new SqlConnection(_connectionStringBySchema[schema.ToUpperInvariant()]))
-            {
-                try
-                {
-                    result = await connection.QueryAsync(select.ToString(), a);
-                }
-                catch (SqlException ex)
-                {
-                    if (ex.Number == 207)
-                        return BadRequest("Invalid query parameter.");
-
-                    throw;
-                }
-            }
-
-            return Ok(result);
+            return response.IsSuccess
+                ? Ok(response.Values)
+                : BadRequest(response.Error);
         }
 
-        protected void RegisterConnectionString(string schema, string connectionString)
-            => _connectionStringBySchema.Add(schema.ToUpperInvariant(), connectionString);
+        [HttpGet("query/events/{registry}/{id}")]
+        public async Task<IActionResult> QueryEvents([FromRoute] string registry, [FromRoute] string businessId)
+        {
+            var connectionString = _connectionStringBySchema.Values.FirstOrDefault();
+            if (connectionString == null)
+            {
+                return BadRequest("No connection string is available");
+            }
+
+            var request = new QueryEventsRequest(connectionString, registry, businessId);
+            var handler = new QueryEventsHandler();
+            var response = await handler.Handle(request);
+
+            return response.IsSuccess
+                ? Ok(response.Values)
+                : BadRequest(response.Error);
+        }
+    }
+
+    internal class EventDatabaseInfo
+    {
+        public string ExternalId { get; }
+        public string InternalId { get; }
+        public string DetailSchemaName { get; }
+        public string DetailTableName { get; }
+        public string DetailJoinColumnName { get; }
+        public string MainSchemaName { get; }
+        public string MainTableName { get; }
+        public string MainJoinColumnName { get; }
+
+        public EventDatabaseInfo(
+            string externalId,
+            string internalId,
+            string detailSchemaName,
+            string detailTableName,
+            string detailJoinColumnName,
+            string mainSchemaName,
+            string mainTableName,
+            string mainJoinColumnName)
+        {
+            ExternalId = externalId;
+            InternalId = internalId;
+            DetailSchemaName = detailSchemaName;
+            DetailTableName = detailTableName;
+            DetailJoinColumnName = detailJoinColumnName;
+            MainSchemaName = mainSchemaName;
+            MainTableName = mainTableName;
+            MainJoinColumnName = mainJoinColumnName;
+        }
     }
 }
