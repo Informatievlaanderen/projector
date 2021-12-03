@@ -1,3 +1,10 @@
+# [10.2.0](https://github.com/informatievlaanderen/projector/compare/v10.1.2...v10.2.0) (2021-12-03)
+
+
+### Features
+
+* provide endpoint for event history ([175c9d0](https://github.com/informatievlaanderen/projector/commit/175c9d03dd0fd8e004e02e9072231ef739cad33d))
+
 ## [10.1.2](https://github.com/informatievlaanderen/projector/compare/v10.1.1...v10.1.2) (2021-10-20)
 
 
