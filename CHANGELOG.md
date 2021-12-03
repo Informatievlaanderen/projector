@@ -1,3 +1,10 @@
+## [10.2.1](https://github.com/informatievlaanderen/projector/compare/v10.2.0...v10.2.1) (2021-12-03)
+
+
+### Bug Fixes
+
+* restore RegisterConnectionString ([189c462](https://github.com/informatievlaanderen/projector/commit/189c462f2ba4fa531d2dfd83c4158695f7542a0b))
+
 # [10.2.0](https://github.com/informatievlaanderen/projector/compare/v10.1.2...v10.2.0) (2021-12-03)
 
 
