@@ -1,3 +1,10 @@
+## [10.2.2](https://github.com/informatievlaanderen/projector/compare/v10.2.1...v10.2.2) (2021-12-08)
+
+
+### Bug Fixes
+
+* add varchar conversions ([bd30d0a](https://github.com/informatievlaanderen/projector/commit/bd30d0a724bee146644b536412f44f1f4c52057e))
+
 ## [10.2.1](https://github.com/informatievlaanderen/projector/compare/v10.2.0...v10.2.1) (2021-12-03)
 
 
