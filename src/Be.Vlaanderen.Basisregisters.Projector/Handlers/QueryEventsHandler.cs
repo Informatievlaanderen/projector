@@ -27,9 +27,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
             }
 
             var cmdText = $@"select
-    d.{eventDatabaseInfo.ExternalId} ExternalId
-    ,d.{eventDatabaseInfo.InternalId} InternalId
-	,d.Position EventId
+	convert(varchar(50), d.{eventDatabaseInfo.ExternalId}) ExternalId
+	,convert(varchar(50), d.{eventDatabaseInfo.InternalId}) InternalId
+	,convert(varchar(50), d.Position) EventId
 	,d.ChangeType ChangeType
 	,d.EventDataAsXml [EventData]
 	,convert(varchar(25), d.SyndicationItemCreatedAt, 121) [Timestamp]
