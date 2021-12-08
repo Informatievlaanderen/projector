@@ -2,9 +2,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
 {
     public class QueryRow
     {
-        public object? ExternalId { get; set; }
-        public object? InternalId { get; set; }
-        public object? EventId { get; set; }
+        public string? ExternalId { get; set; }
+        public string? InternalId { get; set; }
+        public string? EventId { get; set; }
         public string? ChangeType { get; set; }
         public string? EventData { get; set; }
         public string? Timestamp { get; set; }

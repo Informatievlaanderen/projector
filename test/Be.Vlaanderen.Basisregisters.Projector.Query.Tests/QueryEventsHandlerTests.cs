@@ -16,20 +16,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Query.Tests
         }
 
         [Theory]
-        [InlineData("address-registry", "7e1e1db2-294c-5e96-a904-286e5b25084c", "")]
+        [InlineData("address-registry", "480677", "")]
         [InlineData("building-registry", "6cf9be2f-6361-5cec-b130-3b905aba3ce7", "")]
         [InlineData("municipality-registry", "86fc4ce0-7291-553f-ba81-b07b9d03e553", "")]
         [InlineData("parcel-registry", "10ad670a-ab6e-5fda-9a8a-733e11f59902", "")]
         [InlineData("postal-registry", "9000", "")]
         [InlineData("streetname-registry", "2d0b1f31-8e31-5fc5-b628-fcf5a1382674", "")]
-        public async Task PerformQuery(string registryName, string internalId, string connectionString)
+        public async Task PerformQuery(string registryName, string externalId, string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
             {
                 return;
             }
 
-            var request = new QueryEventsRequest(connectionString, registryName, internalId);
+            var request = new QueryEventsRequest(connectionString, registryName, externalId);
             var handler = new QueryEventsHandler();
             var response = await handler.Handle(request);
 

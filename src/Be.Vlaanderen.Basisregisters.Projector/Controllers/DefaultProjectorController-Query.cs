@@ -25,8 +25,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 : BadRequest(response.Error);
         }
 
-        [HttpGet("query/events/{registry}/{internalId}")]
-        public async Task<IActionResult> QueryEvents([FromRoute] string registry, [FromRoute] string internalId)
+        [HttpGet("query/events/{registry}/{externalId}")]
+        public async Task<IActionResult> QueryEvents(
+            [FromRoute] string registry,
+            [FromRoute] string externalId)
         {
             var connectionString = _connectionStringBySchema.Values.FirstOrDefault();
             if (connectionString == null)
@@ -34,7 +36,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 return BadRequest("No connection string is available");
             }
 
-            var request = new QueryEventsRequest(connectionString, registry, internalId);
+            var request = new QueryEventsRequest(connectionString, registry, externalId);
             var handler = new QueryEventsHandler();
             var response = await handler.Handle(request);
 

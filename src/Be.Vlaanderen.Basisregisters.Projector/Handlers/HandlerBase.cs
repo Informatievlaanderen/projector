@@ -7,18 +7,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
 
     public abstract class HandlerBase
     {
-        protected async Task<IEnumerable<dynamic>> ExecuteQuery(string connectionString, string cmdText, object? param)
+        protected async Task<IEnumerable<TResult>> ExecuteQuery<TResult>(string connectionString, string cmdText, object? param = null)
         {
             await using var connection = new SqlConnection(connectionString);
-            var result = await connection.QueryAsync(cmdText, param);
-
-            return result;
-        }
-
-        protected async Task<IEnumerable<QueryRow>> ExecuteQuery(string connectionString, string cmdText)
-        {
-            await using var connection = new SqlConnection(connectionString);
-            var result = await connection.QueryAsync<QueryRow>(cmdText);
+            var result = await connection.QueryAsync<TResult>(cmdText, param);
 
             return result;
         }

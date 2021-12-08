@@ -26,18 +26,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
                 return Result<QueryRow>.Failure("Invalid registry was specified");
             }
 
-            var cmdText = $@"select
+            var cmdText = $@"declare @internalId as uniqueidentifier;
+select top 1 @internalId = convert(varchar(50), {eventDatabaseInfo.InternalId}) from {eventDatabaseInfo.DetailSchemaName}.{eventDatabaseInfo.DetailTableName} where {eventDatabaseInfo.ExternalId} is not null and {eventDatabaseInfo.ExternalId} = {businessId}
+
+select
 	convert(varchar(50), d.{eventDatabaseInfo.ExternalId}) ExternalId
 	,convert(varchar(50), d.{eventDatabaseInfo.InternalId}) InternalId
 	,convert(varchar(50), d.Position) EventId
-	,d.ChangeType ChangeType
+	,convert(varchar(25), d.ChangeType) ChangeType
 	,d.EventDataAsXml [EventData]
 	,convert(varchar(25), d.SyndicationItemCreatedAt, 121) [Timestamp]
 from
 	{eventDatabaseInfo.DetailSchemaName}.{eventDatabaseInfo.DetailTableName} d
 	left join {eventDatabaseInfo.MainSchemaName}.{eventDatabaseInfo.MainTableName} m on m.{eventDatabaseInfo.MainJoinColumnName} = d.{eventDatabaseInfo.DetailJoinColumnName}
 where
-	d.{eventDatabaseInfo.InternalId} = '{businessId}'
+	convert(varchar(50), d.{eventDatabaseInfo.InternalId}) = @internalId
 order by
     d.Position desc
    	,d.RecordCreatedAt desc
@@ -46,7 +49,7 @@ order by
 
             try
             {
-                var result = await ExecuteQuery(connectionString, cmdText);
+                var result = await ExecuteQuery<QueryRow>(connectionString, cmdText);
                 return Result<QueryRow>.Success(result);
             }
             catch (SqlException ex)
@@ -61,5 +64,5 @@ order by
         }
     }
 
-    public record QueryEventsRequest(string ConnectionString, string RegistryName, string InternalId);
+    public record QueryEventsRequest(string ConnectionString, string RegistryName, string ExternalId);
 }

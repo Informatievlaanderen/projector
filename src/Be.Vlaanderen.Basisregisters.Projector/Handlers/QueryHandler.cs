@@ -64,7 +64,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
             // execute sql
             try
             {
-                var result = await ExecuteQuery(request.ConnectionString, cmdText, param);
+                var result = await ExecuteQuery<dynamic>(request.ConnectionString, cmdText, param);
                 return Result<dynamic>.Success(result);
             }
             catch (SqlException ex)
