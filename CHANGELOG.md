@@ -1,3 +1,10 @@
+## [10.2.4](https://github.com/informatievlaanderen/projector/compare/v10.2.3...v10.2.4) (2021-12-08)
+
+
+### Bug Fixes
+
+* use external id ([3e48148](https://github.com/informatievlaanderen/projector/commit/3e48148adac771e86100657be8662580b40a4f5b))
+
 ## [10.2.3](https://github.com/informatievlaanderen/projector/compare/v10.2.2...v10.2.3) (2021-12-08)
 
 
