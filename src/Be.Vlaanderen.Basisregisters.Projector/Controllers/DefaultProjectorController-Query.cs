@@ -10,13 +10,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
     {
         private readonly Dictionary<string, string> _connectionStringBySchema = new Dictionary<string, string>();
 
-        [HttpGet("query/table/{schema}/{table}")]
+        [HttpGet("query/table/{schemaName}/{tableName}")]
         public async Task<IActionResult> Query(
-            [FromRoute] string schema,
-            [FromRoute] string table)
+            [FromRoute] string schemaName,
+            [FromRoute] string tableName)
         {
-            var connectionString = _connectionStringBySchema[schema.ToUpperInvariant()];
-            var request = new QueryRequest(connectionString, schema, table, Request.Query.ToDictionary(x => x.Key, x => x.Value.FirstOrDefault()));
+            var connectionString = _connectionStringBySchema[schemaName.ToUpperInvariant()];
+            var request = new QueryRequest(connectionString, schemaName, tableName, Request.Query.ToDictionary(x => x.Key, x => x.Value.FirstOrDefault()));
             var handler = new QueryHandler();
             var response = await handler.Handle(request);
 
@@ -25,7 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 : BadRequest(response.Error);
         }
 
-        [HttpGet("query/events/{registry}/{id}")]
+        [HttpGet("query/events/{registry}/{businessId}")]
         public async Task<IActionResult> QueryEvents([FromRoute] string registry, [FromRoute] string businessId)
         {
             var connectionString = _connectionStringBySchema.Values.FirstOrDefault();

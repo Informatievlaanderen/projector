@@ -16,7 +16,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Query.Tests
         }
 
         [Theory]
-        [InlineData("address-registry", "8a4b70c4-7582-5bef-b634-7bea4ccc74cc", "")]
+        [InlineData("address-registry", "7e1e1db2-294c-5e96-a904-286e5b25084c", "")]
         [InlineData("building-registry", "6cf9be2f-6361-5cec-b130-3b905aba3ce7", "")]
         [InlineData("municipality-registry", "86fc4ce0-7291-553f-ba81-b07b9d03e553", "")]
         [InlineData("parcel-registry", "10ad670a-ab6e-5fda-9a8a-733e11f59902", "")]
