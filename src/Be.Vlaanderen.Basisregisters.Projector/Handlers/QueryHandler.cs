@@ -14,7 +14,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
             // https://stackoverflow.com/a/4978062/412692
             var columnNameRegex = new Regex(@"^[a-zA-Z_][a-zA-Z0-9_]*$");
 
-            var cmdTextBuilder = new StringBuilder($"select TOP 100 * FROM [{schema}].[{table}] WHERE ");
+            var cmdTextBuilder = new StringBuilder($"select top 100 * from [{schema}].[{table}] where ");
 
             foreach (var key in query.Select(x => x.Key))
             {
@@ -23,10 +23,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
                     return null;
                 }
 
-                cmdTextBuilder.Append($"[{key}] = @{key} AND ");
+                cmdTextBuilder.Append($"[{key}] = @{key} and ");
             }
 
-            cmdTextBuilder.Length -= 4;
+            cmdTextBuilder.Length -= 4; // remove last 'and '
             cmdTextBuilder.Append(';');
             return cmdTextBuilder.ToString();
         }

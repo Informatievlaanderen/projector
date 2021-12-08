@@ -22,14 +22,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Query.Tests
         [InlineData("parcel-registry", "10ad670a-ab6e-5fda-9a8a-733e11f59902", "")]
         [InlineData("postal-registry", "9000", "")]
         [InlineData("streetname-registry", "2d0b1f31-8e31-5fc5-b628-fcf5a1382674", "")]
-        public async Task PerformQuery(string registryName, string businessId, string connectionString)
+        public async Task PerformQuery(string registryName, string internalId, string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
             {
                 return;
             }
 
-            var request = new QueryEventsRequest(connectionString, registryName, businessId);
+            var request = new QueryEventsRequest(connectionString, registryName, internalId);
             var handler = new QueryEventsHandler();
             var response = await handler.Handle(request);
 

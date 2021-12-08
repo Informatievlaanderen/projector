@@ -61,5 +61,5 @@ order by
         }
     }
 
-    public record QueryEventsRequest(string ConnectionString, string RegistryName, string BusinessId);
+    public record QueryEventsRequest(string ConnectionString, string RegistryName, string InternalId);
 }
