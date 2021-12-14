@@ -1,3 +1,10 @@
+## [10.2.5](https://github.com/informatievlaanderen/projector/compare/v10.2.4...v10.2.5) (2021-12-14)
+
+
+### Bug Fixes
+
+* add other registries ([631bbe0](https://github.com/informatievlaanderen/projector/commit/631bbe09ab88e6459870249cbf2e5b946dcef3ca))
+
 ## [10.2.4](https://github.com/informatievlaanderen/projector/compare/v10.2.3...v10.2.4) (2021-12-08)
 
 
