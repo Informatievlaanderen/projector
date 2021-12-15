@@ -1,6 +1,7 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 {
     using System;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Commands;
@@ -50,8 +51,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     return;
 
                 _logger.LogDebug(
-                    "Started catch up with paging (CatchUpPageSize: {CatchUpPageSize})",
-                    _settings.CatchUpPageSize);
+                    "Started catch up with paging (CatchUpPageSize: {CatchUpPageSize}, SaveInterval {SaveMessagesInterval})",
+                    _settings.CatchUpPageSize,
+                    _settings.CatchUpUpdatePositionMessageInterval);
 
                 long? position;
                 using (var context = _projection.ContextFactory())
@@ -75,12 +77,22 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         page.Messages.Length,
                         page.FromPosition);
 
-                    await _projection
-                        .ConnectedProjectionMessageHandler
-                        .HandleAsync(
-                            page.Messages,
-                            _catchUpStreamGapStrategy,
-                            cancellationToken);
+                    // example: 334 = 1000 / 3
+                    var savesPerPage = Math.Ceiling(_settings.CatchUpPageSize / (decimal)_settings.CatchUpUpdatePositionMessageInterval);
+                    
+                    for (var i = 0; i < savesPerPage; i++)
+                    {
+                        // i = 0; skip 0 * 3 = 0; take 3
+                        // i = 1; skip 1 * 3 = 3; take 3
+                        // i = 333; skip 999; take 3 returns 1
+                        var streamMessages = page.Messages.Skip(i * _settings.CatchUpUpdatePositionMessageInterval).Take(_settings.CatchUpUpdatePositionMessageInterval).ToList();
+                        await _projection
+                            .ConnectedProjectionMessageHandler
+                            .HandleAsync(
+                                streamMessages,
+                                _catchUpStreamGapStrategy,
+                                cancellationToken);
+                    }
 
                     if (cancellationToken.IsCancellationRequested)
                         return;
