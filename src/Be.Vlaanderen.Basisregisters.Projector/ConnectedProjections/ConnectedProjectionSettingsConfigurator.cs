@@ -9,6 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     {
         private const int DefaultCatchUpPageSize = 1000;
         private int? _catchUpPageSize;
+        private int? _catchUpUpdatePositionMessageInterval;
         private MessageHandlingRetryPolicy? _retryPolicy;
 
         internal ConnectedProjectionSettingsConfigurator() { }
@@ -16,6 +17,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         public ConnectedProjectionSettingsConfigurator ConfigureCatchUpPageSize(int pageSize)
         {
             _catchUpPageSize = pageSize;
+            return this;
+        }
+
+        public ConnectedProjectionSettingsConfigurator ConfigureCatchUpUpdatePositionMessageInterval(int messagesInterval)
+        {
+            _catchUpUpdatePositionMessageInterval = messagesInterval;
             return this;
         }
 
@@ -42,8 +49,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
         }
 
         internal ConnectedProjectionSettings CreateSettings()
-            => new ConnectedProjectionSettings(
-                _catchUpPageSize ?? DefaultCatchUpPageSize,
+        {
+            var defaultCatchUpPageSize = _catchUpPageSize ?? DefaultCatchUpPageSize;
+            return new ConnectedProjectionSettings(
+                defaultCatchUpPageSize,
+                _catchUpUpdatePositionMessageInterval ?? defaultCatchUpPageSize,
                 _retryPolicy ?? new NoRetries());
+        }
     }
 }
