@@ -1,3 +1,16 @@
+# [11.0.0](https://github.com/informatievlaanderen/projector/compare/v10.2.5...v11.0.0) (2021-12-16)
+
+
+### Features
+
+* add an interval for catchup to update the state ([05216e6](https://github.com/informatievlaanderen/projector/commit/05216e6a011aa5ede4c402e20165a573027eaa27))
+
+
+### BREAKING CHANGES
+
+* CHANGE
+add CatchUpUpdatePositionMessageInterval to IConnectedProjectionCatchUpSettings
+
 ## [10.2.5](https://github.com/informatievlaanderen/projector/compare/v10.2.4...v10.2.5) (2021-12-14)
 
 
