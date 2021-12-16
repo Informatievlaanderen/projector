@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using ConnectedProjections;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,21 @@ namespace Be.Vlaanderen.Basisregisters.Projector
 
             var projectionsManager = options.Common.ServiceProvider.GetRequiredService<IConnectedProjectionsManager>();
             projectionsManager.Resume(ProjectionsCancellationTokenSource.Token);
+
+            return app;
+        }
+
+        public static IApplicationBuilder UseProjectionsManagerAsync(
+            this IApplicationBuilder app,
+            ProjectionsManagerOptions options)
+        {
+            options.Common.ApplicationLifetime.ApplicationStopping.Register(() => ProjectionsCancellationTokenSource.Cancel());
+
+            Task.Run(() =>
+            {
+                var projectionsManager = options.Common.ServiceProvider.GetRequiredService<IConnectedProjectionsManager>();
+                projectionsManager.Resume(ProjectionsCancellationTokenSource.Token);
+            }, ProjectionsCancellationTokenSource.Token);
 
             return app;
         }
