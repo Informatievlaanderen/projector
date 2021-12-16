@@ -1,3 +1,10 @@
+# [11.1.0](https://github.com/informatievlaanderen/projector/compare/v11.0.0...v11.1.0) (2021-12-16)
+
+
+### Features
+
+* add extension to start projectionmanager async ([d3e7a0b](https://github.com/informatievlaanderen/projector/commit/d3e7a0bddfab60c07b7d76776abf83d7c8607687))
+
 # [11.0.0](https://github.com/informatievlaanderen/projector/compare/v10.2.5...v11.0.0) (2021-12-16)
 
 
