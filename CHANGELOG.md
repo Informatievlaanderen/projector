@@ -1,3 +1,10 @@
+## [11.1.1](https://github.com/informatievlaanderen/projector/compare/v11.1.0...v11.1.1) (2022-01-20)
+
+
+### Bug Fixes
+
+* wait for task to finish before returning app ([1367acc](https://github.com/informatievlaanderen/projector/commit/1367accbb983bb6a48b3b1cc77fc9d54739e6759))
+
 # [11.1.0](https://github.com/informatievlaanderen/projector/compare/v11.0.0...v11.1.0) (2021-12-16)
 
 
