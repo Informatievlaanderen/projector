@@ -45,7 +45,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector
             {
                 var projectionsManager = options.Common.ServiceProvider.GetRequiredService<IConnectedProjectionsManager>();
                 projectionsManager.Resume(ProjectionsCancellationTokenSource.Token);
-            }, ProjectionsCancellationTokenSource.Token);
+            }, ProjectionsCancellationTokenSource.Token).GetAwaiter().GetResult();
 
             return app;
         }
