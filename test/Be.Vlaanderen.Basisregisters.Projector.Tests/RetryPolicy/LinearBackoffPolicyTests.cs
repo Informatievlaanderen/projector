@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -96,11 +97,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
-        public void ThenTheExceptionIsNotCaught()
+        public async Task ThenTheExceptionIsNotCaught()
         {
-            ((Func<Task>)Act)
+            await ((Func<Task>)Act)
                 .Should()
-                .Throw<DoNotRetryException>();
+                .ThrowAsync<DoNotRetryException>();
         }
 
         [Fact]
@@ -154,11 +155,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
-        public void ThenTheExceptionIsNotCaught()
+        public async Task ThenTheExceptionIsNotCaught()
         {
-            ((Func<Task>)Act)
+            await ((Func<Task>)Act)
                 .Should()
-                .Throw<DoNotRetryException>();
+                .ThrowAsync<DoNotRetryException>();
         }
 
         [Fact]
@@ -191,7 +192,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
 
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projection}' failed. Retry attempt #{attempt.Retry} in {_initialWait.Multiply(attempt.Retry).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{attempt.Retry} in {_initialWait.Multiply(attempt.Retry).TotalSeconds.ToString(CultureInfo.InvariantCulture)} seconds.",
                     Times.Once);
             }
         }
@@ -236,11 +237,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
-        public void ThenTheExceptionToRetryIsNotCaught()
+        public async Task ThenTheExceptionToRetryIsNotCaught()
         {
-            ((Func<Task>)Act)
+            await ((Func<Task>)Act)
                 .Should()
-                .Throw<RetryException>();
+                .ThrowAsync<RetryException>();
         }
 
         [Fact]
@@ -270,7 +271,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             {
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds.ToString(CultureInfo.InvariantCulture)} seconds.",
                     Times.Once);
             }
         }
@@ -327,7 +328,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             {
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds.ToString(CultureInfo.InvariantCulture)} seconds.",
                     Times.Once);
             }
         }

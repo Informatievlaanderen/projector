@@ -55,12 +55,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         }
 
         [Fact]
-        public void Then_a_detected_stream_gap_exception_is_thrown()
+        public async Task Then_a_detected_stream_gap_exception_is_thrown()
         {
-            _handlingMessage
+            var exception = await _handlingMessage
                 .Should()
-                .Throw<StreamGapDetectedException>()
-                .And.Message
+                .ThrowAsync<StreamGapDetectedException>();
+
+            exception.And.Message
                     .Should()
                     .Contain(_projection.ToString())
                     .And
