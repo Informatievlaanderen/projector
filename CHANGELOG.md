@@ -1,3 +1,15 @@
+# [12.0.0](https://github.com/informatievlaanderen/projector/compare/v11.1.1...v12.0.0) (2022-03-28)
+
+
+### Features
+
+* move to dotnet 6.0.3 ([dc63d65](https://github.com/informatievlaanderen/projector/commit/dc63d6526121341848b38b7c55bb4cee02b744a1))
+
+
+### BREAKING CHANGES
+
+* move to dotnet 6.0.3
+
 ## [11.1.1](https://github.com/informatievlaanderen/projector/compare/v11.1.0...v11.1.1) (2022-01-20)
 
 
