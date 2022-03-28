@@ -47,7 +47,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
                     .Handle<TException>()
                     .WaitAndRetryAsync(
                         _numberOfRetries,
-                        attempt => _delay.Multiply(attempt),
+                        attempt =>
+                        {
+                            return _delay.Multiply(attempt);
+                        },
                         LogRetryAttempt)
                     .ExecuteAsync(async ct => await messageHandler.HandleAsync(messages, streamGapStrategy, ct), token);
             }
