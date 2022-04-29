@@ -1,3 +1,10 @@
+## [12.0.1](https://github.com/informatievlaanderen/projector/compare/v12.0.0...v12.0.1) (2022-04-29)
+
+
+### Bug Fixes
+
+* bump projection/event-handling ([154b0c4](https://github.com/informatievlaanderen/projector/commit/154b0c49ca2422aa1204abcd47bbf6779dfbe3ee))
+
 # [12.0.0](https://github.com/informatievlaanderen/projector/compare/v11.1.1...v12.0.0) (2022-03-28)
 
 
