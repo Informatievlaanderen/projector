@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
 {
     using System;
     using System.Threading.Tasks;
+    using EventHandling;
     using Messages;
     using ProjectionHandling.Connector;
     using ProjectionHandling.SqlStreamStore;
@@ -23,8 +24,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
             When<Envelope<SomethingHappened>>(Handle);
         }
 
-        private async Task Handle<T>(ProjectionContext context, Envelope<T> envelope)
-            where T : IEvent
+        private async Task Handle<T>(ProjectionContext context, Envelope<T> envelope) 
+            where T : IEvent, IMessage
         {
             switch (envelope.Message)
             {
