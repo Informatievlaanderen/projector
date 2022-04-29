@@ -5,7 +5,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Messages
 
     [EventName("DelayWasScheduled")]
     [EventDescription("A delay in the events was scheduled.")]
-    public class DelayWasScheduled : IEvent
+    public class DelayWasScheduled : IEvent, IMessage
     {
         public DateTime On { get; set; }
     }
