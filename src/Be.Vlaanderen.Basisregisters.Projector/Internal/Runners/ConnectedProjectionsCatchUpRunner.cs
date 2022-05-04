@@ -113,7 +113,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             Start(projection);
         }
 
-        private void Start<TContext>(IConnectedProjection<TContext>? projection)
+        private void Start<TContext>(IStreamStoreConnectedProjection<TContext>? projection)
             where TContext : RunnerDbContext<TContext>
         {
             if (projection == null || _registeredProjections.IsProjecting(projection.Id))

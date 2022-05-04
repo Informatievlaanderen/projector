@@ -20,9 +20,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 
         protected override void ContainerSetup(ContainerBuilder builder)
         {
-            builder.RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(
+            builder.RegisterStreamStoreProjections<TrackHandledEventsProjection, ProjectionContext>(
                 () => new TrackHandledEventsProjection(MessageWasHandled),
-                ConnectedProjectionSettings.Default
+                StreamStoreConnectedProjectionSettings.Default
             );
         }
 

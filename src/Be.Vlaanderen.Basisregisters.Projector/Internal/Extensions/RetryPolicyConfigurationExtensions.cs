@@ -7,9 +7,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Extensions
 
     internal static class RetryPolicyConfigurationExtensions
     {
-        public static MessageHandlingRetryPolicy Configure(
+        public static IHandlingRetryPolicy Configure(
             this IConfiguration configuration,
-            Func<int, TimeSpan, MessageHandlingRetryPolicy> policyFactory,
+            Func<int, TimeSpan, IHandlingRetryPolicy> policyFactory,
             Func<IConfigurationSection, int> getInt,
             Func<IConfigurationSection, TimeSpan> getTimeSpan,
             string policyName)

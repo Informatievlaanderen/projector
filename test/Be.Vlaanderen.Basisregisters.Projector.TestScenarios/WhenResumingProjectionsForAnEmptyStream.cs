@@ -20,8 +20,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         protected override void ContainerSetup(ContainerBuilder builder)
         {
             builder
-                .RegisterProjections<SlowProjections, ProjectionContext>(ConnectedProjectionSettings.Default)
-                .RegisterProjections<FastProjections, ProjectionContext>(ConnectedProjectionSettings.Default);
+                .RegisterStreamStoreProjections<SlowProjections, ProjectionContext>(StreamStoreConnectedProjectionSettings.Default)
+                .RegisterStreamStoreProjections<FastProjections, ProjectionContext>(StreamStoreConnectedProjectionSettings.Default);
         }
 
         protected override async Task Setup()

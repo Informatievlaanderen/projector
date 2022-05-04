@@ -37,7 +37,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .As<IRegisteredProjections>()
                 .SingleInstance();
 
-            builder.RegisterGeneric(typeof(ConnectedProjectionContext<>))
+            builder.RegisterGeneric(typeof(StreamStoreConnectedProjectionContext<>))
                 .As(typeof(IConnectedProjectionContext<>));
 
             builder.RegisterType<ConnectedProjectionsStreamStoreSubscription>()
@@ -53,7 +53,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
                 .Where(type => type.IsAssignableTo<IStreamGapStrategy>())
                 .AsSelf();
 
-            builder.RegisterType<ConnectedProjectionsSubscriptionRunner>()
+            builder.RegisterType<StreamStoreConnectedProjectionsSubscriptionRunner>()
                 .WithParameter(ResolveStrategy<DefaultSubscriptionStreamGapStrategy>())
                 .As<IConnectedProjectionsSubscriptionRunner>()
                 .SingleInstance();

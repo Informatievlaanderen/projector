@@ -37,7 +37,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Setup(context => context.GetProjectionPosition(_projectionId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_projectionRunnerPosition);
                 
-            var sut = new ConnectedProjectionMessageHandler<ProjectionContext>(
+            var sut = new StreamStoreConnectedProjectionMessageHandler<ProjectionContext>(
                 _projectionId,
                 Array.Empty<ConnectedProjectionHandler<ProjectionContext>>(),
                 contextMock.CreateOwnedObject, 
@@ -102,7 +102,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Setup(context => context.GetProjectionPosition(_projectionId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_projectionRunnerPosition);
 
-            var sut = new ConnectedProjectionMessageHandler<ProjectionContext>(
+            var sut = new StreamStoreConnectedProjectionMessageHandler<ProjectionContext>(
                 _projectionId,
                 Array.Empty<ConnectedProjectionHandler<ProjectionContext>>(),
                 contextMock.CreateOwnedObject,
@@ -166,7 +166,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
                 .Setup(context => context.GetProjectionPosition(_projectionId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(runnerPosition);
 
-            var sut = new ConnectedProjectionMessageHandler<ProjectionContext>(
+            var sut = new StreamStoreConnectedProjectionMessageHandler<ProjectionContext>(
                 _projectionId,
                 Array.Empty<ConnectedProjectionHandler<ProjectionContext>>(),
                 contextMock.CreateOwnedObject,
@@ -227,16 +227,19 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
             
             _projectionId = fixture.Create<ConnectedProjectionIdentifier>();
 
+            //var contextMock = new Mock<StreamStoreConnectedProjectionContext<ProjectionContext>>();
             var contextMock = new Mock<IConnectedProjectionContext<ProjectionContext>>();
             var runnerPosition = fixture
                 .CreatePositive<long>()
                 .WithMaximumValueOf(long.MaxValue - 100);
-            
-            contextMock
-                .Setup(context => context.GetProjectionPosition(_projectionId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(runnerPosition);
 
-            var sut = new ConnectedProjectionMessageHandler<ProjectionContext>(
+            contextMock.Object.UpdateProjectionPosition(_projectionId, runnerPosition, CancellationToken.None).GetAwaiter().GetResult();
+
+            //contextMock
+            //    .Setup(context => context.GetProjectionPosition(_projectionId, It.IsAny<CancellationToken>()))
+            //    .ReturnsAsync(runnerPosition);
+
+            var sut = new StreamStoreConnectedProjectionMessageHandler<ProjectionContext>(
                 _projectionId,
                 Array.Empty<ConnectedProjectionHandler<ProjectionContext>>(),
                 contextMock.CreateOwnedObject,

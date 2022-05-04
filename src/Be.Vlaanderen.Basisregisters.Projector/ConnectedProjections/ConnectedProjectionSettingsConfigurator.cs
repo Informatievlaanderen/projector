@@ -5,56 +5,91 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using Internal.RetryPolicies;
     using Microsoft.Extensions.Configuration;
 
-    public class ConnectedProjectionSettingsConfigurator
+    public class StreamStoreConnectedProjectionSettingsConfigurator
     {
         private const int DefaultCatchUpPageSize = 1000;
         private int? _catchUpPageSize;
         private int? _catchUpUpdatePositionMessageInterval;
-        private MessageHandlingRetryPolicy? _retryPolicy;
+        private IHandlingRetryPolicy? _retryPolicy;
 
-        internal ConnectedProjectionSettingsConfigurator() { }
+        internal StreamStoreConnectedProjectionSettingsConfigurator() { }
 
-        public ConnectedProjectionSettingsConfigurator ConfigureCatchUpPageSize(int pageSize)
+        public StreamStoreConnectedProjectionSettingsConfigurator ConfigureCatchUpPageSize(int pageSize)
         {
             _catchUpPageSize = pageSize;
             return this;
         }
 
-        public ConnectedProjectionSettingsConfigurator ConfigureCatchUpUpdatePositionMessageInterval(int messagesInterval)
+        public StreamStoreConnectedProjectionSettingsConfigurator ConfigureCatchUpUpdatePositionMessageInterval(int messagesInterval)
         {
             _catchUpUpdatePositionMessageInterval = messagesInterval;
             return this;
         }
 
-        public ConnectedProjectionSettingsConfigurator ConfigureLinearBackoff<TException>(
+        public StreamStoreConnectedProjectionSettingsConfigurator ConfigureLinearBackOff<TException>(
             IConfiguration configuration,
             string policyName)
             where TException : Exception
         {
+            IHandlingRetryPolicy pol = new KafkaNoRetries();
             _retryPolicy = configuration.Configure(
-                (numberOfRetries, initialWait) => new LinearBackOff<TException>(numberOfRetries, initialWait),
+                (numberOfRetries, initialWait) => new StreamStoreLinearBackOff<TException>(numberOfRetries, initialWait),
                 config => config.GetValue<int>("NumberOfRetries"),
                 config => TimeSpan.FromSeconds(config.GetValue<int>("DelayInSeconds")),
                 policyName);
             return this;
         }
 
-        public ConnectedProjectionSettingsConfigurator ConfigureLinearBackoff<TException>(
+        public StreamStoreConnectedProjectionSettingsConfigurator ConfigureLinearBackoff<TException>(
             int numberOfRetries,
             TimeSpan initialWait)
             where TException : Exception
         {
-            _retryPolicy = new LinearBackOff<TException>(numberOfRetries, initialWait);
+            _retryPolicy = new StreamStoreLinearBackOff<TException>(numberOfRetries, initialWait);
             return this;
         }
 
-        internal ConnectedProjectionSettings CreateSettings()
+        internal StreamStoreConnectedProjectionSettings CreateSettings()
         {
             var defaultCatchUpPageSize = _catchUpPageSize ?? DefaultCatchUpPageSize;
-            return new ConnectedProjectionSettings(
+            return new StreamStoreConnectedProjectionSettings(
                 defaultCatchUpPageSize,
                 _catchUpUpdatePositionMessageInterval ?? defaultCatchUpPageSize,
-                _retryPolicy ?? new NoRetries());
+                (StreamStoreMessageHandlingRetryPolicy?)_retryPolicy ?? new StreamStoreNoRetries());
+        }
+    }
+
+    public class KafkaConnectedProjectionSettingsConfigurator
+    {
+        private IHandlingRetryPolicy? _retryPolicy;
+
+        internal KafkaConnectedProjectionSettingsConfigurator() { }
+
+        public KafkaConnectedProjectionSettingsConfigurator ConfigureLinearBackOff<TException>(
+            IConfiguration configuration,
+            string policyName)
+            where TException : Exception
+        {
+            _retryPolicy = configuration.Configure(
+                (numberOfRetries, initialWait) => new KafkaLinearBackOff<TException>(numberOfRetries, initialWait),
+                config => config.GetValue<int>("NumberOfRetries"),
+                config => TimeSpan.FromSeconds(config.GetValue<int>("DelayInSeconds")),
+                policyName);
+            return this;
+        }
+
+        public KafkaConnectedProjectionSettingsConfigurator ConfigureLinearBackoff<TException>(
+            int numberOfRetries,
+            TimeSpan initialWait)
+            where TException : Exception
+        {
+            _retryPolicy = new KafkaLinearBackOff<TException>(numberOfRetries, initialWait);
+            return this;
+        }
+
+        internal KafkaConnectedProjectionSettings CreateSettings()
+        {
+            return new KafkaConnectedProjectionSettings((KafkaMessageHandlingRetryPolicy?)_retryPolicy ?? new KafkaNoRetries());
         }
     }
 }

@@ -12,32 +12,67 @@ namespace Be.Vlaanderen.Basisregisters.Projector
 
     public static class ContainerBuilderExtensions
     {
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
+        public static ContainerBuilder RegisterStreamStoreProjections<TConnectedProjection, TContext>(
             this ContainerBuilder builder,
-            ConnectedProjectionSettings settings)
+            StreamStoreConnectedProjectionSettings settings)
             where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>, new()
             where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(container => new TConnectedProjection(), settings);
+            => builder.RegisterStreamStoreProjections<TConnectedProjection, TContext>(container => new TConnectedProjection(), settings);
 
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
+        public static ContainerBuilder RegisterStreamStoreProjections<TConnectedProjection, TContext>(
             this ContainerBuilder builder,
             Func<TConnectedProjection> projectionFactory,
-            ConnectedProjectionSettings settings)
+            StreamStoreConnectedProjectionSettings settings)
             where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
             where TContext : RunnerDbContext<TContext>
-            => builder.RegisterProjections<TConnectedProjection, TContext>(container => projectionFactory(), settings);
+            => builder.RegisterStreamStoreProjections<TConnectedProjection, TContext>(container => projectionFactory(), settings);
 
-        public static ContainerBuilder RegisterProjections<TConnectedProjection, TContext>(
+        public static ContainerBuilder RegisterStreamStoreProjections<TConnectedProjection, TContext>(
             this ContainerBuilder builder,
             Func<IComponentContext, TConnectedProjection> projectionFactory,
-            ConnectedProjectionSettings settings)
+            StreamStoreConnectedProjectionSettings settings)
             where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
             where TContext : RunnerDbContext<TContext>
         {
             builder
                 .Register(container =>
-                    new ConnectedProjection<TConnectedProjection, TContext>(
+                    new StreamStoreConnectedProjection<TConnectedProjection, TContext>(
                         container.Resolve<Func<Owned<IConnectedProjectionContext<TContext>>>>(),
+                        projectionFactory(container),
+                        settings,
+                        container.Resolve<ILoggerFactory>()))
+                .As<IConnectedProjection>()
+                .IfConcreteTypeIsNotRegistered();
+
+            return builder;
+        }
+
+        public static ContainerBuilder? RegisterKafkaProjections<TConnectedProjection, TContext>(
+            this ContainerBuilder builder,
+            KafkaConnectedProjectionSettings settings)
+            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>, new()
+            where TContext : RunnerDbContext<TContext>
+            => builder.RegisterKafkaProjections<TConnectedProjection, TContext>(container => new TConnectedProjection(), settings);
+
+        public static ContainerBuilder RegisterKafkaProjections<TConnectedProjection, TContext>(
+            this ContainerBuilder builder,
+            Func<TConnectedProjection> projectionFactory,
+            KafkaConnectedProjectionSettings settings)
+            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
+            where TContext : RunnerDbContext<TContext>
+            => builder.RegisterKafkaProjections<TConnectedProjection, TContext>(container => projectionFactory(), settings);
+
+        public static ContainerBuilder RegisterKafkaProjections<TConnectedProjection, TContext>(
+            this ContainerBuilder builder,
+            Func<IComponentContext, TConnectedProjection> projectionFactory,
+            KafkaConnectedProjectionSettings settings)
+            where TConnectedProjection : ProjectionHandling.Connector.ConnectedProjection<TContext>
+            where TContext : RunnerDbContext<TContext>
+        {
+            builder
+                .Register(container =>
+                    new KafkaConnectedProjection<TConnectedProjection, TContext>(
+                        container.Resolve<Func<Owned<KafkaConnectedProjectionContext<TContext>>>>(),
                         projectionFactory(container),
                         settings,
                         container.Resolve<ILoggerFactory>()))

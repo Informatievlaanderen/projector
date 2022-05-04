@@ -13,7 +13,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     using Moq;
     using SqlStreamStore.Streams;
 
-    internal class MessageHandlerWithExecutionTracking : IConnectedProjectionMessageHandler
+    internal class MessageHandlerWithExecutionTracking : IStreamStoreConnectedProjectionMessageHandler
     {
         private readonly Stack<Exception> _exceptionSequence;
         

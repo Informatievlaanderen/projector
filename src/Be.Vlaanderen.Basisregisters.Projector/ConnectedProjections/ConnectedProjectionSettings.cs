@@ -3,17 +3,17 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
     using System;
     using Internal.Configuration;
 
-    public class ConnectedProjectionSettings : IConnectedProjectionSettings
+    public class StreamStoreConnectedProjectionSettings : IStreamStoreConnectedProjectionSettings
     {
         public int CatchUpPageSize { get; }
         public int CatchUpUpdatePositionMessageInterval { get; }
 
-        public MessageHandlingRetryPolicy RetryPolicy { get; }
+        public StreamStoreMessageHandlingRetryPolicy RetryPolicy { get; }
 
-        internal ConnectedProjectionSettings(
+        internal StreamStoreConnectedProjectionSettings(
             int catchUpPageSize,
             int catchUpUpdatePositionMessageInterval,
-            MessageHandlingRetryPolicy retryPolicy)
+            StreamStoreMessageHandlingRetryPolicy retryPolicy)
         {
             if (catchUpPageSize < 1)
                 throw new ArgumentException($"{nameof(catchUpPageSize)} has to be at least 1");
@@ -29,12 +29,32 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             RetryPolicy = retryPolicy ?? throw new ArgumentNullException(nameof(retryPolicy));
         }
         
-        public static ConnectedProjectionSettings Default
-            => new ConnectedProjectionSettingsConfigurator().CreateSettings();
+        public static StreamStoreConnectedProjectionSettings Default
+            => new StreamStoreConnectedProjectionSettingsConfigurator().CreateSettings();
 
-        public static ConnectedProjectionSettings Configure(Action<ConnectedProjectionSettingsConfigurator> configure)
+        public static StreamStoreConnectedProjectionSettings Configure(Action<StreamStoreConnectedProjectionSettingsConfigurator> configure)
         {
-            var configurator = new ConnectedProjectionSettingsConfigurator();
+            var configurator = new StreamStoreConnectedProjectionSettingsConfigurator();
+            configure(configurator);
+            return configurator.CreateSettings();
+        }
+    }
+
+    public class KafkaConnectedProjectionSettings : IKafkaConnectedProjectionSettings
+    {
+        public KafkaMessageHandlingRetryPolicy RetryPolicy { get; }
+
+        internal KafkaConnectedProjectionSettings(KafkaMessageHandlingRetryPolicy retryPolicy)
+        {
+            RetryPolicy = retryPolicy ?? throw new ArgumentNullException(nameof(retryPolicy));
+        }
+
+        public static KafkaConnectedProjectionSettings Default
+            => new KafkaConnectedProjectionSettingsConfigurator().CreateSettings();
+
+        public static KafkaConnectedProjectionSettings Configure(Action<KafkaConnectedProjectionSettingsConfigurator> configure)
+        {
+            var configurator = new KafkaConnectedProjectionSettingsConfigurator();
             configure(configurator);
             return configurator.CreateSettings();
         }

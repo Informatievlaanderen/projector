@@ -17,13 +17,24 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
     {
         ConnectedProjectionIdentifier Projection { get; }
         ILogger Logger { get; }
+    }
+
+    internal interface IStreamStoreConnectedProjectionMessageHandler : IConnectedProjectionMessageHandler
+    {
         Task HandleAsync(
             IEnumerable<StreamMessage> messages,
             IStreamGapStrategy streamGapStrategy,
             CancellationToken cancellationToken);
     }
 
-    internal class ConnectedProjectionMessageHandler<TContext> : IConnectedProjectionMessageHandler
+    internal interface IKafkaConnectedProjectionMessageHandler : IConnectedProjectionMessageHandler
+    {
+        Task HandleAsync(
+            IEnumerable<object> messages, //TODO: IQueueMessage?
+            CancellationToken cancellationToken);
+    }
+
+    internal class StreamStoreConnectedProjectionMessageHandler<TContext> : IStreamStoreConnectedProjectionMessageHandler
         where TContext : RunnerDbContext<TContext>
     {
         private readonly Func<Owned<IConnectedProjectionContext<TContext>>> _contextFactory;
@@ -33,7 +44,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         public ILogger Logger { get; }
 
-        public ConnectedProjectionMessageHandler(
+        public StreamStoreConnectedProjectionMessageHandler(
             ConnectedProjectionIdentifier projection,
             ConnectedProjectionHandler<TContext>[] handlers,
             Func<Owned<IConnectedProjectionContext<TContext>>> contextFactory,
@@ -42,7 +53,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             Projection = projection;
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _projector = new ConnectedProjector<TContext>(Resolve.WhenEqualToHandlerMessageType(handlers));
-            Logger = loggerFactory?.CreateLogger<ConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+            Logger = loggerFactory?.CreateLogger<StreamStoreConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public async Task HandleAsync(
@@ -144,5 +155,60 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
         // This is not very precise since we could have differing clocks, and should be seen as merely informational
         private static TimeSpan CalculateNotVeryPreciseLatency(StreamMessage message) => DateTime.UtcNow - message.CreatedUtc;
+    }
+
+    internal class KafkaConnectedProjectionMessageHandler<TContext> : IKafkaConnectedProjectionMessageHandler
+        where TContext : RunnerDbContext<TContext>
+    {
+        private readonly Func<Owned<KafkaConnectedProjectionContext<TContext>>> _contextFactory;
+        private readonly ConnectedProjector<TContext> _projector;
+
+        public ConnectedProjectionIdentifier Projection { get; }
+
+        public ILogger Logger { get; }
+
+        public KafkaConnectedProjectionMessageHandler(
+            ConnectedProjectionIdentifier projection,
+            ConnectedProjectionHandler<TContext>[] handlers,
+            Func<Owned<KafkaConnectedProjectionContext<TContext>>> contextFactory,
+            ILoggerFactory loggerFactory)
+        {
+            Projection = projection;
+            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+            _projector = new ConnectedProjector<TContext>(Resolve.WhenEqualToHandlerMessageType(handlers));
+            Logger = loggerFactory?.CreateLogger<StreamStoreConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+        }
+
+        public async Task HandleAsync(
+            IEnumerable<object> messages,
+            CancellationToken cancellationToken)
+        {
+            await using var context = _contextFactory().Value;
+            try
+            {
+                var completeMessageInProcess = CancellationToken.None;
+
+                async Task ProcessMessage(object message, CancellationToken ct)
+                {
+                    await context.ApplyProjections(_projector, message, ct);
+                }
+
+                foreach (var message in messages)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+
+                    await ProcessMessage(message, completeMessageInProcess);
+                }
+
+                await context.SaveChangesAsync(completeMessageInProcess);
+            }
+            catch (TaskCanceledException) { }
+            catch (Exception exception)
+            {
+                await context.SetErrorMessage(Projection, exception, cancellationToken);
+                throw new ConnectedProjectionMessageHandlingException(exception, Projection, null);
+            }
+        }
     }
 }

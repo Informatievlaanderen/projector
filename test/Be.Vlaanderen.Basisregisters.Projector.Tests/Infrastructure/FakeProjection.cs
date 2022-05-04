@@ -16,12 +16,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
     using SqlStreamStore;
     using SqlStreamStore.Streams;
 
-    internal class FakeProjection : IConnectedProjection<FakeProjectionContext>, IConnectedProjection
+    internal class FakeProjection : IStreamStoreConnectedProjection<FakeProjectionContext>, IConnectedProjection
     {
         public ConnectedProjectionIdentifier Id { get; }
         public ConnectedProjectionInfo Info { get; }
         public dynamic Instance => this;
-        public IConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
+        public IStreamStoreConnectedProjectionMessageHandler ConnectedProjectionMessageHandler { get; }
 
         public ConnectedProjectionCatchUp<FakeProjectionContext> CreateCatchUp(
             IReadonlyStreamStore streamStore,
@@ -40,7 +40,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Infrastructure
             Id = new ConnectedProjectionIdentifier($"{GetType().FullName}-{id}");
             Info = new ConnectedProjectionInfo(string.Empty, string.Empty);
 
-            var messageHandlerMock = new Mock<IConnectedProjectionMessageHandler>();
+            var messageHandlerMock = new Mock<IStreamStoreConnectedProjectionMessageHandler>();
             messageHandlerMock
                 .SetupGet(handler => handler.Projection)
                 .Returns(Id);

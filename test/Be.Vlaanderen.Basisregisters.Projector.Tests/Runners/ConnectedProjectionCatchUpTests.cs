@@ -21,7 +21,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
 
     public class When_a_projection_catch_up_processes_a_stream_and_throws_a_detected_stream_gap_exception
     {
-        private readonly IConnectedProjection<FakeProjectionContext> _projection;
+        private readonly IStreamStoreConnectedProjection<FakeProjectionContext> _projection;
         private readonly Mock<IConnectedProjectionsCommandBus> _commandBusMock;
         private readonly StreamGapStrategyConfigurationSettings _gapStrategySettings;
         private readonly FakeLogger _loggerMock;
@@ -76,7 +76,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
 
             var sut = new ConnectedProjectionCatchUp<FakeProjectionContext>(
                 _projection,
-                ConnectedProjectionSettings.Default,
+                StreamStoreConnectedProjectionSettings.Default,
                 streamMock.Object,
                 _commandBusMock.Object,
                 gapStrategyMock.Object,

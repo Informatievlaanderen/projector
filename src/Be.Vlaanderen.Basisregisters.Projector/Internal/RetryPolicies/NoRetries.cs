@@ -1,11 +1,16 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.Internal.RetryPolicies
 {
-    using System;
     using ConnectedProjections;
 
-    internal class NoRetries : MessageHandlingRetryPolicy
+    internal class StreamStoreNoRetries : StreamStoreMessageHandlingRetryPolicy
     {
-        internal override IConnectedProjectionMessageHandler ApplyOn(IConnectedProjectionMessageHandler messageHandler)
+        internal override IStreamStoreConnectedProjectionMessageHandler ApplyOn(IStreamStoreConnectedProjectionMessageHandler messageHandler)
+            => messageHandler;
+    }
+
+    internal class KafkaNoRetries : KafkaMessageHandlingRetryPolicy
+    {
+        internal override IKafkaConnectedProjectionMessageHandler ApplyOn(IKafkaConnectedProjectionMessageHandler messageHandler)
             => messageHandler;
     }
 }

@@ -21,11 +21,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         protected override void ContainerSetup(ContainerBuilder builder)
         {
             builder
-                .RegisterProjections<TrackHandledEventsProjection, ProjectionContext>(
+                .RegisterStreamStoreProjections<TrackHandledEventsProjection, ProjectionContext>(
                     () => new TrackHandledEventsProjection(MessageWasHandled),
-                    ConnectedProjectionSettings.Default
+                    StreamStoreConnectedProjectionSettings.Default
                 )
-                .RegisterProjections<SlowProjections, ProjectionContext>(ConnectedProjectionSettings.Default);
+                .RegisterStreamStoreProjections<SlowProjections, ProjectionContext>(StreamStoreConnectedProjectionSettings.Default);
         }
 
         protected override Task Setup()

@@ -2,8 +2,13 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Configuration
 {
     using ConnectedProjections;
 
-    internal interface IConnectedProjectionSettings : IConnectedProjectionCatchUpSettings
+    internal interface IStreamStoreConnectedProjectionSettings : IConnectedProjectionCatchUpSettings
     {
-        MessageHandlingRetryPolicy RetryPolicy { get; }
+        StreamStoreMessageHandlingRetryPolicy RetryPolicy { get; }
+    }
+
+    internal interface IKafkaConnectedProjectionSettings
+    {
+        KafkaMessageHandlingRetryPolicy RetryPolicy { get; }
     }
 }

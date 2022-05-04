@@ -25,7 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
     public class When_the_subscription_runner_processing_a_stream_event_throws_a_detected_stream_gap_exception
     {
         private const string MissingMessageProjectionIdentifier = "throws-missing-messages";
-        private readonly ConnectedProjectionsSubscriptionRunner _sut;
+        private readonly StreamStoreConnectedProjectionsSubscriptionRunner _sut;
         private readonly Mock<IConnectedProjectionsCommandBus> _commandBusMock;
         private readonly List<IConnectedProjection> _registeredProjections;
         private readonly FakeLogger _loggerMock;
@@ -69,7 +69,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
                 .Returns((ConnectedProjectionIdentifier projectionId) => _registeredProjections.FirstOrDefault(projection => projection.Id.Equals(projectionId)));
 
             var loggerFactory = new FakeLoggerFactory();
-            _loggerMock = loggerFactory.ResolveLoggerMock<ConnectedProjectionsSubscriptionRunner>();
+            _loggerMock = loggerFactory.ResolveLoggerMock<StreamStoreConnectedProjectionsSubscriptionRunner>();
 
             _gapStrategySettings = fixture.Create<StreamGapStrategyConfigurationSettings>();
             var gapStrategyMock = new Mock<IStreamGapStrategy>();
@@ -77,7 +77,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.Runners
                 .SetupGet(strategy => strategy.Settings)
                 .Returns(_gapStrategySettings);
 
-            _sut = new ConnectedProjectionsSubscriptionRunner(
+            _sut = new StreamStoreConnectedProjectionsSubscriptionRunner(
                 registeredProjectionsMock.Object,
                 streamMock.Object,
                 _commandBusMock.Object,

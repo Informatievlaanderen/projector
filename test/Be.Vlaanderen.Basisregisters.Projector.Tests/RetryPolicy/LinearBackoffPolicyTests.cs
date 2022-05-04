@@ -23,7 +23,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     {
         private readonly MessageHandlerWithExecutionTracking _handlerWithoutPolicy;
         private readonly IFixture _fixture;
-        private readonly IConnectedProjectionMessageHandler _sut;
+        private readonly IStreamStoreConnectedProjectionMessageHandler _sut;
         private readonly Times _numberOfExpectedAttempts;
 
         public WhenApplyingALinearBackoffPolicyOnAHandler()
@@ -38,7 +38,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             var numberOfRetries = _fixture.CreatePositive<int>() + 1;
             _numberOfExpectedAttempts = Times.Once();
             var initialWait = TimeSpan.FromMilliseconds(_fixture.CreatePositive<int>());
-            var linearBackoffPolicy = new LinearBackOff<RetryException>(numberOfRetries, initialWait);
+            var linearBackoffPolicy = new StreamStoreLinearBackOff<RetryException>(numberOfRetries, initialWait);
 
             _sut = linearBackoffPolicy.ApplyOn(_handlerWithoutPolicy);
         }
@@ -73,7 +73,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     public class WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetry
     {
         private readonly MessageHandlerWithExecutionTracking _handlerWithoutPolicy;
-        private readonly IConnectedProjectionMessageHandler _sut;
+        private readonly IStreamStoreConnectedProjectionMessageHandler _sut;
         private readonly IReadOnlyCollection<StreamMessage> _messages;
 
         public WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetry()
@@ -90,7 +90,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             var initialWait = TimeSpan.FromMilliseconds(fixture.CreatePositive<int>());
             _messages = fixture.CreateMany<StreamMessage>().ToList();
 
-            _sut = new LinearBackOff<RetryException>(numberOfRetries, initialWait)
+            _sut = new StreamStoreLinearBackOff<RetryException>(numberOfRetries, initialWait)
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
@@ -121,7 +121,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     public class WhenMessageHandlerThrowsAnExceptionThatWasNotDefinedToRetryAfterRetrying
     {
         private readonly MessageHandlerWithExecutionTracking _handlerWithoutPolicy;
-        private readonly IConnectedProjectionMessageHandler _sut;
+        private readonly IStreamStoreConnectedProjectionMessageHandler _sut;
         private readonly IReadOnlyCollection<StreamMessage> _messages;
         private readonly FakeLogger _loggerMock;
         private readonly ConnectedProjectionIdentifier _projection;
@@ -148,7 +148,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             _initialWait = TimeSpan.FromMilliseconds(fixture.CreatePositive<int>());
             _messages = fixture.CreateMany<StreamMessage>().ToList();
 
-            _sut = new LinearBackOff<RetryException>(numberOfRetries, _initialWait)
+            _sut = new StreamStoreLinearBackOff<RetryException>(numberOfRetries, _initialWait)
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
@@ -201,7 +201,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
     public class WhenMessageHandlerThrowsTheExceptionDefinedInThePolicyMoreThanTheNumberOfRetries
     {
         private readonly MessageHandlerWithExecutionTracking _handlerWithoutPolicy;
-        private readonly IConnectedProjectionMessageHandler _sut;
+        private readonly IStreamStoreConnectedProjectionMessageHandler _sut;
         private readonly IReadOnlyCollection<StreamMessage> _messages;
         private readonly int _numberOfRetries;
         private readonly FakeLogger _loggerMock;
@@ -230,7 +230,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             _initialWait = TimeSpan.FromMilliseconds(fixture.CreatePositive<int>());
             _messages = fixture.CreateMany<StreamMessage>().ToList();
 
-            _sut = new LinearBackOff<RetryException>(_numberOfRetries, _initialWait)
+            _sut = new StreamStoreLinearBackOff<RetryException>(_numberOfRetries, _initialWait)
                 .ApplyOn(_handlerWithoutPolicy);
         }
 
@@ -308,7 +308,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             _initialWait = TimeSpan.FromMilliseconds(fixture.CreatePositive<int>());
             _messages = fixture.CreateMany<StreamMessage>().ToList();
 
-            new LinearBackOff<RetryException>(_numberOfRetries, _initialWait)
+            new StreamStoreLinearBackOff<RetryException>(_numberOfRetries, _initialWait)
                 .ApplyOn(_handlerWithoutPolicy)
                 .HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None)
                 .GetAwaiter()

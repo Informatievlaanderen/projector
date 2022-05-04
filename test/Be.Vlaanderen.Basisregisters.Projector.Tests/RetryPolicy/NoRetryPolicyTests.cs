@@ -8,14 +8,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
 
     public class WhenApplyingNoRetriesPolicyOnAHandler
     {
-        private readonly IConnectedProjectionMessageHandler _handlerWithoutPolicy;
-        private readonly IConnectedProjectionMessageHandler _sut;
+        private readonly IStreamStoreConnectedProjectionMessageHandler _handlerWithoutPolicy;
+        private readonly IStreamStoreConnectedProjectionMessageHandler _sut;
 
         public WhenApplyingNoRetriesPolicyOnAHandler()
         {
-            _handlerWithoutPolicy = new Mock<IConnectedProjectionMessageHandler>().Object;
+            _handlerWithoutPolicy = new Mock<IStreamStoreConnectedProjectionMessageHandler>().Object;
 
-            _sut = new NoRetries().ApplyOn(_handlerWithoutPolicy);
+            _sut = new StreamStoreNoRetries().ApplyOn(_handlerWithoutPolicy);
         }
 
         [Fact]  

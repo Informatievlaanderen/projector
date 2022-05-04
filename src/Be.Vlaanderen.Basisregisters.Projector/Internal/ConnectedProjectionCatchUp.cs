@@ -17,7 +17,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
     internal class ConnectedProjectionCatchUp<TContext> where TContext : RunnerDbContext<TContext>
     {
-        private readonly IConnectedProjection<TContext> _projection;
+        private readonly IStreamStoreConnectedProjection<TContext> _projection;
         private readonly IConnectedProjectionCatchUpSettings _settings;
         private readonly IConnectedProjectionsCommandBus _commandBus;
         private readonly IStreamGapStrategy _catchUpStreamGapStrategy;
@@ -25,7 +25,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private readonly IReadonlyStreamStore _streamStore;
 
         public ConnectedProjectionCatchUp(
-            IConnectedProjection<TContext> projection,
+            IStreamStoreConnectedProjection<TContext> projection,
             IConnectedProjectionCatchUpSettings settings,
             IReadonlyStreamStore streamStore,
             IConnectedProjectionsCommandBus commandBus,
