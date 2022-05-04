@@ -40,7 +40,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             return this;
         }
 
-        public StreamStoreConnectedProjectionSettingsConfigurator ConfigureLinearBackoff<TException>(
+        public StreamStoreConnectedProjectionSettingsConfigurator ConfigureLinearBackOff<TException>(
             int numberOfRetries,
             TimeSpan initialWait)
             where TException : Exception
@@ -78,7 +78,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             return this;
         }
 
-        public KafkaConnectedProjectionSettingsConfigurator ConfigureLinearBackoff<TException>(
+        public KafkaConnectedProjectionSettingsConfigurator ConfigureLinearBackOff<TException>(
             int numberOfRetries,
             TimeSpan initialWait)
             where TException : Exception
