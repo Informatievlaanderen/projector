@@ -40,6 +40,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
             builder.RegisterGeneric(typeof(StreamStoreConnectedProjectionContext<>))
                 .As(typeof(IConnectedProjectionContext<>));
 
+            builder.RegisterGeneric(typeof(KafkaConnectedProjectionContext<>))
+                .As(typeof(IConnectedProjectionContext<>));
+
             builder.RegisterType<ConnectedProjectionsStreamStoreSubscription>()
                 .As<IConnectedProjectionsStreamStoreSubscription>()
                 .SingleInstance();
@@ -55,6 +58,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
 
             builder.RegisterType<StreamStoreConnectedProjectionsSubscriptionRunner>()
                 .WithParameter(ResolveStrategy<DefaultSubscriptionStreamGapStrategy>())
+                .As<IConnectedProjectionsStreamStoreSubscriptionRunner>()
                 .As<IConnectedProjectionsSubscriptionRunner>()
                 .SingleInstance();
 

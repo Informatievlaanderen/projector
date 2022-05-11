@@ -27,6 +27,8 @@ nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 6.0.0
 
 nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.1.1
 
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 3.0.0
+
 // TEST STUFF
 nuget Microsoft.NET.Test.Sdk 17.1.0
 nuget Microsoft.EntityFrameworkCore.InMemory 6.0.3

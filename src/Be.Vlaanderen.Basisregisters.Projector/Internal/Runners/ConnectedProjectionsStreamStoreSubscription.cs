@@ -36,8 +36,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public bool StreamIsRunning => _allStreamSubscription != null;
 
-        public string StreamName => _allStreamSubscription?.Name;
-
         public async Task<long?> Start()
         {
             long? afterPosition = await _streamStore.ReadHeadPosition(CancellationToken.None);

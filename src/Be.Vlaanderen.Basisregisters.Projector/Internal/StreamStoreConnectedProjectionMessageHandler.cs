@@ -171,12 +171,12 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ConnectedProjectionIdentifier projection,
             ConnectedProjectionHandler<TContext>[] handlers,
             Func<Owned<KafkaConnectedProjectionContext<TContext>>> contextFactory,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory? loggerFactory)
         {
             Projection = projection;
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             _projector = new ConnectedProjector<TContext>(Resolve.WhenEqualToHandlerMessageType(handlers));
-            Logger = loggerFactory?.CreateLogger<StreamStoreConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+            Logger = loggerFactory?.CreateLogger<KafkaConnectedProjectionMessageHandler<TContext>>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public async Task HandleAsync(

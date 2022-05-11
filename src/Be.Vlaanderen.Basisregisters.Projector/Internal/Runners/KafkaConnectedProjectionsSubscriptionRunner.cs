@@ -5,45 +5,43 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
     using System.Threading;
     using System.Threading.Tasks;
     using Commands;
-    using Commands.CatchUp;
     using Commands.Subscription;
     using ConnectedProjections;
     using Exceptions;
     using Extensions;
     using Microsoft.Extensions.Logging;
     using ProjectionHandling.Runner;
-    using SqlStreamStore.Streams;
-    using StreamGapStrategies;
 
-    internal interface IConnectedProjectionsStreamStoreSubscriptionRunner : IConnectedProjectionsSubscriptionRunner
+    internal interface IConnectedProjectionsSubscriptionRunner
+    {
+        Task HandleSubscriptionCommand<TSubscriptionCommand>(TSubscriptionCommand command)
+            where TSubscriptionCommand : SubscriptionCommand;
+    }
+
+    internal interface IConnectedProjectionsKafkaSubscriptionRunner<TContext> : IConnectedProjectionsSubscriptionRunner
     { }
 
-    internal class StreamStoreConnectedProjectionsSubscriptionRunner : IConnectedProjectionsStreamStoreSubscriptionRunner
+    internal class KafkaConnectedProjectionsSubscriptionRunner<TContext> : IConnectedProjectionsKafkaSubscriptionRunner<TContext>
     {
-        private readonly Dictionary<ConnectedProjectionIdentifier, Func<StreamMessage, CancellationToken, Task>> _handlers;
+        private readonly Dictionary<ConnectedProjectionIdentifier, Func<object, CancellationToken, Task>> _handlers;
         private readonly IRegisteredProjections _registeredProjections;
-        private readonly IConnectedProjectionsStreamStoreSubscription _streamsStoreSubscription;
+        private readonly IConnectedProjectionsKafkaSubscription<TContext> _kafkaSubscription;
         private readonly IConnectedProjectionsCommandBus _commandBus;
-        private readonly IStreamGapStrategy _subscriptionStreamGapStrategy;
         private readonly ILogger _logger;
 
-        private long? _lastProcessedMessagePosition;
-
-        public StreamStoreConnectedProjectionsSubscriptionRunner(
+        public KafkaConnectedProjectionsSubscriptionRunner(
             IRegisteredProjections registeredProjections,
-            IConnectedProjectionsStreamStoreSubscription streamsStoreSubscription,
+            IConnectedProjectionsKafkaSubscription<TContext> kafkaSubscription,
             IConnectedProjectionsCommandBus commandBus,
-            IStreamGapStrategy subscriptionStreamGapStrategy,
             ILoggerFactory loggerFactory)
         {
-            _handlers = new Dictionary<ConnectedProjectionIdentifier, Func<StreamMessage, CancellationToken, Task>>();
+            _handlers = new Dictionary<ConnectedProjectionIdentifier, Func<object, CancellationToken, Task>>();
 
             _registeredProjections = registeredProjections ?? throw new ArgumentNullException(nameof(registeredProjections));
             _registeredProjections.IsSubscribed = HasSubscription;
 
-            _streamsStoreSubscription = streamsStoreSubscription ?? throw new ArgumentNullException(nameof(streamsStoreSubscription));
+            _kafkaSubscription = kafkaSubscription ?? throw new ArgumentNullException(nameof(kafkaSubscription));
             _commandBus = commandBus ?? throw new ArgumentNullException(nameof(commandBus));
-            _subscriptionStreamGapStrategy = subscriptionStreamGapStrategy ?? throw new ArgumentNullException(nameof(subscriptionStreamGapStrategy));
             _logger = loggerFactory?.CreateLogger<StreamStoreConnectedProjectionsSubscriptionRunner>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
@@ -62,8 +60,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             _logger.LogTrace("Subscription: Handling {Command}", command);
             switch (command)
             {
-                case ProcessStreamEvent processStreamEvent:
-                    await Handle(processStreamEvent);
+                case ProcessKafkaMessage processKafkaMessage:
+                    await Handle(processKafkaMessage);
                     break;
 
                 case Subscribe subscribe:
@@ -90,25 +88,25 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private async Task StartStream()
         {
-            if (_streamsStoreSubscription.StreamIsRunning)
+            if (_kafkaSubscription.StreamIsRunning)
                 return;
 
             if (_handlers.Count > 0)
             {
                 var staleSubscriptions = _handlers.Keys.ToReadOnlyList();
-                _logger.LogInformation("Remove stale subscriptions before starting stream: {subscriptions}", staleSubscriptions.ToString(", "));
+                _logger.LogInformation("Remove stale subscriptions before starting kafka stream: {subscriptions}", staleSubscriptions.ToString(", "));
                 _handlers.Clear();
 
                 foreach (var name in staleSubscriptions)
                     _commandBus.Queue(new Start(name));
             }
 
-            _lastProcessedMessagePosition = await _streamsStoreSubscription.Start();
+            await _kafkaSubscription.Start(CancellationToken.None);
         }
 
         private async Task Handle(Subscribe subscribe)
         {
-            if (_streamsStoreSubscription.StreamIsRunning)
+            if (_kafkaSubscription.StreamIsRunning)
             {
                 var projection = _registeredProjections
                     .GetProjection(subscribe.Projection)
@@ -125,7 +123,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         private async Task SubscribeAll()
         {
-            if (_streamsStoreSubscription.StreamIsRunning)
+            if (_kafkaSubscription.StreamIsRunning)
             {
                 foreach (var projection in _registeredProjections.Identifiers)
                     await Handle(new Subscribe(projection));
@@ -141,82 +139,52 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
         {
             _logger.LogInformation("Unsubscribing {Projection}", unsubscribe.Projection);
             _handlers.Remove(unsubscribe.Projection);
-            if (_handlers.Count == 0)
-                _lastProcessedMessagePosition = null;
         }
 
         private void UnsubscribeAll()
         {
             _logger.LogInformation("Unsubscribing {Projections}", _handlers.Keys.ToString(", "));
             _handlers.Clear();
-            _lastProcessedMessagePosition = null;
         }
 
-        private async Task Subscribe<TContext>(IStreamStoreConnectedProjection<TContext> projection)
+        private async Task Subscribe<TContext>(IKafkaConnectedProjection<TContext> projection)
             where TContext : RunnerDbContext<TContext>
         {
             if (projection == null || _registeredProjections.IsProjecting(projection.Id))
                 return;
 
             long? projectionPosition;
-            using (var context = projection.ContextFactory())
+            await using (var context = projection.ContextFactory())
                 projectionPosition = await context.Value.GetProjectionPosition(projection.Id, CancellationToken.None);
 
-            if ((projectionPosition ?? -1) >= (_lastProcessedMessagePosition ?? -1))
-            {
-                _logger.LogInformation(
-                    "Subscribing {Projection} at {ProjectionPosition} to AllStream at {StreamPosition}",
-                    projection.Id,
-                    projectionPosition,
-                    _lastProcessedMessagePosition);
+            _logger.LogInformation(
+                "Subscribing {Projection} at {ProjectionPosition} to KafkaStream",
+                projection.Id,
+                projectionPosition);
 
-                _handlers.Add(
-                    projection.Id,
-                    async (message, token) => await projection
-                        .ConnectedProjectionMessageHandler
-                        .HandleAsync(
-                            new[] { message },
-                            _subscriptionStreamGapStrategy,
-                            token));
-            }
-            else
-                _commandBus.Queue(new StartCatchUp(projection.Id));
+            _handlers.Add(
+                projection.Id,
+                async (message, token) => await projection
+                    .ConnectedProjectionMessageHandler
+                    .HandleAsync(
+                        new[] { message },
+                        token));
         }
 
-        private async Task Handle(ProcessStreamEvent processStreamEvent)
+        private async Task Handle(ProcessKafkaMessage processKafkaMessage)
         {
             if (_handlers.Count == 0)
                 return;
 
-            _lastProcessedMessagePosition = processStreamEvent.Message.Position;
-
             _logger.LogTrace(
-                "Handling message {MessageType} at {Position}",
-                processStreamEvent.Message.Type,
-                processStreamEvent.Message.Position);
-
+                "Handling message {MessageType}",
+                processKafkaMessage.Message.GetType());
 
             foreach (var projection in _handlers.Keys.ToReadOnlyList())
             {
                 try
                 {
-                    await _handlers[projection](processStreamEvent.Message, processStreamEvent.CancellationToken);
-                }
-                catch (ConnectedProjectionMessageHandlingException e)
-                    when (e.InnerException is StreamGapDetectedException)
-                {
-                    var projectionInError = e.Projection;
-                    _logger.LogWarning(
-                        "Detected gap in the message stream for subscribed projection. Unsubscribed projection {Projection} and queued restart in {RestartDelay} seconds.",
-                        projectionInError,
-                        _subscriptionStreamGapStrategy.Settings.RetryDelayInSeconds);
-
-                    _handlers.Remove(projectionInError);
-
-                    _commandBus.Queue(
-                        new Restart(
-                            projectionInError,
-                            TimeSpan.FromSeconds(_subscriptionStreamGapStrategy.Settings.RetryDelayInSeconds)));
+                    await _handlers[projection](processKafkaMessage.Message, processKafkaMessage.CancellationToken);
                 }
                 catch (ConnectedProjectionMessageHandlingException messageHandlingException)
                 {
