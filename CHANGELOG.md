@@ -1,3 +1,11 @@
+## [13.0.2](https://github.com/informatievlaanderen/projector/compare/v13.0.1...v13.0.2) (2022-12-29)
+
+
+### Bug Fixes
+
+* don't persist-credentials ([bfe70f8](https://github.com/informatievlaanderen/projector/commit/bfe70f86a49efcea1a5e7ab5a782013d443b0755))
+* fix release.yml ([37a5419](https://github.com/informatievlaanderen/projector/commit/37a5419155c1bc1acb0718bf5e7b542a134bf617))
+
 ## [13.0.1](https://github.com/informatievlaanderen/projector/compare/v13.0.0...v13.0.1) (2022-12-29)
 
 
