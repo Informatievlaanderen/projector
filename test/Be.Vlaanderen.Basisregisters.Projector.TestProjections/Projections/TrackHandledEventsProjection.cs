@@ -18,13 +18,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
         public TrackHandledEventsProjection(Action onMessageHandled)
         {
             if (onMessageHandled != null)
+            {
                 OnMessageHandled += onMessageHandled;
+            }
             
             When<Envelope<DelayWasScheduled>>(Handle);
             When<Envelope<SomethingHappened>>(Handle);
         }
 
-        private async Task Handle<T>(ProjectionContext context, Envelope<T> envelope) 
+        private async Task Handle<T>(ProjectionContext context, Envelope<T> envelope)
             where T : IEvent, IMessage
         {
             switch (envelope.Message)
