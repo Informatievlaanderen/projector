@@ -181,13 +181,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.StreamGapStrategies
         {
             var exception = await _handlingMessage
                 .Should()
-                .ThrowAsync<StreamGapDetectedException>();
-
-            exception.And.Message
-                .Should()
-                .Contain(_projection.ToString())
-                .And
-                .Contain($"[{string.Join(',', _missingPositions)}]");
+                .ThrowAsync<StreamGapDetectedException>()
+                .WithMessage(_projection.ToString())
+                .WithMessage($"[{string.Join(',', _missingPositions)}]");
         }
 
         [Fact]
