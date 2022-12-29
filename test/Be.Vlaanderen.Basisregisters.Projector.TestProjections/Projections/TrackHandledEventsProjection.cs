@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
 {
     using System;
     using System.Threading.Tasks;
+    using EventHandling;
     using Messages;
     using ProjectionHandling.Connector;
     using ProjectionHandling.SqlStreamStore;
@@ -17,14 +18,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
         public TrackHandledEventsProjection(Action onMessageHandled)
         {
             if (onMessageHandled != null)
+            {
                 OnMessageHandled += onMessageHandled;
+            }
             
             When<Envelope<DelayWasScheduled>>(Handle);
             When<Envelope<SomethingHappened>>(Handle);
         }
 
         private async Task Handle<T>(ProjectionContext context, Envelope<T> envelope)
-            where T : IEvent
+            where T : IEvent, IMessage
         {
             switch (envelope.Message)
             {

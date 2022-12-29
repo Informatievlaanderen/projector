@@ -100,7 +100,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         {
             ((Func<Task>)Act)
                 .Should()
-                .Throw<DoNotRetryException>();
+                .ThrowAsync<DoNotRetryException>();
         }
 
         [Fact]
@@ -158,7 +158,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         {
             ((Func<Task>)Act)
                 .Should()
-                .Throw<DoNotRetryException>();
+                .ThrowAsync<DoNotRetryException>();
         }
 
         [Fact]
@@ -191,7 +191,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
 
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projection}' failed. Retry attempt #{attempt.Retry} in {_initialWait.Multiply(attempt.Retry).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{attempt.Retry} in {_initialWait.Multiply(attempt.Retry).TotalSeconds.ToString("0.00#", System.Globalization.CultureInfo.InvariantCulture)} seconds.",
                     Times.Once);
             }
         }
@@ -240,7 +240,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         {
             ((Func<Task>)Act)
                 .Should()
-                .Throw<RetryException>();
+                .ThrowAsync<RetryException>();
         }
 
         [Fact]
@@ -270,7 +270,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             {
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds.ToString("0.00#", System.Globalization.CultureInfo.InvariantCulture)} seconds.",
                     Times.Once);
             }
         }
@@ -327,7 +327,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             {
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds.ToString("0.00#", System.Globalization.CultureInfo.InvariantCulture)} seconds.",
                     Times.Once);
             }
         }

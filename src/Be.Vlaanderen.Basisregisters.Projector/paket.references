@@ -3,6 +3,13 @@ Autofac.Extensions.DependencyInjection
 Dapper
 Microsoft.Data.SqlClient
 
+Microsoft.EntityFrameworkCore.Abstractions
+Microsoft.EntityFrameworkCore.Analyzers
+Microsoft.EntityFrameworkCore.Design
+Microsoft.EntityFrameworkCore.Relational
+Microsoft.EntityFrameworkCore.SqlServer
+Microsoft.EntityFrameworkCore.Tools
+
 System.Threading.Tasks.Dataflow
 Polly
 

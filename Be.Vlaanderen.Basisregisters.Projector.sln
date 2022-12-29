@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31911.196
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33209.295
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C2F8FF63-7A48-4179-A720-86206C42F496}"
 EndProject
@@ -28,7 +28,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Vlaanderen.Basisregister
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Vlaanderen.Basisregisters.Projector.TestScenarios", "test\Be.Vlaanderen.Basisregisters.Projector.TestScenarios\Be.Vlaanderen.Basisregisters.Projector.TestScenarios.csproj", "{D3A9D1ED-F71F-4F67-9B2A-CBAC5085366A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Be.Vlaanderen.Basisregisters.Projector.Query.Tests", "test\Be.Vlaanderen.Basisregisters.Projector.Query.Tests\Be.Vlaanderen.Basisregisters.Projector.Query.Tests.csproj", "{AEF5AF7B-9A1A-4EEE-BD32-DEF445EC78F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Vlaanderen.Basisregisters.Projector.Query.Tests", "test\Be.Vlaanderen.Basisregisters.Projector.Query.Tests\Be.Vlaanderen.Basisregisters.Projector.Query.Tests.csproj", "{AEF5AF7B-9A1A-4EEE-BD32-DEF445EC78F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Vlaanderen.Basisregisters.Projector.Microsoft", "src\Be.Vlaanderen.Basisregisters.Projector.Microsoft\Be.Vlaanderen.Basisregisters.Projector.Microsoft.csproj", "{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -100,6 +102,18 @@ Global
 		{AEF5AF7B-9A1A-4EEE-BD32-DEF445EC78F4}.Release|x64.Build.0 = Release|Any CPU
 		{AEF5AF7B-9A1A-4EEE-BD32-DEF445EC78F4}.Release|x86.ActiveCfg = Release|Any CPU
 		{AEF5AF7B-9A1A-4EEE-BD32-DEF445EC78F4}.Release|x86.Build.0 = Release|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Debug|x64.Build.0 = Debug|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Debug|x86.Build.0 = Debug|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Release|x64.ActiveCfg = Release|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Release|x64.Build.0 = Release|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Release|x86.ActiveCfg = Release|Any CPU
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,6 +124,7 @@ Global
 		{79816993-125A-4D83-9846-FDFB12C42BB1} = {0FE5BAD8-80AF-4FAA-9A60-436A7675F923}
 		{D3A9D1ED-F71F-4F67-9B2A-CBAC5085366A} = {0FE5BAD8-80AF-4FAA-9A60-436A7675F923}
 		{AEF5AF7B-9A1A-4EEE-BD32-DEF445EC78F4} = {0FE5BAD8-80AF-4FAA-9A60-436A7675F923}
+		{2EAF4BA4-8986-4B63-8AE9-EE34388BE13B} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EB87445-E263-4E1E-89CC-3839170028E5}

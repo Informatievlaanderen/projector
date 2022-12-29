@@ -1,8 +1,14 @@
 #r "paket:
-version 6.0.0-rc001
-framework: netstandard20
+version 7.0.2
+framework: net6.0
 source https://api.nuget.org/v3/index.json
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 5.0.3 //"
+
+nuget Microsoft.Build 17.3.2
+nuget Microsoft.Build.Framework 17.3.2
+nuget Microsoft.Build.Tasks.Core 17.3.2
+nuget Microsoft.Build.Utilities.Core 17.3.2
+
+nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.6 //"
 
 #load "packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/build-generic.fsx"
 
@@ -24,6 +30,7 @@ supportedRuntimeIdentifiers <- [ "linux-x64" ]
 // Library ------------------------------------------------------------------------
 Target.create "Lib_Build" (fun _ ->
     buildSource "Be.Vlaanderen.Basisregisters.Projector"
+    buildSource "Be.Vlaanderen.Basisregisters.Projector.Microsoft"
     buildTest "Be.Vlaanderen.Basisregisters.Projector.Tests"
     buildTest "Be.Vlaanderen.Basisregisters.Projector.TestProjections"
 )
@@ -37,9 +44,13 @@ Target.create "Lib_Test" (fun _ ->
 
 Target.create "Lib_Publish" (fun _ ->
     publishSource "Be.Vlaanderen.Basisregisters.Projector"
+    publishSource "Be.Vlaanderen.Basisregisters.Projector.Microsoft"
 )
 
-Target.create "Lib_Pack" (fun _ -> pack "Be.Vlaanderen.Basisregisters.Projector")
+Target.create "Lib_Pack" (fun _ ->
+    pack "Be.Vlaanderen.Basisregisters.Projector"
+    pack "Be.Vlaanderen.Basisregisters.Projector.Microsoft"
+)
 
 // --------------------------------------------------------------------------------
 Target.create "PublishAll" ignore

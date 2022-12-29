@@ -12,3 +12,5 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
+
+Microsoft.EntityFrameworkCore.Design
