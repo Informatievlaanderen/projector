@@ -37,7 +37,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests
         {
             var sut = new ConnectedProjectionsCommandBus();
 
-            Action act = () => sut.Register(null);
+            var act = () => sut.Register(null);
 
             act.Should().Throw<ArgumentNullException>();
         }
