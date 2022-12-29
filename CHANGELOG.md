@@ -1,3 +1,10 @@
+## [13.0.1](https://github.com/informatievlaanderen/projector/compare/v13.0.0...v13.0.1) (2022-12-29)
+
+
+### Bug Fixes
+
+* dummy commit ([8b7452c](https://github.com/informatievlaanderen/projector/commit/8b7452c335207bd2d739197a198f430636c67384))
+
 # [13.0.0](https://github.com/informatievlaanderen/projector/compare/v12.1.0...v13.0.0) (2022-12-29)
 
 
