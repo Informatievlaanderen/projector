@@ -2,6 +2,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -96,9 +97,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
-        public void ThenTheExceptionIsNotCaught()
+        public async Task ThenTheExceptionIsNotCaught()
         {
-            ((Func<Task>)Act)
+            await ((Func<Task>)Act)
                 .Should()
                 .ThrowAsync<DoNotRetryException>();
         }
@@ -154,9 +155,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
-        public void ThenTheExceptionIsNotCaught()
+        public async Task ThenTheExceptionIsNotCaught()
         {
-            ((Func<Task>)Act)
+            await ((Func<Task>)Act)
                 .Should()
                 .ThrowAsync<DoNotRetryException>();
         }
@@ -236,9 +237,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
         private async Task Act() => await _sut.HandleAsync(_messages, Mock.Of<IStreamGapStrategy>(), CancellationToken.None);
 
         [Fact]
-        public void ThenTheExceptionToRetryIsNotCaught()
+        public async Task ThenTheExceptionToRetryIsNotCaught()
         {
-            ((Func<Task>)Act)
+            await ((Func<Task>)Act)
                 .Should()
                 .ThrowAsync<RetryException>();
         }
