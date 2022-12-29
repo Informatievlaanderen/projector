@@ -1,3 +1,11 @@
+# [12.1.0](https://github.com/informatievlaanderen/projector/compare/v12.0.1...v12.1.0) (2022-12-29)
+
+
+### Features
+
+* upgrade to net6.0 ([#227](https://github.com/informatievlaanderen/projector/issues/227)) ([79c15ca](https://github.com/informatievlaanderen/projector/commit/79c15ca4de5fe239f148898c2b4940c2f585b832))
+* upgrade to net6.0 ([#231](https://github.com/informatievlaanderen/projector/issues/231)) ([a0f1f92](https://github.com/informatievlaanderen/projector/commit/a0f1f92ad14450aa9d7a1f039b730b65ff696caa))
+
 ## [12.0.1](https://github.com/informatievlaanderen/projector/compare/v12.0.0...v12.0.1) (2022-04-29)
 
 
