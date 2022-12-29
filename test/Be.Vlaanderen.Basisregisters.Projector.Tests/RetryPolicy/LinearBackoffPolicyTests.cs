@@ -271,7 +271,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Tests.RetryPolicy
             {
                 _loggerMock.Verify(
                     LogLevel.Warning,
-                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds.ToString("0.00#", System.Globalization.CultureInfo.InvariantCulture)} seconds.",
+                    $"Projection '{_projection}' failed. Retry attempt #{i} in {_initialWait.Multiply(i).TotalSeconds.ToString("0.00#", CultureInfo.InvariantCulture)} seconds.",
                     Times.Once);
             }
         }

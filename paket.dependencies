@@ -7,6 +7,7 @@ nuget Autofac.Extensions.DependencyInjection 7.2.0
 
 nuget System.Threading.Tasks.Dataflow 6.0.0
 nuget System.Threading.Tasks.Extensions 4.5.4
+nuget System.Formats.Asn1 6.0.0
 
 nuget Microsoft.EntityFrameworkCore.Abstractions 6.0.3
 nuget Microsoft.EntityFrameworkCore.Analyzers 6.0.3
