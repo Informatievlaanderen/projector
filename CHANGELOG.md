@@ -1,3 +1,35 @@
+# [13.0.0](https://github.com/informatievlaanderen/projector/compare/v12.1.0...v13.0.0) (2022-12-29)
+
+
+### Bug Fixes
+
+* add workflows ([#232](https://github.com/informatievlaanderen/projector/issues/232)) ([60cea07](https://github.com/informatievlaanderen/projector/commit/60cea07c203fdb9c971d93bde1e42ac54162e754))
+* delete main.yml ([37909ad](https://github.com/informatievlaanderen/projector/commit/37909adf6799a09e668beb50a1b4bd1f72d0e941))
+* update name of release.yml ([e0f16d4](https://github.com/informatievlaanderen/projector/commit/e0f16d49d684e01e577f402652e482b4dfeb7763))
+
+
+### BREAKING CHANGES
+
+* move to dotnet 6.0.3
+
+* chore(release): 12.0.0 [skip ci]
+
+# [12.0.0](https://github.com/informatievlaanderen/projector/compare/v11.1.1...v12.0.0) (2022-03-28)
+
+### Features
+
+* move to dotnet 6.0.3 ([dc63d65](https://github.com/informatievlaanderen/projector/commit/dc63d6526121341848b38b7c55bb4cee02b744a1))
+
+### BREAKING CHANGES
+
+* move to dotnet 6.0.3
+
+* build(deps): bump semver-regex from 3.1.2 to 3.1.3
+
+Bumps [semver-regex](https://github.com/sindresorhus/semver-regex) from 3.1.2 to 3.1.3.
+- [Release notes](https://github.com/sindresorhus/semver-regex/releases)
+- [Commits](https://github.com/sindresorhus/semver-regex/commits)
+
 # [12.1.0](https://github.com/informatievlaanderen/projector/compare/v12.0.1...v12.1.0) (2022-12-29)
 
 
