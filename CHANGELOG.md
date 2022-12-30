@@ -1,3 +1,10 @@
+## [13.0.3](https://github.com/informatievlaanderen/projector/compare/v13.0.2...v13.0.3) (2022-12-30)
+
+
+### Bug Fixes
+
+* use dotnet nuget to push Projector.Microsoft package ([51a0851](https://github.com/informatievlaanderen/projector/commit/51a08513ad7693e02ef55114126beeee8f28e699))
+
 ## [13.0.2](https://github.com/informatievlaanderen/projector/compare/v13.0.1...v13.0.2) (2022-12-29)
 
 
