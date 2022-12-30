@@ -106,7 +106,8 @@ jobs:
       shell: bash
       run: |
         node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/$LIBNAME/$LIBNAME.$SEMVER.nupkg
-        node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/$LIBNAME/Be.Vlaanderen.Basisregisters.Projector.Microsoft.$SEMVER.nupkg
+        #node packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-nuget.js dist/$LIBNAME/$LIBNAME.Microsoft.$SEMVER.nupkg
+        dotnet nuget push dist/$LIBNAME/$LIBNAME.Microsoft.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY
       env:
         LIBNAME: Be.Vlaanderen.Basisregisters.Projector
         SEMVER: ${{ env.RELEASE_VERSION }}
