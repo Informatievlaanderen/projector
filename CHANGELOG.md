@@ -1,3 +1,11 @@
+## [13.0.4](https://github.com/informatievlaanderen/projector/compare/v13.0.3...v13.0.4) (2022-12-31)
+
+
+### Bug Fixes
+
+* remove ~.Microsoft folder ([4e439b5](https://github.com/informatievlaanderen/projector/commit/4e439b55c0b0ecbba2a5a6d9b9d09da93c1d1bb1))
+* unify Autofac & Microsoft projects ([f521dee](https://github.com/informatievlaanderen/projector/commit/f521deefe23cb3739d9295ef8e0e90a7eee6d2ba))
+
 ## [13.0.3](https://github.com/informatievlaanderen/projector/compare/v13.0.2...v13.0.3) (2022-12-30)
 
 
