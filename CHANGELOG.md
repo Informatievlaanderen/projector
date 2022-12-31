@@ -1,3 +1,10 @@
+## [13.0.6](https://github.com/informatievlaanderen/projector/compare/v13.0.5...v13.0.6) (2022-12-31)
+
+
+### Bug Fixes
+
+* make ProjectorModule implement IServiceCollectionModule ([1803884](https://github.com/informatievlaanderen/projector/commit/1803884f446dc79187170102580fb8742c0f9f74))
+
 ## [13.0.5](https://github.com/informatievlaanderen/projector/compare/v13.0.4...v13.0.5) (2022-12-31)
 
 
