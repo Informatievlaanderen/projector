@@ -8,6 +8,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
     using NodaTime;
     using SqlStreamStore;
     using System.Linq;
+    using DependencyInjection;
     using IntAutofacCommands = Internal.Commands;
     using IntAutofacConfiguration = Internal.Configuration;
     using IntAutofacRunners = Internal.Runners;
@@ -17,7 +18,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Modules
     using IntMicrosoftRunners = InternalMicrosoft.Runners;
     using IntMicrosoftStreamGapStrategies = InternalMicrosoft.StreamGapStrategies;
 
-    public class ProjectorModule : Module//, IServiceCollectionModule
+    public class ProjectorModule : Module, IServiceCollectionModule
     {
         private readonly IConfiguration _configuration;
 
