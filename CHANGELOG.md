@@ -1,3 +1,10 @@
+## [13.0.5](https://github.com/informatievlaanderen/projector/compare/v13.0.4...v13.0.5) (2022-12-31)
+
+
+### Bug Fixes
+
+* re-enable Microsoft.DependencyInjection ([2973605](https://github.com/informatievlaanderen/projector/commit/29736055f4d2e7983a9cdf39d67d6896dca91aae))
+
 ## [13.0.4](https://github.com/informatievlaanderen/projector/compare/v13.0.3...v13.0.4) (2022-12-31)
 
 
