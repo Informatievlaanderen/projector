@@ -30,7 +30,6 @@ supportedRuntimeIdentifiers <- [ "linux-x64" ]
 // Library ------------------------------------------------------------------------
 Target.create "Lib_Build" (fun _ ->
     buildSource "Be.Vlaanderen.Basisregisters.Projector"
-    buildSource "Be.Vlaanderen.Basisregisters.Projector.Microsoft"
     buildTest "Be.Vlaanderen.Basisregisters.Projector.Tests"
     buildTest "Be.Vlaanderen.Basisregisters.Projector.TestProjections"
 )
@@ -44,12 +43,10 @@ Target.create "Lib_Test" (fun _ ->
 
 Target.create "Lib_Publish" (fun _ ->
     publishSource "Be.Vlaanderen.Basisregisters.Projector"
-    publishSource "Be.Vlaanderen.Basisregisters.Projector.Microsoft"
 )
 
 Target.create "Lib_Pack" (fun _ ->
     pack "Be.Vlaanderen.Basisregisters.Projector"
-    pack "Be.Vlaanderen.Basisregisters.Projector.Microsoft"
 )
 
 // --------------------------------------------------------------------------------
