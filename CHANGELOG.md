@@ -1,3 +1,10 @@
+## [13.0.7](https://github.com/informatievlaanderen/projector/compare/v13.0.6...v13.0.7) (2023-01-01)
+
+
+### Bug Fixes
+
+* bump dependencies ([7eff6af](https://github.com/informatievlaanderen/projector/commit/7eff6af974b16cad2c5859cebc2f8cef5c9036a4))
+
 ## [13.0.6](https://github.com/informatievlaanderen/projector/compare/v13.0.5...v13.0.6) (2022-12-31)
 
 
