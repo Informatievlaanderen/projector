@@ -357,7 +357,7 @@ NUGET
       Microsoft.Extensions.Logging.Abstractions (>= 6.0)
       Microsoft.Extensions.Options (>= 6.0)
       System.Diagnostics.DiagnosticSource (>= 6.0)
-    Microsoft.Extensions.Logging.Abstractions (7.0)
+    Microsoft.Extensions.Logging.Abstractions (6.0.1)
     Microsoft.Extensions.Options (6.0)
       Microsoft.Extensions.DependencyInjection.Abstractions (>= 6.0)
       Microsoft.Extensions.Primitives (>= 6.0)

@@ -19,6 +19,9 @@ Microsoft.Extensions.Configuration.Json
 
 Microsoft.Extensions.DependencyInjection.Abstractions
 
+Microsoft.Extensions.Logging
+Microsoft.Extensions.Logging.Abstractions
+
 System.Threading.Tasks.Dataflow
 Polly
 

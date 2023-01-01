@@ -25,6 +25,9 @@ nuget Microsoft.Extensions.Configuration.Json 6.0.0
 
 nuget Microsoft.Extensions.DependencyInjection.Abstractions 6.0.0
 
+nuget Microsoft.Extensions.Logging 6.0.0
+nuget Microsoft.Extensions.Logging.Abstractions 6.0.1
+
 nuget Dapper 2.0.123
 nuget Microsoft.Data.SqlClient 4.1.0
 
