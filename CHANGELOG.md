@@ -1,3 +1,10 @@
+## [13.0.8](https://github.com/informatievlaanderen/projector/compare/v13.0.7...v13.0.8) (2023-01-26)
+
+
+### Bug Fixes
+
+* add runner.microsoft to `paket.template` ([801fe2b](https://github.com/informatievlaanderen/projector/commit/801fe2b060c65ede050dd1c0ac40bd6df981501a))
+
 ## [13.0.7](https://github.com/informatievlaanderen/projector/compare/v13.0.6...v13.0.7) (2023-01-01)
 
 
