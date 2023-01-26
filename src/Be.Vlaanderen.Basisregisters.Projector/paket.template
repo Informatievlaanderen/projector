@@ -18,6 +18,7 @@ dependencies
   framework: net6.0
     Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Microsoft >= LOCKEDVERSION
 
     Autofac >= LOCKEDVERSION
     Autofac.Extensions.DependencyInjection >= LOCKEDVERSION
