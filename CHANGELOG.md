@@ -1,3 +1,10 @@
+## [13.0.10](https://github.com/informatievlaanderen/projector/compare/v13.0.9...v13.0.10) (2023-01-27)
+
+
+### Bug Fixes
+
+* fix paket.template ([4fc6f95](https://github.com/informatievlaanderen/projector/commit/4fc6f9560025d7c61abcb45c99921d06c10fc55b))
+
 ## [13.0.9](https://github.com/informatievlaanderen/projector/compare/v13.0.8...v13.0.9) (2023-01-27)
 
 
