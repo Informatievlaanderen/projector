@@ -26,6 +26,7 @@ dependencies
     Microsoft.Data.SqlClient >= LOCKEDVERSION
     System.Threading.Tasks.Dataflow >= LOCKEDVERSION
     Polly >= LOCKEDVERSION
+    System.Configuration.ConfigurationManager >= LOCKEDVERSION
 
 files
   bin\Release\net6.0\Be.Vlaanderen.Basisregisters.Projector.dll => lib\net6.0
