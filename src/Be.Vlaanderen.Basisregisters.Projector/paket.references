@@ -3,29 +3,8 @@ Autofac.Extensions.DependencyInjection
 Dapper
 Microsoft.Data.SqlClient
 
-Microsoft.EntityFrameworkCore.Abstractions
-Microsoft.EntityFrameworkCore.Analyzers
-Microsoft.EntityFrameworkCore.Design
-Microsoft.EntityFrameworkCore.Relational
-Microsoft.EntityFrameworkCore.SqlServer
-Microsoft.EntityFrameworkCore.Tools
-
-Microsoft.Extensions.Configuration
-Microsoft.Extensions.Configuration.Abstractions
-Microsoft.Extensions.Configuration.CommandLine
-Microsoft.Extensions.Configuration.EnvironmentVariables
-Microsoft.Extensions.Configuration.FileExtensions
-Microsoft.Extensions.Configuration.Json
-
-Microsoft.Extensions.DependencyInjection.Abstractions
-
-Microsoft.Extensions.Logging
-Microsoft.Extensions.Logging.Abstractions
-
 System.Threading.Tasks.Dataflow
 Polly
-
-Be.Vlaanderen.Basisregisters.DependencyInjection
 
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
