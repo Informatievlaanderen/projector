@@ -21,9 +21,10 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
             {
                 OnMessageHandled += onMessageHandled;
             }
-            
+
             When<Envelope<DelayWasScheduled>>(Handle);
             When<Envelope<SomethingHappened>>(Handle);
+            When<Envelope<ErrorHappened>>(Handle);
         }
 
         private async Task Handle<T>(ProjectionContext context, Envelope<T> envelope)
@@ -34,6 +35,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
                 case DelayWasScheduled _:
                     await Task.Delay(5000);
                     break;
+                case ErrorHappened _:
+                    await context.AddAsync(new ProcessedEvent
+                    {
+                        Id = Guid.NewGuid(),
+                        Event = typeof(T).Name,
+                        Position = envelope.Position,
+                        EventTime = envelope.Message.On
+                    });
+                    OnMessageHandled?.Invoke();
+                    throw new Exception("Something went wrong.");
             }
 
             await context.AddAsync(new ProcessedEvent
@@ -41,7 +52,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
                 Id = Guid.NewGuid(),
                 Event = typeof(T).Name,
                 Position = envelope.Position,
-                EvenTime = envelope.Message.On
+                EventTime = envelope.Message.On
             });
 
             OnMessageHandled?.Invoke();

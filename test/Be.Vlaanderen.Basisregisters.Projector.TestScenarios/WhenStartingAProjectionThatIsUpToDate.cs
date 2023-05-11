@@ -88,7 +88,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .Should().Contain(@event =>
                     @event.Position == PushedMessages.Count - 1
                     && @event.Event == somethingHappened.GetType().Name
-                    && @event.EvenTime == somethingHappened.On);
+                    && @event.EventTime == somethingHappened.On);
         }
     }
 }

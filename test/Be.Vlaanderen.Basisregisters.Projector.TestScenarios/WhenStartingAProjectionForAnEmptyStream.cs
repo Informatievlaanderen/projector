@@ -82,7 +82,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
             var assertContext = new ProjectionContext(CreateContextOptionsFor<ProjectionContext>());
             assertContext.ProcessedEvents
                 .Should()
-                .Contain(@event => @event.Position == 0L && @event.Event == message.GetType().Name && @event.EvenTime == message.On);
+                .Contain(@event => @event.Position == 0L && @event.Event == message.GetType().Name && @event.EventTime == message.On);
         }
     }
 }

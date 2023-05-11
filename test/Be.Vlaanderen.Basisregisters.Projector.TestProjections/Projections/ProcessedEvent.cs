@@ -8,7 +8,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestProjections.Projections
     {
         public Guid? Id { get; set; }
         public string Event { get; set; }
-        public DateTime EvenTime { get; set; }
+        public DateTime EventTime { get; set; }
         public long Position { get; set; }
     }
 

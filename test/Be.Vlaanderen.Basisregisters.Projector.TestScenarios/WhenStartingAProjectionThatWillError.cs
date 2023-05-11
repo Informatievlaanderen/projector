@@ -1,5 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
 {
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Autofac;
@@ -12,7 +13,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
     using TestProjections.Projections;
     using Xunit;
 
-    public class WhenStartingAProjectionThatIsNotUpToDate : Scenario
+    public class WhenStartingAProjectionThatWillError : Scenario
     {
         private ConnectedProjectionIdentifier _projection;
         private AutoResetEvent _waitForProjection;
@@ -51,24 +52,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
         }
 
         [Fact]
-        public async Task Then_the_projection_is_catching_up()
+        public async Task Then_the_projection_is_stopped_and_not_caught_up()
         {
             await ProjectionManager.Start(_projection, CancellationToken.None);
+
+            await PushToStream(Fixture.Create<ErrorHappened>());
 
             _waitForProjection.WaitOne();
-            ProjectionManager
-                .GetRegisteredProjections()
-                .Should()
-                .Contain(connectedProjection =>
-                    connectedProjection.Id == _projection
-                    && connectedProjection.State == ConnectedProjectionState.CatchingUp);
-        }
-
-        [Fact]
-        public async Task Then_the_projection_is_subscribed_once_caught_up()
-        {
-            await ProjectionManager.Start(_projection, CancellationToken.None);
-
+            _waitForProjection.Reset();
             _waitForProjection.WaitOne();
             _waitForProjection.Reset();
             _waitForProjection.WaitOne();
@@ -79,18 +70,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                 .Should()
                 .Contain(connectedProjection =>
                     connectedProjection.Id == _projection
-                    && connectedProjection.State == ConnectedProjectionState.Subscribed);
-            var assertionContext = new ProjectionContext(CreateContextOptionsFor<ProjectionContext>());
-            assertionContext.ProcessedEvents
-                .Should()
-                .ContainAll(
-                    PushedMessages,
-                    (processedMessage, message, i) => processedMessage.Position == i && processedMessage.Event == message.GetType().Name && processedMessage.EventTime == message.On);
+                    && connectedProjection.State == ConnectedProjectionState.Stopped);
 
+            var assertionContext = new ProjectionContext(CreateContextOptionsFor<ProjectionContext>());
+            assertionContext.ProcessedEvents.Should().BeEmpty();
         }
 
         [Fact]
-        public async Task Then_the_projection_processed_the_next_events_as_subscription()
+        public async Task Then_the_projection_processed_the_next_events_until_crash_as_subscription()
         {
             await ProjectionManager.Start(_projection, CancellationToken.None);
 
@@ -107,15 +94,18 @@ namespace Be.Vlaanderen.Basisregisters.Projector.TestScenarios
                     && connectedProjection.State == ConnectedProjectionState.Subscribed);
 
             await PushToStream(Fixture.CreateMany<SomethingHappened>(4));
+            await PushToStream(Fixture.Create<ErrorHappened>());
             await Task.Delay(500);
 
-            var assertionContext = new ProjectionContext(CreateContextOptionsFor<ProjectionContext>());
-            assertionContext.ProcessedEvents
+            ProjectionManager
+                .GetRegisteredProjections()
                 .Should()
-                .ContainAll(
-                    PushedMessages,
-                    (processedMessage, message, i) => processedMessage.Position == i && processedMessage.Event == message.GetType().Name && processedMessage.EventTime == message.On);
+                .Contain(connectedProjection =>
+                    connectedProjection.Id == _projection
+                    && connectedProjection.State == ConnectedProjectionState.Stopped);
 
+            var assertionContext = new ProjectionContext(CreateContextOptionsFor<ProjectionContext>());
+            assertionContext.ProcessedEvents.Should().HaveCount(6);
         }
     }
 }
