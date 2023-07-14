@@ -1,3 +1,11 @@
+## [13.0.11](https://github.com/informatievlaanderen/projector/compare/v13.0.10...v13.0.11) (2023-07-14)
+
+
+### Bug Fixes
+
+* bump dependencies projection-handling ([3746dc8](https://github.com/informatievlaanderen/projector/commit/3746dc86637d6b26f3f276a8e81936aed90ac5cc))
+* use await using + dispose the value not the factory ([3c71a90](https://github.com/informatievlaanderen/projector/commit/3c71a90ba03b309d8dc25c1fc721b8f2022ba6dc))
+
 ## [13.0.10](https://github.com/informatievlaanderen/projector/compare/v13.0.9...v13.0.10) (2023-01-27)
 
 
