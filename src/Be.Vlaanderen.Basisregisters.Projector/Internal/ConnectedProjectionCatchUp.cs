@@ -56,8 +56,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     _settings.CatchUpUpdatePositionMessageInterval);
 
                 long? position;
-                using (var context = _projection.ContextFactory())
-                    position = await context.Value.GetProjectionPosition(_projection.Id, cancellationToken);
+                await using (var context = _projection.ContextFactory().Value)
+                    position = await context.GetProjectionPosition(_projection.Id, cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
                     return;
@@ -79,7 +79,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                     // example: 334 = 1000 / 3
                     var savesPerPage = Math.Ceiling(_settings.CatchUpPageSize / (decimal)_settings.CatchUpUpdatePositionMessageInterval);
-                    
+
                     for (var i = 0; i < savesPerPage; i++)
                     {
                         // i = 0; skip 0 * 3 = 0; take 3
@@ -116,7 +116,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     "Detected gap in the message stream for catching up projection. Aborted projection {Projection} and queued restart in {GapStrategySettings.RetryDelayInSeconds} seconds.",
                     projection,
                     delayInSeconds);
-                    
+
                 CatchUpStopped(CatchUpStopReason.Aborted);
 
                 _commandBus.Queue(
@@ -131,7 +131,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     "{Projection} catching up failed because an exception was thrown when handling the message at {Position}.",
                     exception.Projection,
                     exception.RunnerPosition);
-                    
+
                 CatchUpStopped(CatchUpStopReason.Error);
             }
             catch (Exception exception)
@@ -140,7 +140,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     exception,
                     "{Projection} catching up failed because an exception was thrown",
                     _projection.Id);
-                    
+
                 CatchUpStopped(CatchUpStopReason.Error);
             }
         }
@@ -148,24 +148,24 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         private void CatchUpStopped(CatchUpStopReason reason)
         {
             var message = "Stopping catch up {Projection}: {Reason}";
-            
+
             switch (reason)
             {
                 case CatchUpStopReason.Error:
                     _logger.LogError(message, _projection.Id, reason);
                     break;
-                    
+
                 case CatchUpStopReason.Aborted:
                     _logger.LogWarning(message, _projection.Id, reason);
                     break;
-                    
+
                 default:
                     _logger.LogInformation(message, _projection.Id, reason);
                     break;
             }
 
             _commandBus.Queue(new RemoveStoppedCatchUp(_projection.Id));
-            
+
             if (CatchUpStopReason.Finished == reason)
                 _commandBus.Queue(new Subscribe(_projection.Id));
         }
