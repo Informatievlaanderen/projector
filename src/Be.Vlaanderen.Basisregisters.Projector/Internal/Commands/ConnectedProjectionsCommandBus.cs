@@ -21,7 +21,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
                     if (_commandHandler == null)
                         throw new Exception($"No command handler assigned, {command} was not handled");
 
-                    await _commandHandler.Handle(command);
+                    await _commandHandler.Handle(command).NoContext();
                 });
         }
 

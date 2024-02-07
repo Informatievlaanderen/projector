@@ -38,7 +38,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             ConnectedProjectionIdentifier projection,
             CancellationToken cancellationToken)
         {
-            if (await IsCloseToStreamEnd(message, cancellationToken))
+            if (await IsCloseToStreamEnd(message, cancellationToken).NoContext())
                 throw new StreamGapDetectedException(state.DetermineGapPositions(message), projection);
 
             _logger.LogWarning(
@@ -46,7 +46,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
                 string.Join(", ", state.DetermineGapPositions(message)),
                 projection);
 
-            await executeProjectMessage(message, cancellationToken);
+            await executeProjectMessage(message, cancellationToken).NoContext();
         }
 
         private async Task<bool> IsCloseToStreamEnd(StreamMessage message, CancellationToken cancellationToken)
@@ -55,7 +55,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
             var now = _clock
                 .GetCurrentInstant()
                 .ToDateTimeUtc();
-                
+
             return
                 message.CreatedUtc.AddSeconds(Settings.StreamBufferInSeconds) > now &&
                 message.Position + Settings.PositionBufferSize > headPosition;

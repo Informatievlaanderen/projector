@@ -18,7 +18,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             var connectionString = _connectionStringBySchema[schemaName.ToUpperInvariant()];
             var request = new QueryRequest(connectionString, schemaName, tableName, Request.Query.ToDictionary(x => x.Key, x => x.Value.FirstOrDefault()));
             var handler = new QueryHandler();
-            var response = await handler.Handle(request);
+            var response = await handler.Handle(request).ConfigureAwait(true);
 
             return response.IsSuccess
                 ? Ok(response.Values)
@@ -38,7 +38,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
 
             var request = new QueryEventsRequest(connectionString, registry, externalId);
             var handler = new QueryEventsHandler();
-            var response = await handler.Handle(request);
+            var response = await handler.Handle(request).ConfigureAwait(true);
 
             return response.IsSuccess
                 ? Ok(response.Values)

@@ -56,7 +56,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 try
                 {
                     var completeMessageInProcess = CancellationToken.None;
-                    processedState = new ActiveProcessedStreamState(await context.GetProjectionPosition(Projection, completeMessageInProcess));
+                    processedState = new ActiveProcessedStreamState(await context.GetProjectionPosition(Projection, completeMessageInProcess).NoContext());
 
                     async Task ProcessMessage(StreamMessage message, CancellationToken ct)
                     {
@@ -68,7 +68,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                             message.Type,
                             CalculateNotVeryPreciseLatency(message));
 
-                        await context.ApplyProjections(_projector, message, ct);
+                        await context.ApplyProjections(_projector, message, ct).NoContext();
                         processedState?.UpdateWithProcessed(message);
                     }
 
@@ -89,11 +89,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                                     processedState,
                                     ProcessMessage,
                                     Projection,
-                                    completeMessageInProcess);
+                                    completeMessageInProcess).NoContext();
                                 break;
 
                             case ProcessMessageAction.Process:
-                                await ProcessMessage(message, completeMessageInProcess);
+                                await ProcessMessage(message, completeMessageInProcess).NoContext();
                                 break;
 
                             default:
@@ -105,14 +105,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                         await context.UpdateProjectionPosition(
                             Projection,
                             processedState.Position,
-                            completeMessageInProcess);
+                            completeMessageInProcess).NoContext();
 
-                    await context.SaveChangesAsync(completeMessageInProcess);
+                    await context.SaveChangesAsync(completeMessageInProcess).NoContext();
                 }
                 catch (TaskCanceledException) { }
                 catch (Exception exception)
                 {
-                    await context.SetErrorMessage(Projection, exception, cancellationToken);
+                    await context.SetErrorMessage(Projection, exception, cancellationToken).NoContext();
                     throw new ConnectedProjectionMessageHandlingException(exception, Projection, processedState);
                 }
             }

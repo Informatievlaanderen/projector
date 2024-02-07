@@ -30,8 +30,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
                 .GetRegisteredProjections()
                 .ToList();
 
-            var responses = await CreateProjectionResponses(registeredConnectedProjections, cancellationToken);
-            var streamPosition = await streamStore.ReadHeadPosition(cancellationToken);
+            var responses = await CreateProjectionResponses(registeredConnectedProjections, cancellationToken).NoContext();
+            var streamPosition = await streamStore.ReadHeadPosition(cancellationToken).NoContext();
 
             return Ok(new ProjectionResponseList(responses, _baseUri)
             {
@@ -43,7 +43,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             IEnumerable<RegisteredConnectedProjection> registeredConnectedProjections,
             CancellationToken cancellationToken)
         {
-            var projectionStates = (await _projectionManager.GetProjectionStates(cancellationToken)).ToList();
+            var projectionStates = (await _projectionManager.GetProjectionStates(cancellationToken).NoContext()).ToList();
 
             return registeredConnectedProjections.Aggregate(
                 new List<ProjectionResponse>(),
@@ -61,7 +61,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("start/all")]
         public async Task<IActionResult> Start(CancellationToken cancellationToken)
         {
-            await _projectionManager.Start(cancellationToken);
+            await _projectionManager.Start(cancellationToken).ConfigureAwait(true);
             return Accepted();
         }
 
@@ -71,7 +71,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             if (!_projectionManager.Exists(projection))
                 return BadRequest("Invalid projection Id.");
 
-            await _projectionManager.Start(projection, cancellationToken);
+            await _projectionManager.Start(projection, cancellationToken).ConfigureAwait(true);
 
             return Accepted();
         }
@@ -79,7 +79,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
         [HttpPost("stop/all")]
         public async Task<IActionResult> Stop(CancellationToken cancellationToken)
         {
-            await _projectionManager.Stop(cancellationToken);
+            await _projectionManager.Stop(cancellationToken).ConfigureAwait(true);
             return Accepted();
         }
 
@@ -89,7 +89,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Controllers
             if (!_projectionManager.Exists(projection))
                 return BadRequest("Invalid projection Id.");
 
-            await _projectionManager.Stop(projection, cancellationToken);
+            await _projectionManager.Stop(projection, cancellationToken).ConfigureAwait(true);
 
             return Accepted();
         }

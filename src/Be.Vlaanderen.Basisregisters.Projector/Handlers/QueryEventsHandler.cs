@@ -98,7 +98,7 @@ order by
 
             try
             {
-                var result = await ExecuteQuery<QueryRow>(connectionString, cmdText);
+                var result = await ExecuteQuery<QueryRow>(connectionString, cmdText).NoContext();
                 return Result<QueryRow>.Success(result);
             }
             catch (SqlException ex)

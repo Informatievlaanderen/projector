@@ -43,7 +43,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
             switch (command)
             {
                 case SubscriptionCommand subscriptionCommand:
-                    await _subscriptionRunner.HandleSubscriptionCommand(subscriptionCommand);
+                    await _subscriptionRunner.HandleSubscriptionCommand(subscriptionCommand).NoContext();
                     return;
 
                 case CatchUpCommand catchUpCommand:
@@ -73,7 +73,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
                     break;
 
                 case Restart restart:
-                    await Task.Delay(restart.After);
+                    await Task.Delay(restart.After).NoContext();
                     _commandBus.Queue(new Start(restart.Projection));
                     break;
 
