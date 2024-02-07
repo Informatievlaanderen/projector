@@ -48,8 +48,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             foreach (var projection in _registeredProjections.Projections)
             {
-                await projection.ClearErrorMessage(cancellationToken);
-                await projection.UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
+                await projection.ClearErrorMessage(cancellationToken).NoContext();
+                await projection.UpdateUserDesiredState(UserDesiredState.Started, cancellationToken).NoContext();
             }
 
             _commandBus.Queue<StartAll>();
@@ -61,8 +61,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             if (projection == null)
                 return;
 
-            await projection.UpdateUserDesiredState(UserDesiredState.Started, cancellationToken);
-            await projection.ClearErrorMessage(cancellationToken);
+            await projection.UpdateUserDesiredState(UserDesiredState.Started, cancellationToken).NoContext();
+            await projection.ClearErrorMessage(cancellationToken).NoContext();
 
             _commandBus.Queue(new Start(projection.Id));
         }
@@ -71,9 +71,9 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             foreach (var projection in _registeredProjections.Projections)
             {
-                if (await projection.ShouldResume(cancellationToken))
+                if (await projection.ShouldResume(cancellationToken).NoContext())
                 {
-                    await projection.ClearErrorMessage(cancellationToken);
+                    await projection.ClearErrorMessage(cancellationToken).NoContext();
                     _commandBus.Queue(new Start(projection.Id));
                 }
             }
@@ -82,7 +82,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public async Task Stop(CancellationToken cancellationToken)
         {
             foreach (var projection in _registeredProjections.Projections)
-                await projection.UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken);
+                await projection.UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken).NoContext();
 
             _commandBus.Queue<StopAll>();
         }
@@ -96,7 +96,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
             await _registeredProjections
                 .GetProjection(projection)
-                .UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken);
+                .UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken)
+                .NoContext();
 
             _commandBus.Queue(new Stop(projection));
         }
@@ -106,7 +107,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             var list = new List<ProjectionStateItem>();
             foreach (var registeredProjectionsProjection in _registeredProjections.Projections)
             {
-                var projectionState = await registeredProjectionsProjection.GetProjectionState(cancellationToken);
+                var projectionState = await registeredProjectionsProjection.GetProjectionState(cancellationToken).NoContext();
                 if (projectionState != null)
                     list.Add(projectionState);
             }

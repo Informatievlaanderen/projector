@@ -40,7 +40,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
         public async Task<long?> Start()
         {
-            long? afterPosition = await _streamStore.ReadHeadPosition(CancellationToken.None);
+            long? afterPosition = await _streamStore.ReadHeadPosition(CancellationToken.None).NoContext();
             if (afterPosition < 0)
                 afterPosition = null;
 

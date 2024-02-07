@@ -66,15 +66,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             switch (command)
             {
                 case ProcessStreamEvent processStreamEvent:
-                    await Handle(processStreamEvent);
+                    await Handle(processStreamEvent).NoContext();
                     break;
 
                 case Subscribe subscribe:
-                    await Handle(subscribe);
+                    await Handle(subscribe).NoContext();
                     break;
 
                 case SubscribeAll _:
-                    await SubscribeAll();
+                    await SubscribeAll().NoContext();
                     break;
 
                 case Unsubscribe unsubscribe:
@@ -106,7 +106,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                     _commandBus.Queue(new Start(name));
             }
 
-            _lastProcessedMessagePosition = await _streamsStoreSubscription.Start();
+            _lastProcessedMessagePosition = await _streamsStoreSubscription.Start().NoContext();
         }
 
         private async Task Handle(Subscribe subscribe)
@@ -121,7 +121,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             }
             else
             {
-                await StartStream();
+                await StartStream().NoContext();
                 _commandBus.Queue(subscribe.Clone());
             }
         }
@@ -131,11 +131,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             if (_streamsStoreSubscription.StreamIsRunning)
             {
                 foreach (var projection in _registeredProjections.Identifiers)
-                    await Handle(new Subscribe(projection));
+                    await Handle(new Subscribe(projection)).NoContext();
             }
             else
             {
-                await StartStream();
+                await StartStream().NoContext();
                 _commandBus.Queue<SubscribeAll>();
             }
         }
@@ -163,7 +163,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
 
             long? projectionPosition;
             await using (var context = projection.ContextFactory().Value)
-                projectionPosition = await context.GetProjectionPosition(projection.Id, CancellationToken.None);
+                projectionPosition = await context.GetProjectionPosition(projection.Id, CancellationToken.None).NoContext();
 
             if ((projectionPosition ?? -1) >= (_lastProcessedMessagePosition ?? -1))
             {
@@ -180,7 +180,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                         .HandleAsync(
                             new []{ message },
                             _subscriptionStreamGapStrategy,
-                            token));
+                            token).NoContext());
             }
             else
                 _commandBus.Queue(new StartCatchUp(projection.Id));
@@ -203,7 +203,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
             {
                 try
                 {
-                    await _handlers[projection](processStreamEvent.Message, processStreamEvent.CancellationToken);
+                    await _handlers[projection](processStreamEvent.Message, processStreamEvent.CancellationToken).NoContext();
                 }
                 catch (ConnectedProjectionMessageHandlingException e)
                     when (e.InnerException is StreamGapDetectedException)

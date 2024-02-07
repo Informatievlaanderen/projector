@@ -87,8 +87,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             await using (var ctx = ContextFactory().Value)
             {
-                await ctx.UpdateProjectionDesiredState(Id, userDesiredState, cancellationToken);
-                await ctx.SaveChangesAsync(cancellationToken);
+                await ctx.UpdateProjectionDesiredState(Id, userDesiredState, cancellationToken).NoContext();
+                await ctx.SaveChangesAsync(cancellationToken).NoContext();
             }
         }
 
@@ -96,7 +96,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             await using (var ctx = ContextFactory().Value)
             {
-                var state = await ctx.GetProjectionDesiredState(Id, cancellationToken);
+                var state = await ctx.GetProjectionDesiredState(Id, cancellationToken).NoContext();
                 return state is { } && state == UserDesiredState.Started;
             }
         }
@@ -104,15 +104,15 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         public async Task<ProjectionStateItem?> GetProjectionState(CancellationToken cancellationToken)
         {
             await using (var ctx = ContextFactory().Value)
-                return await ctx.GetProjectionState(Id, cancellationToken);
+                return await ctx.GetProjectionState(Id, cancellationToken).NoContext();
         }
 
         public async Task SetErrorMessage(Exception exception, CancellationToken cancellationToken)
         {
             await using (var ctx = ContextFactory().Value)
             {
-                await ctx.SetErrorMessage(Id, exception, cancellationToken);
-                await ctx.SaveChangesAsync(cancellationToken);
+                await ctx.SetErrorMessage(Id, exception, cancellationToken).NoContext();
+                await ctx.SaveChangesAsync(cancellationToken).NoContext();
             }
         }
 
@@ -120,8 +120,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
         {
             await using (var ctx = ContextFactory().Value)
             {
-                await ctx.ClearErrorMessage(Id, cancellationToken);
-                await ctx.SaveChangesAsync(cancellationToken);
+                await ctx.ClearErrorMessage(Id, cancellationToken).NoContext();
+                await ctx.SaveChangesAsync(cancellationToken).NoContext();
             }
         }
 

@@ -31,7 +31,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             }
 
             public async Task HandleAsync(IEnumerable<StreamMessage> messages, IStreamGapStrategy streamGapStrategy, CancellationToken cancellationToken)
-                => await _messageHandling(messages, streamGapStrategy, cancellationToken);
+                => await _messageHandling(messages, streamGapStrategy, cancellationToken).NoContext();
         }
     }
 }

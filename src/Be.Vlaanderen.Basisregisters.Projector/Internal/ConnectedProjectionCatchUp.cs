@@ -57,7 +57,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
 
                 long? position;
                 await using (var context = _projection.ContextFactory().Value)
-                    position = await context.GetProjectionPosition(_projection.Id, cancellationToken);
+                    position = await context.GetProjectionPosition(_projection.Id, cancellationToken).NoContext();
 
                 if (cancellationToken.IsCancellationRequested)
                     return;
@@ -67,7 +67,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     _projection.Id,
                     position);
 
-                var page = await ReadPages(_streamStore, position, cancellationToken);
+                var page = await ReadPages(_streamStore, position, cancellationToken).NoContext();
 
                 var continueProcessing = cancellationToken.IsCancellationRequested == false;
                 while (continueProcessing)
@@ -91,7 +91,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                             .HandleAsync(
                                 streamMessages,
                                 _catchUpStreamGapStrategy,
-                                cancellationToken);
+                                cancellationToken)
+                            .NoContext();
                     }
 
                     if (cancellationToken.IsCancellationRequested)
@@ -100,7 +101,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                     if (page.IsEnd)
                         continueProcessing = false;
                     else
-                        page = await page.ReadNext(cancellationToken);
+                        page = await page.ReadNext(cancellationToken).NoContext();
                 }
 
                 CatchUpStopped(CatchUpStopReason.Finished);
@@ -179,7 +180,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 position + 1 ?? Position.Start,
                 _settings.CatchUpPageSize,
                 prefetchJsonData: true,
-                cancellationToken);
+                cancellationToken)
+                .NoContext();
         }
     }
 }

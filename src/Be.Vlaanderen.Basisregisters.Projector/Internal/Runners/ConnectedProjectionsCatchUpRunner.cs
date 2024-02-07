@@ -127,7 +127,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 _catchUpStreamGapStrategy,
                 _logger);
 
-            TaskRunner.Dispatch(async () => await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Id].Token));
+            TaskRunner.Dispatch(async () => await projectionCatchUp.CatchUpAsync(_projectionCatchUps[projection.Id].Token).NoContext());
         }
 
         private void Handle(RemoveStoppedCatchUp message) => _projectionCatchUps.Remove(message.Projection);
