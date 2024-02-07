@@ -1,3 +1,5 @@
+## [13.1.1](https://github.com/informatievlaanderen/projector/compare/v13.1.0...v13.1.1) (2024-02-07)
+
 # [13.1.0](https://github.com/informatievlaanderen/projector/compare/v13.0.11...v13.1.0) (2023-12-14)
 
 
