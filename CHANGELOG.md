@@ -1,3 +1,10 @@
+## [13.1.2](https://github.com/informatievlaanderen/projector/compare/v13.1.1...v13.1.2) (2024-02-13)
+
+
+### Bug Fixes
+
+* bump projection-handling + add configure awaits ([7c52b1d](https://github.com/informatievlaanderen/projector/commit/7c52b1d43a046dc87e9e19d66447fe26feaf8db3))
+
 ## [13.1.1](https://github.com/informatievlaanderen/projector/compare/v13.1.0...v13.1.1) (2024-02-07)
 
 # [13.1.0](https://github.com/informatievlaanderen/projector/compare/v13.0.11...v13.1.0) (2023-12-14)
