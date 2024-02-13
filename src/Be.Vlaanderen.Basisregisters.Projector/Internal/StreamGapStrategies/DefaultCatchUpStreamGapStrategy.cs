@@ -51,7 +51,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.StreamGapStrategies
 
         private async Task<bool> IsCloseToStreamEnd(StreamMessage message, CancellationToken cancellationToken)
         {
-            var headPosition = await _streamStore.ReadHeadPosition(cancellationToken);
+            var headPosition = await _streamStore.ReadHeadPosition(cancellationToken).ConfigureAwait(false);
             var now = _clock
                 .GetCurrentInstant()
                 .ToDateTimeUtc();

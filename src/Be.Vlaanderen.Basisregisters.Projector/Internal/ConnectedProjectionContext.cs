@@ -71,7 +71,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             ConnectedProjectionIdentifier projection,
             CancellationToken cancellationToken)
         {
-            var state = await GetProjectionState(projection, cancellationToken);
+            var state = await GetProjectionState(projection, cancellationToken).ConfigureAwait(false);
             return state?.Position;
         }
 
@@ -83,13 +83,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 .UpdateProjectionState(
                     projection.ToString(),
                     position,
-                    cancellationToken);
+                    cancellationToken)
+                .ConfigureAwait(false);
 
         public async Task<UserDesiredState?> GetProjectionDesiredState(
             ConnectedProjectionIdentifier projection,
             CancellationToken cancellationToken)
         {
-            var projectionState = await GetProjectionState(projection, cancellationToken);
+            var projectionState = await GetProjectionState(projection, cancellationToken).ConfigureAwait(false);
             return UserDesiredState.TryParse(projectionState?.DesiredState ?? string.Empty, out var state)
                 ? state
                 : null;
@@ -102,7 +103,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             => await _context.UpdateProjectionDesiredState(
                 projection,
                 userDesiredState,
-                CancellationToken.None);
+                CancellationToken.None)
+                .ConfigureAwait(false);
 
         public async Task ApplyProjections(
             ConnectedProjector<TContext> projector,
@@ -111,7 +113,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             => await projector.ProjectAsync(
                 _context,
                 _envelopeFactory.Create(message),
-                cancellationToken);
+                cancellationToken)
+                .ConfigureAwait(false);
 
         public async Task SetErrorMessage(
             ConnectedProjectionIdentifier projection,
@@ -119,16 +122,16 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
             CancellationToken cancellationToken)
         {
             //exception.ToString() => https://stackoverflow.com/a/2176722/412692
-            await _context.SetErrorMessage(projection, exception.ToString(), cancellationToken);
+            await _context.SetErrorMessage(projection, exception.ToString(), cancellationToken).ConfigureAwait(false);
         }
 
         public async Task ClearErrorMessage(
             ConnectedProjectionIdentifier projection,
             CancellationToken cancellationToken)
-            => await _context.SetErrorMessage(projection, null, cancellationToken);
+            => await _context.SetErrorMessage(projection, null, cancellationToken).ConfigureAwait(false);
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)
-            => await _context.SaveChangesAsync(cancellationToken);
+            => await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         public void Dispose()
             => _context.Dispose();
@@ -145,7 +148,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 .AsNoTracking()
                 .SingleOrDefaultAsync(
                     item => item.Name == projection.ToString(),
-                    cancellationToken);
+                    cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }

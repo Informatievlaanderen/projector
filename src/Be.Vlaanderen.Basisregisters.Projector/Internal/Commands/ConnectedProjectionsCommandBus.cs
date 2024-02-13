@@ -35,6 +35,6 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 
         public void Queue<TCommand>(TCommand command)
             where TCommand : ConnectedProjectionCommand
-            => _mailbox.SendAsync(command);
+            => _mailbox.SendAsync(command).NoContext();
     }
 }

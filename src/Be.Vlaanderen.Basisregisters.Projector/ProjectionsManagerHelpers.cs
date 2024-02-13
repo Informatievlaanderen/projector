@@ -41,11 +41,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector
         {
             options.Common.ApplicationLifetime.ApplicationStopping.Register(() => ProjectionsCancellationTokenSource.Cancel());
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 var projectionsManager = options.Common.ServiceProvider.GetRequiredService<IConnectedProjectionsManager>();
-                projectionsManager.Resume(ProjectionsCancellationTokenSource.Token);
-            }, ProjectionsCancellationTokenSource.Token).GetAwaiter().GetResult();
+                await projectionsManager.Resume(ProjectionsCancellationTokenSource.Token).ConfigureAwait(false);
+            }, ProjectionsCancellationTokenSource.Token)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
 
             return app;
         }
