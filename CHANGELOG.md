@@ -1,3 +1,15 @@
+# [14.0.0](https://github.com/informatievlaanderen/projector/compare/v13.1.2...v14.0.0) (2024-03-12)
+
+
+### Features
+
+* upgrade to dotnet 8.0.2 ([04f96bf](https://github.com/informatievlaanderen/projector/commit/04f96bf1f39981a0f8fe04b3a03bbb927070d752))
+
+
+### BREAKING CHANGES
+
+* upgrade to dotnet 8.0.2
+
 ## [13.1.2](https://github.com/informatievlaanderen/projector/compare/v13.1.1...v13.1.2) (2024-02-13)
 
 
