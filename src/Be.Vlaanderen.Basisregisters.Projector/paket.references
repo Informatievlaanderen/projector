@@ -8,7 +8,6 @@ Polly
 
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
-Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Microsoft
 
 SourceLink.Embed.AllSourceFiles
 SourceLink.Copy.PdbFiles
