@@ -1,3 +1,15 @@
+# [15.0.0](https://github.com/informatievlaanderen/projector/compare/v14.0.0...v15.0.0) (2024-04-05)
+
+
+### Features
+
+* bump projection-handling ([1c62df5](https://github.com/informatievlaanderen/projector/commit/1c62df5bddbe87d57c33a064215c2a74436b3d13))
+
+
+### BREAKING CHANGES
+
+* bump projection-handling
+
 # [14.0.0](https://github.com/informatievlaanderen/projector/compare/v13.1.2...v14.0.0) (2024-03-12)
 
 
