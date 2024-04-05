@@ -36,12 +36,12 @@ nuget Microsoft.Data.SqlClient 5.2.0
 nuget Polly 8.3.1
 
 // BASE REGISTRIES STUFF
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 7.0.4
+nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 7.2.5
 
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 13.0.0
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 13.0.0
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 13.0.0
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 13.0.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 14.0.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 14.0.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 14.0.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 14.0.0
 
 nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 9.0.1
 
