@@ -82,6 +82,8 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Runners
                 "Subscription {SubscriptionName} was dropped. Reason: {Reason}",
                 subscription.Name,
                 reason);
+
+            _commandBus.Queue(new UnsubscribeAll());
         }
     }
 }
