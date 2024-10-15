@@ -1,3 +1,10 @@
+# [15.1.0](https://github.com/informatievlaanderen/projector/compare/v15.0.0...v15.1.0) (2024-10-15)
+
+
+### Features
+
+* add default projections healthcheck ([75c6ad6](https://github.com/informatievlaanderen/projector/commit/75c6ad6ac71401cf91e30a74182294f3db45cf28))
+
 # [15.0.0](https://github.com/informatievlaanderen/projector/compare/v14.0.0...v15.0.0) (2024-04-05)
 
 
