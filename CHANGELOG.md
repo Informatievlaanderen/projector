@@ -1,3 +1,10 @@
+# [15.2.0](https://github.com/informatievlaanderen/projector/compare/v15.1.0...v15.2.0) (2025-01-14)
+
+
+### Features
+
+* add applicationbuilder endpoints ([eec33b5](https://github.com/informatievlaanderen/projector/commit/eec33b5a87fb600e491e52f848412f60607808b2))
+
 # [15.1.0](https://github.com/informatievlaanderen/projector/compare/v15.0.0...v15.1.0) (2024-10-15)
 
 
