@@ -1,5 +1,6 @@
 namespace Be.Vlaanderen.Basisregisters.Projector
 {
+    using System;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -14,14 +15,20 @@ namespace Be.Vlaanderen.Basisregisters.Projector
     /// </summary>
     public sealed class ProjectionsHealthCheck : IHealthCheck
     {
-        private readonly IConnectedProjectionsManager _projectionsManager;
+        private readonly ProjectionsHealthCheckStrategy _strategy;
         private readonly ILogger<ProjectionsHealthCheck> _logger;
 
+        // TODO: Remove this constructor in a future version.
+        [Obsolete("Use the constructor with ProjectionsHealthCheckStrategy instead.")]
         public ProjectionsHealthCheck(
             IConnectedProjectionsManager projectionsManager,
             ILoggerFactory logger)
+            : this(new AnyUnhealthyProjectionsHealthCheckStrategy(projectionsManager), logger)
+        { }
+
+        public ProjectionsHealthCheck(ProjectionsHealthCheckStrategy strategy, ILoggerFactory logger)
         {
-            _projectionsManager = projectionsManager;
+            _strategy = strategy;
             _logger = logger.CreateLogger<ProjectionsHealthCheck>();
         }
 
@@ -29,15 +36,67 @@ namespace Be.Vlaanderen.Basisregisters.Projector
             HealthCheckContext context,
             CancellationToken cancellationToken = default)
         {
-            var registeredProjections = _projectionsManager.GetRegisteredProjections();
-
-            if (registeredProjections.Any(x => x.State == ConnectedProjectionState.Stopped))
+            if (!_strategy.IsUnhealthy())
             {
-                _logger.LogWarning("Projections with status Stopped detected.");
-                return Task.FromResult(HealthCheckResult.Unhealthy("One or more projections are stopped."));
+                return Task.FromResult(HealthCheckResult.Healthy("All projections are healthy."));
             }
 
-            return Task.FromResult(HealthCheckResult.Healthy("All projections are healthy."));
+            _logger.LogWarning("Unhealthy projections detected: {UnhealthyMessage}", _strategy.UnhealthyMessage);
+            return Task.FromResult(HealthCheckResult.Unhealthy(_strategy.UnhealthyMessage));
+        }
+    }
+
+    /// <summary>
+    /// Strategy to determine the health of the projections.
+    /// </summary>
+    public abstract class ProjectionsHealthCheckStrategy
+    {
+        public IConnectedProjectionsManager ProjectionsManager { get; }
+        public abstract string UnhealthyMessage { get; }
+
+        protected ProjectionsHealthCheckStrategy(IConnectedProjectionsManager projectionsManager)
+        {
+            ProjectionsManager = projectionsManager;
+        }
+
+        public abstract bool IsUnhealthy();
+    }
+
+    /// <summary>
+    /// Returns unhealthy if any projection is unhealthy (stopped).
+    /// </summary>
+    public sealed class AnyUnhealthyProjectionsHealthCheckStrategy : ProjectionsHealthCheckStrategy
+    {
+        public override string UnhealthyMessage => "One or more projections are stopped.";
+
+        public AnyUnhealthyProjectionsHealthCheckStrategy(IConnectedProjectionsManager projectionsManager)
+            : base(projectionsManager)
+        { }
+
+        public override bool IsUnhealthy()
+        {
+            return ProjectionsManager
+                .GetRegisteredProjections()
+                .Any(x => x.State == ConnectedProjectionState.Stopped);
+        }
+    }
+
+    /// <summary>
+    /// Returns unhealthy if all projections are unhealthy (stopped).
+    /// </summary>
+    public sealed class AllUnhealthyProjectionsHealthCheckStrategy : ProjectionsHealthCheckStrategy
+    {
+        public override string UnhealthyMessage => "All projections are stopped.";
+
+        public AllUnhealthyProjectionsHealthCheckStrategy(IConnectedProjectionsManager projectionsManager)
+            : base(projectionsManager)
+        { }
+
+        public override bool IsUnhealthy()
+        {
+            return ProjectionsManager
+                .GetRegisteredProjections()
+                .All(x => x.State == ConnectedProjectionState.Stopped);
         }
     }
 }
