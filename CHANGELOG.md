@@ -1,3 +1,15 @@
+# [15.3.0](https://github.com/informatievlaanderen/projector/compare/v15.2.0...v15.3.0) (2025-04-01)
+
+
+### Bug Fixes
+
+* when dropping subscription, unsubscribeall ([6ade2ea](https://github.com/informatievlaanderen/projector/commit/6ade2ea9fd25455f9c4efb56f208523ae28f705b))
+
+
+### Features
+
+* added health check strategies ([26e603c](https://github.com/informatievlaanderen/projector/commit/26e603cc32f9d1225ab60d07156d706bc1a38421))
+
 # [15.2.0](https://github.com/informatievlaanderen/projector/compare/v15.1.0...v15.2.0) (2025-01-14)
 
 
