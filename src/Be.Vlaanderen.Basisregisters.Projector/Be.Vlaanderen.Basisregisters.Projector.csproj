@@ -1,13 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <PackageId>Be.Vlaanderen.Basisregisters.Projector</PackageId>
+    <Title>Be.Vlaanderen.Basisregisters.Projector</Title>
+    <Authors>Basisregisters Vlaanderen</Authors>
+    <Owners>Digitaal Vlaanderen</Owners>
+    <Copyright>Copyright (c) Digitaal Vlaanderen</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/Informatievlaanderen/projector</PackageProjectUrl>
+    <PackageIcon>logo.png</PackageIcon>
+    <Description>Generic projection runner infrastructure.</Description>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Content Include="paket.template" CopyToOutputDirectory="Always" />
+    <None Include="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\logo.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="Autofac" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" />
+    <PackageReference Include="Polly" />
+
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner" />
+
+    <PackageReference Include="SourceLink.Embed.AllSourceFiles" PrivateAssets="all" />
+    <PackageReference Include="SourceLink.Copy.PdbFiles" PrivateAssets="all" />
+  </ItemGroup>
 </Project>

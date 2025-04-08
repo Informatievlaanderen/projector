@@ -32,23 +32,23 @@
                 endpoints.MapPost("/v1/projections/start/all", async context => { await StartAll(builder, context).NoContext(); });
 
                 endpoints.MapPost("/projections/start/{projectionId}", async context
-                    => await StartProjection(builder, context.Request.RouteValues["projectionId"].ToString(), context).NoContext());
+                    => await StartProjection(builder, context.Request.RouteValues["projectionId"]!.ToString()!, context).NoContext());
                 endpoints.MapPost("/v1/projections/start/{projectionId}", async context
-                    => await StartProjection(builder, context.Request.RouteValues["projectionId"].ToString(), context).NoContext());
+                    => await StartProjection(builder, context.Request.RouteValues["projectionId"]!.ToString()!, context).NoContext());
 
                 endpoints.MapPost("/projections/stop/all", async context => { await StopAll(builder, context).NoContext(); });
                 endpoints.MapPost("/v1/projections/stop/all", async context => { await StopAll(builder, context).NoContext(); });
 
                 endpoints.MapPost("/projections/stop/{projectionId}", async context
-                    => await StopProjection(builder, context.Request.RouteValues["projectionId"].ToString(), context).NoContext());
+                    => await StopProjection(builder, context.Request.RouteValues["projectionId"]!.ToString()!, context).NoContext());
                 endpoints.MapPost("/v1/projections/stop/{projectionId}", async context
-                    => await StopProjection(builder, context.Request.RouteValues["projectionId"].ToString(), context).NoContext());
+                    => await StopProjection(builder, context.Request.RouteValues["projectionId"]!.ToString()!, context).NoContext());
             });
 
             return builder;
         }
 
-        private static async Task StopProjection(IApplicationBuilder app, string? projectionId, HttpContext context)
+        private static async Task StopProjection(IApplicationBuilder app, string projectionId, HttpContext context)
         {
             var manager = app.ApplicationServices.GetRequiredService<IConnectedProjectionsManager>();
             if (!manager.Exists(projectionId))
@@ -70,7 +70,7 @@
             context.Response.StatusCode = StatusCodes.Status202Accepted;
         }
 
-        private static async Task StartProjection(IApplicationBuilder app, string? projectionId, HttpContext context)
+        private static async Task StartProjection(IApplicationBuilder app, string projectionId, HttpContext context)
         {
             var manager = app.ApplicationServices.GetRequiredService<IConnectedProjectionsManager>();
             if (!manager.Exists(projectionId))

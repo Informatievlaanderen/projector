@@ -95,7 +95,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal
                 return; // throw new ArgumentException("Invalid projection Id.", nameof(projection));
 
             await _registeredProjections
-                .GetProjection(projection)
+                .GetProjection(projection)!
                 .UpdateUserDesiredState(UserDesiredState.Stopped, cancellationToken)
                 .NoContext();
 

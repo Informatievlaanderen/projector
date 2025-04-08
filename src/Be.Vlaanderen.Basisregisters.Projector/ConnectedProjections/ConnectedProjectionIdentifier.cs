@@ -24,7 +24,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
             };
         }
 
-        public bool Equals(ConnectedProjectionIdentifier other) => other != null && Equals(other._identifier);
+        public bool Equals(ConnectedProjectionIdentifier? other) => other != null && Equals(other._identifier);
 
         public bool Equals(string other) => string.Equals(_identifier, other, StringComparison.InvariantCultureIgnoreCase);
 
@@ -32,11 +32,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         public override string ToString() => _identifier;
 
-        public static bool operator ==(ConnectedProjectionIdentifier left, ConnectedProjectionIdentifier right) => Equals(left, right);
+        public static bool operator ==(ConnectedProjectionIdentifier? left, ConnectedProjectionIdentifier? right) => Equals(left, right);
 
-        public static bool operator !=(ConnectedProjectionIdentifier left, ConnectedProjectionIdentifier right) => !Equals(left, right);
+        public static bool operator !=(ConnectedProjectionIdentifier? left, ConnectedProjectionIdentifier? right) => !Equals(left, right);
 
-        public static implicit operator string(ConnectedProjectionIdentifier projectionIdentifier) => projectionIdentifier?.ToString() ?? string.Empty;
+        public static implicit operator string(ConnectedProjectionIdentifier projectionIdentifier) => projectionIdentifier.ToString() ?? string.Empty;
     }
 
     public class ConnectedProjectionIdentifierJsonConverter : JsonConverter<ConnectedProjectionIdentifier>
@@ -45,14 +45,14 @@ namespace Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections
 
         public override void WriteJson(
             JsonWriter writer,
-            ConnectedProjectionIdentifier value,
+            ConnectedProjectionIdentifier? value,
             JsonSerializer serializer)
-            => writer.WriteValue(value.ToString());
+            => writer.WriteValue(value?.ToString());
 
         public override ConnectedProjectionIdentifier ReadJson(
             JsonReader reader,
             Type objectType,
-            ConnectedProjectionIdentifier existingValue,
+            ConnectedProjectionIdentifier? existingValue,
             bool hasExistingValue,
             JsonSerializer serializer)
             => throw new NotImplementedException();

@@ -1,10 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Be.Vlaanderen.Basisregisters.Projector\Be.Vlaanderen.Basisregisters.Projector.csproj" />
     <ProjectReference Include="..\Be.Vlaanderen.Basisregisters.Projector.TestProjections\Be.Vlaanderen.Basisregisters.Projector.TestProjections.csproj" />
   </ItemGroup>
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.categories" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="AutoFixture" />
+    <PackageReference Include="AutoFixture.Idioms" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner" />
+  </ItemGroup>
 </Project>
