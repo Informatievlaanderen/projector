@@ -1,3 +1,15 @@
+# [16.0.0](https://github.com/informatievlaanderen/projector/compare/v15.3.0...v16.0.0) (2025-04-08)
+
+
+### Code Refactoring
+
+* use renovate and nuget + update pipeline ([9c3eac8](https://github.com/informatievlaanderen/projector/commit/9c3eac8e3458668e3cf4c86099939e2a07b3f554))
+
+
+### BREAKING CHANGES
+
+* update to dotnet 9
+
 # [15.3.0](https://github.com/informatievlaanderen/projector/compare/v15.2.0...v15.3.0) (2025-04-01)
 
 
