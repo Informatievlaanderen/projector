@@ -28,9 +28,11 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
 
         public override void WriteJson(
             JsonWriter writer,
-            ConnectedProjectionCommand value,
+            ConnectedProjectionCommand? value,
             JsonSerializer serializer)
         {
+            ArgumentNullException.ThrowIfNull(value);
+
             var type = value.GetType();
 
             var payloadProperties = type
@@ -44,7 +46,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Internal.Commands
         public override ConnectedProjectionCommand ReadJson(
             JsonReader reader,
             Type objectType,
-            ConnectedProjectionCommand existingValue,
+            ConnectedProjectionCommand? existingValue,
             bool hasExistingValue,
             JsonSerializer serializer)
             => throw new NotImplementedException();

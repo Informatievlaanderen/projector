@@ -33,7 +33,7 @@ namespace Be.Vlaanderen.Basisregisters.Projector.Handlers
 
         private static object GetParam(Dictionary<string, string?> query) =>
             query
-                .ToDictionary(x => x.Key, y => (object)y.Value)
+                .ToDictionary(x => x.Key, y => (object?)y.Value)!
                 .ToExpando();
 
         public async Task<Result<object>> Handle(QueryRequest request)
