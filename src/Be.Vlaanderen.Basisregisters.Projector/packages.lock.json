@@ -23,9 +23,9 @@
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": {
         "type": "Direct",
-        "requested": "[15.0.0, )",
-        "resolved": "15.0.0",
-        "contentHash": "3FVtbBiKXLIct6UfxUJlBh6+N9AUKnI4/XpHlz0WTZFV5vLhwtzXyFtQyPNbopgeYIOAaAWFtnv0r0E7Ld9WCw==",
+        "requested": "[15.0.1, )",
+        "resolved": "15.0.1",
+        "contentHash": "IAN5ZfcAY7YqV62v0YEcOkynmZaI6rb2Q46T7J5NtsIH3OVXVCe7LR2OsGxzf7OfThh9Ha/BF6sAj1h+pU+iIw==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "9.0.3"
         }
