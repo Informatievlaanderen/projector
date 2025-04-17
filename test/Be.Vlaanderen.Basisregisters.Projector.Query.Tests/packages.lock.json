@@ -546,7 +546,7 @@
         "dependencies": {
           "Autofac": "[8.2.1, )",
           "Autofac.Extensions.DependencyInjection": "[10.0.0, )",
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.0, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.1, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.0, )",
           "Dapper": "[2.1.66, )",
           "Microsoft.Data.SqlClient": "[6.0.1, )",
@@ -576,9 +576,9 @@
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": {
         "type": "CentralTransitive",
-        "requested": "[15.0.0, )",
-        "resolved": "15.0.0",
-        "contentHash": "3FVtbBiKXLIct6UfxUJlBh6+N9AUKnI4/XpHlz0WTZFV5vLhwtzXyFtQyPNbopgeYIOAaAWFtnv0r0E7Ld9WCw==",
+        "requested": "[15.0.1, )",
+        "resolved": "15.0.1",
+        "contentHash": "IAN5ZfcAY7YqV62v0YEcOkynmZaI6rb2Q46T7J5NtsIH3OVXVCe7LR2OsGxzf7OfThh9Ha/BF6sAj1h+pU+iIw==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "9.0.3"
         }
