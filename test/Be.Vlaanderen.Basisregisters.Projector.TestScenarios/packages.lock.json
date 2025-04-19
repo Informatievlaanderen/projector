@@ -74,12 +74,12 @@
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac": {
         "type": "Direct",
-        "requested": "[15.0.0, )",
-        "resolved": "15.0.0",
-        "contentHash": "1BQdec3Iw2puW+D7k3dOP0GNZxZOQ4BgcektNYwcYvlHk3YMwLFI0whr1MrWFbONKOaXTvvJyRgYqRlB6JlAqA==",
+        "requested": "[15.0.1, )",
+        "resolved": "15.0.1",
+        "contentHash": "+Ayixvvnlwadvup2dASuzBLPg0ma1Ij7TgFGFjLXqWMsiarn+RNmqIn0fPjR42fwTyB05Ylj9osJT5pFYtqwyQ==",
         "dependencies": {
           "Autofac.Extensions.DependencyInjection": "10.0.0",
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore": "15.0.0"
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore": "15.0.1"
         }
       },
       "FluentAssertions": {
@@ -221,8 +221,8 @@
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore": {
         "type": "Transitive",
-        "resolved": "15.0.0",
-        "contentHash": "zXmqd6bAJW4+SPlCDOKTCRM1MGkDgqMfKqb7WvY/NRsrDfFGe3fkd35Uw2c/KKqzLJsqYghQ/DBlAdAfe4AkzQ==",
+        "resolved": "15.0.1",
+        "contentHash": "037s8100scc1k9Mw29bBLxFBtftfBzsrnk84a8RvoNWQMmcVQ9bCAtxiNmlHb6a2QsRlQNGvsVXuP7hDm+1CMA==",
         "dependencies": {
           "Be.Vlaanderen.Basisregisters.EventHandling": "7.0.0",
           "SqlStreamStore": "1.2.0"
