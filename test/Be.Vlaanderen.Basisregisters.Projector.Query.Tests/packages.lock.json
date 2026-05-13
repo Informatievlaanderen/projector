@@ -435,8 +435,8 @@
       },
       "System.Diagnostics.EventLog": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
+        "resolved": "9.0.16",
+        "contentHash": "5F4P3HueZD01i/WhfeYmQXssk1dFiFt7o9n69gTD7Gn060fe8rGY9bqbzkuMl22LSXy+tJiIJEyEBFGJvLL5mg=="
       },
       "System.IdentityModel.Tokens.Jwt": {
         "type": "Transitive",
@@ -483,8 +483,8 @@
       },
       "System.Security.Cryptography.ProtectedData": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "4PAwR9l3rhAESfymptisnO2KWpHmiTnKxovnREqmiY4BEakXD2ahQU4/NO0vzEarMw8RGzwpmWoiHwvL/waHfQ=="
+        "resolved": "9.0.16",
+        "contentHash": "G+w5yDgpMowQx1+srOEYJKfPpwN5QgiXC3NW6JSh6+anb8VdpPeg8BJ7IjMvUVHdSYiPux02KqVQkrbuJEu2Zw=="
       },
       "System.Text.Encodings.Web": {
         "type": "Transitive",
@@ -551,8 +551,8 @@
           "Dapper": "[2.1.66, )",
           "Microsoft.Data.SqlClient": "[6.0.1, )",
           "Polly": "[8.5.2, )",
-          "System.Configuration.ConfigurationManager": "[9.0.3, )",
-          "System.Threading.Tasks.Dataflow": "[9.0.3, )"
+          "System.Configuration.ConfigurationManager": "[9.0.16, )",
+          "System.Threading.Tasks.Dataflow": "[9.0.16, )"
         }
       },
       "Autofac": {
@@ -636,19 +636,19 @@
       },
       "System.Configuration.ConfigurationManager": {
         "type": "CentralTransitive",
-        "requested": "[9.0.3, )",
-        "resolved": "9.0.3",
-        "contentHash": "0kw80ykL/iFhNtFbPpjxIavmCk7/l6MqQwNSNhEoSNuI9C82ZZ251thzQZ/btHut21Y2G9M+amQY1K5bhaAjKg==",
+        "requested": "[9.0.16, )",
+        "resolved": "9.0.16",
+        "contentHash": "SuXw1QjsQlkbfhjYDzpd+0ZqzYfmBQGaSpvcSVhbfGHvNqQX9FpGAXOQO2I/IMPQzIf6iimlZq5wqzWk9+l84g==",
         "dependencies": {
-          "System.Diagnostics.EventLog": "9.0.3",
-          "System.Security.Cryptography.ProtectedData": "9.0.3"
+          "System.Diagnostics.EventLog": "9.0.16",
+          "System.Security.Cryptography.ProtectedData": "9.0.16"
         }
       },
       "System.Threading.Tasks.Dataflow": {
         "type": "CentralTransitive",
-        "requested": "[9.0.3, )",
-        "resolved": "9.0.3",
-        "contentHash": "m/1HEjn2ipNAhZIVEaKbfkQZTInHJ5oG92Jiixs3ZOsiuF71QDPwTtem/YjBkRrXeOEqXb2itd06rTyKGY98tg=="
+        "requested": "[9.0.16, )",
+        "resolved": "9.0.16",
+        "contentHash": "Ow8rJEHimjuiDztfYO4ka+Tu1sy/P+PEwTufYFtfbQub2gs3fNtfOH+vcRDGkQnCgyvY5a5+HY1ftLnos1V4lg=="
       }
     },
     "net9.0/linux-x64": {
@@ -659,8 +659,8 @@
       },
       "System.Diagnostics.EventLog": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
+        "resolved": "9.0.16",
+        "contentHash": "5F4P3HueZD01i/WhfeYmQXssk1dFiFt7o9n69gTD7Gn060fe8rGY9bqbzkuMl22LSXy+tJiIJEyEBFGJvLL5mg=="
       },
       "System.Security.Cryptography.Pkcs": {
         "type": "Transitive",
@@ -693,8 +693,8 @@
       },
       "System.Diagnostics.EventLog": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
+        "resolved": "9.0.16",
+        "contentHash": "5F4P3HueZD01i/WhfeYmQXssk1dFiFt7o9n69gTD7Gn060fe8rGY9bqbzkuMl22LSXy+tJiIJEyEBFGJvLL5mg=="
       },
       "System.Security.Cryptography.Pkcs": {
         "type": "Transitive",
