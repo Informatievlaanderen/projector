@@ -1,3 +1,15 @@
+# [17.0.0](https://github.com/informatievlaanderen/projector/compare/v16.0.0...v17.0.0) (2026-06-03)
+
+
+### Features
+
+* update packages + upgrade to dotnet 10 ([18d43f5](https://github.com/informatievlaanderen/projector/commit/18d43f5c4f93152fc96db5148e93435fd51a0a5d))
+
+
+### BREAKING CHANGES
+
+* update to dotnet 10
+
 # [16.0.0](https://github.com/informatievlaanderen/projector/compare/v15.3.0...v16.0.0) (2025-04-08)
 
 
