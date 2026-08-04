@@ -4,9 +4,9 @@
     "net10.0": {
       "Autofac": {
         "type": "Direct",
-        "requested": "[9.1.0, )",
-        "resolved": "9.1.0",
-        "contentHash": "onT/BcnnfWcQNXiuC7R/0h8ALQzRdsAI20gpB7nfrudXpFMXdVZKz1umdtHXDwjc/bmWEsrCBAxck3+Arnk15g=="
+        "requested": "[9.3.2, )",
+        "resolved": "9.3.2",
+        "contentHash": "an3dLpmXWvb2aBP5qyA7GVEcXhoG+W/EtFRa3sBYzJdXSNDnB0aoeo4MgOQru0G5sjNDGYM3D3CnBzNFXEVOOA=="
       },
       "AutoFixture": {
         "type": "Direct",
@@ -762,7 +762,7 @@
       "be.vlaanderen.basisregisters.projector": {
         "type": "Project",
         "dependencies": {
-          "Autofac": "[9.1.0, )",
+          "Autofac": "[9.3.2, )",
           "Autofac.Extensions.DependencyInjection": "[11.0.0, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[16.0.0, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[16.0.0, )",
