@@ -86,18 +86,18 @@
       },
       "System.Configuration.ConfigurationManager": {
         "type": "Direct",
-        "requested": "[10.0.8, )",
-        "resolved": "10.0.8",
-        "contentHash": "QG+HHwJjLyUiRuA9axr5pDqHAxboo7FXCTRakxMABE9CUAUij/tsd/MsgQPJUEppkf+YBLT+F/P/wKIVCAIcNg==",
+        "requested": "[10.0.14, )",
+        "resolved": "10.0.14",
+        "contentHash": "F/bLtwG0JuJ2OnTCsvJbnulvN7hr+BIFJLtE3PzgmW3AWkV8LYO5XF0j+zB4tHn/b4yfR7PAO0dZmoYeaINtnQ==",
         "dependencies": {
-          "System.Security.Cryptography.ProtectedData": "10.0.8"
+          "System.Security.Cryptography.ProtectedData": "10.0.14"
         }
       },
       "System.Threading.Tasks.Dataflow": {
         "type": "Direct",
-        "requested": "[10.0.8, )",
-        "resolved": "10.0.8",
-        "contentHash": "sjaQZ/cXdWh10kv1UAFIWGry8PiIxH+KuUtyRwh416oSI9n//F30xf4bLwO47uQ2ETLDcFZRiwoh3a0clEuKZQ=="
+        "requested": "[10.0.14, )",
+        "resolved": "10.0.14",
+        "contentHash": "A6rqHTnllof0lZgEUpWQatx6yVxhT/x3bMWChNz5mmn0LuLqRsUQct8WFwUdUlv0xY3b4Tmby2aksTH0IcKbtg=="
       },
       "Be.Vlaanderen.Basisregisters.Converters.TrimString": {
         "type": "Transitive",
@@ -280,8 +280,8 @@
       },
       "System.Security.Cryptography.ProtectedData": {
         "type": "Transitive",
-        "resolved": "10.0.8",
-        "contentHash": "/ldVgSfImIBp6fLWS7sLH0BnmtFj0ZwGlZo4Xx2q0K3ZhJNDbW45kj2f6zPoC+L+BTINuHdMzTsopuwmkbgcNA=="
+        "resolved": "10.0.14",
+        "contentHash": "UuaBUHgmtc9h6CMxaQqFDDJxkS5JVy7XEB+DbtCvD68GFcVM9/AccuNwFpARx8nwCnvjaxzoOBjG3gPz32P1Eg=="
       }
     },
     "net10.0/linux-arm64": {
